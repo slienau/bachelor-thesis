@@ -1,0 +1,185 @@
+[
+    {
+        "id": "e2a5d735.04f528",
+        "type": "tab",
+        "label": "Heartbeat",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "63506699.512558",
+        "type": "tab",
+        "label": "MQTT -> exec",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "e45ff5b4.4cac58",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "",
+        "broker": "<###MQTT_SERVER###>",
+        "port": "1883",
+        "clientid": "<###NODE_NAME###>",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "1c9a5e74.420bc2",
+        "type": "inject",
+        "z": "e2a5d735.04f528",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "e6aaf525.090b28"
+            ]
+        ]
+    },
+    {
+        "id": "4df496de.1fe1c8",
+        "type": "mqtt out",
+        "z": "e2a5d735.04f528",
+        "name": "",
+        "topic": "/devices/",
+        "qos": "",
+        "retain": "",
+        "broker": "e45ff5b4.4cac58",
+        "x": 340,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "e6aaf525.090b28",
+        "type": "function",
+        "z": "e2a5d735.04f528",
+        "name": "get load",
+        "func": "osUtils = global.get('osUtils')\n\npayload = {\n    timestamp: msg.payload,\n    deviceName: '<###NODE_NAME###>',\n    totalMem: osUtils.totalmem(),\n    freeMem: osUtils.freemem(),\n    cpuCount: osUtils.cpuCount(),\n    loadAvg1: osUtils.loadavg(1),\n    loadAvg5: osUtils.loadavg(5),\n    loadAvg15: osUtils.loadavg(15),\n}\n\nreturn {payload} ;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 180,
+        "y": 160,
+        "wires": [
+            [
+                "58e3c993.026f38"
+            ]
+        ]
+    },
+    {
+        "id": "58e3c993.026f38",
+        "type": "json",
+        "z": "e2a5d735.04f528",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": true,
+        "x": 230,
+        "y": 220,
+        "wires": [
+            [
+                "4df496de.1fe1c8"
+            ]
+        ]
+    },
+    {
+        "id": "c907f4cb.a3cfe8",
+        "type": "mqtt in",
+        "z": "63506699.512558",
+        "name": "",
+        "topic": "/<###NODE_NAME###>/in",
+        "qos": "2",
+        "broker": "e45ff5b4.4cac58",
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "d7e6b7a2.29f908",
+                "fcf995c4.34ba38"
+            ]
+        ]
+    },
+    {
+        "id": "d7e6b7a2.29f908",
+        "type": "debug",
+        "z": "63506699.512558",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 430,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "fcf995c4.34ba38",
+        "type": "exec",
+        "z": "63506699.512558",
+        "command": "",
+        "addpay": true,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "10",
+        "oldrc": false,
+        "name": "",
+        "x": 150,
+        "y": 160,
+        "wires": [
+            [
+                "4b4f86c1.561298",
+                "d7e6b7a2.29f908"
+            ],
+            [
+                "d7e6b7a2.29f908",
+                "6efee3b3.22580c"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "4b4f86c1.561298",
+        "type": "mqtt out",
+        "z": "63506699.512558",
+        "name": "",
+        "topic": "/<###NODE_NAME###>/out",
+        "qos": "",
+        "retain": "",
+        "broker": "e45ff5b4.4cac58",
+        "x": 430,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "6efee3b3.22580c",
+        "type": "mqtt out",
+        "z": "63506699.512558",
+        "name": "",
+        "topic": "/<###NODE_NAME###>/err",
+        "qos": "",
+        "retain": "",
+        "broker": "e45ff5b4.4cac58",
+        "x": 430,
+        "y": 240,
+        "wires": []
+    }
+]
