@@ -5,11 +5,17 @@ MQTT_SERVER=192.168.7.13
 
 if [ "$1" == "run" ]
 then
-    docker run -it -d \
+    DOCKER_DEVICE_PARAM=""
+    VIDEO_DEVICE=/dev/video0
+    if [ -e "$VIDEO_DEVICE" ]; then
+        echo "$VIDEO_DEVICE exists"
+        DOCKER_DEVICE_PARAM="--device=${VIDEO_DEVICE}:${VIDEO_DEVICE} "
+    fi
+
+    docker run -it -d $DOCKER_DEVICE_PARAM\
     --restart=unless-stopped \
     --name $CONTAINER_NAME \
     --hostname=$HOSTNAME \
-    --device=/dev/video0:/dev/video0 \
     -e MQTT_SERVER=$MQTT_SERVER \
     -p 1880:1880 \
     $DOCKER_IMAGE
