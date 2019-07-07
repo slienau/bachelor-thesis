@@ -3,6 +3,13 @@ ARG BASE_NODE_IMAGE=node
 ARG BASE_IMAGE_SUFFIX=""
 FROM ${BASE_NODE_IMAGE}:${NODE_VERSION}${BASE_IMAGE_SUFFIX}
 
+# install aditional software
+RUN apt-get update \
+&& apt-get install -y --no-install-recommends fswebcam \
+# cleanup
+&& rm -rf /var/lib/apt/lists/* \
+&& apt-get -y autoremove
+
 # Home directory for Node-RED application source code.
 WORKDIR /usr/src/node-red
 
