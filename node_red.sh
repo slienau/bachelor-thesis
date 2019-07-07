@@ -1,6 +1,6 @@
 #!/bin/bash
 CONTAINER_NAME=nodered
-DOCKER_IMAGE=node-red:slim
+DOCKER_IMAGE=node-red:arm-slim
 MQTT_SERVER=192.168.7.13
 
 if [ "$1" == "run" ]
@@ -9,6 +9,7 @@ then
     --restart=unless-stopped \
     --name $CONTAINER_NAME \
     --hostname=$HOSTNAME \
+    --device=/dev/video0:/dev/video0 \
     -e MQTT_SERVER=$MQTT_SERVER \
     -p 1880:1880 \
     $DOCKER_IMAGE
