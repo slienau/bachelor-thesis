@@ -15,6 +15,8 @@ from PIL import Image
 
 from object_detection.utils import ops as utils_ops
 
+from helpers import get_sample_image_bytes
+
 if StrictVersion(tf.__version__) < StrictVersion('1.12.0'):
     raise ImportError('Please upgrade your TensorFlow installation to v1.12.*.')
 
@@ -45,7 +47,21 @@ class ObjectDetector(object):
             tensor_name = key + ':0'
             if tensor_name in all_tensor_names:
                 tensor_dict[key] = graph.get_tensor_by_name(tensor_name)
+
+        if 'detection_masks' in tensor_dict:
+            detection_boxes = tf.squeeze(tensor_dict['detection_boxes'], [0])
+            detection_masks = tf.squeeze(tensor_dict['detection_masks'], [0])
+            # Reframe is required to translate mask from box coordinates to image coordinates and fit the image size.
+            real_num_detection = tf.cast(tensor_dict['num_detections'][0], tf.int32)
+            self.detection_boxes = tf.slice(detection_boxes, [0, 0], [real_num_detection, -1])
+            self.detection_masks = tf.slice(detection_masks, [0, 0, 0], [real_num_detection, -1, -1])
+
         self.tensor_dict = tensor_dict
+
+        self.image_tensor = graph.get_tensor_by_name('image_tensor:0')
+
+        # run the first detection because it takes more time than the following
+        self.detect(get_sample_image_bytes())
 
         end_time = datetime.now()
         print(datetime.now(), 'ObjectDetection() - initialization complete. duration:', end_time - start_time)
@@ -75,18 +91,11 @@ class ObjectDetector(object):
         image_np = self._load_image_into_numpy_array(image)
         image_np_expanded = np.expand_dims(image_np, axis=0)
 
-        graph = self.detection_graph
-
         tensor_dict = self.tensor_dict
     
         if 'detection_masks' in tensor_dict:
-            # The following processing is only for single image
-            detection_boxes = tf.squeeze(tensor_dict['detection_boxes'], [0])
-            detection_masks = tf.squeeze(tensor_dict['detection_masks'], [0])
-            # Reframe is required to translate mask from box coordinates to image coordinates and fit the image size.
-            real_num_detection = tf.cast(tensor_dict['num_detections'][0], tf.int32)
-            detection_boxes = tf.slice(detection_boxes, [0, 0], [real_num_detection, -1])
-            detection_masks = tf.slice(detection_masks, [0, 0, 0], [real_num_detection, -1, -1])
+            detection_boxes = self.detection_boxes
+            detection_masks = self.detection_masks
             detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
                 detection_masks, detection_boxes, image.shape[1], image.shape[2])
             detection_masks_reframed = tf.cast(tf.greater(detection_masks_reframed, 0.5), tf.uint8)
@@ -94,7 +103,7 @@ class ObjectDetector(object):
             tensor_dict['detection_masks'] = tf.expand_dims(
                 detection_masks_reframed, 0)
     
-        image_tensor = graph.get_tensor_by_name('image_tensor:0')
+        image_tensor = self.image_tensor
 
         output_dict = self.sess.run(tensor_dict, feed_dict={image_tensor: image_np_expanded})
 
