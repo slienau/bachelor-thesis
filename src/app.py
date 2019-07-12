@@ -1,5 +1,5 @@
 from flask import Flask, request, Response
-from detect_image import process_image_from_bytes
+from detect_image import ObjectDetector
 from datetime import datetime
 
 app = Flask(__name__)
@@ -13,13 +13,12 @@ def detect_image():
         print(datetime.now(), 'wrong content type')
         return Response(response='wrong content type', status=400, mimetype="text/plain")
 
-    print(datetime.now(), 'starting to process image')
-    start_time = datetime.now()
-    image_bytes_new = process_image_from_bytes(request.data)
-    end_time = datetime.now()
-    print(datetime.now(), 'image processed. duration:', end_time - start_time)
+    image_bytes_new = object_detector.detect(request.data)
 
     return Response(response=image_bytes_new, status=200, mimetype="image/jpeg")
+
+
+object_detector = ObjectDetector()
 
 
 if __name__ == "__main__":
