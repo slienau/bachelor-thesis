@@ -39,26 +39,23 @@ class ObjectDetector(object):
         categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=90, use_display_name=True)
         self.category_index = label_map_util.create_category_index(categories)
 
-        graph = self.detection_graph
-        all_tensor_names = {output.name for op in graph.get_operations() for output in op.outputs}
+        all_tensor_names = {output.name for op in self.detection_graph.get_operations() for output in op.outputs}
         tensor_names = ['num_detections', 'detection_boxes', 'detection_scores', 'detection_classes', 'detection_masks']
-        tensor_dict = {}
+        self.tensor_dict = {}
         for key in tensor_names:
             tensor_name = key + ':0'
             if tensor_name in all_tensor_names:
-                tensor_dict[key] = graph.get_tensor_by_name(tensor_name)
+                self.tensor_dict[key] = self.detection_graph.get_tensor_by_name(tensor_name)
 
-        if 'detection_masks' in tensor_dict:
-            detection_boxes = tf.squeeze(tensor_dict['detection_boxes'], [0])
-            detection_masks = tf.squeeze(tensor_dict['detection_masks'], [0])
+        if 'detection_masks' in self.tensor_dict:
+            detection_boxes = tf.squeeze(self.tensor_dict['detection_boxes'], [0])
+            detection_masks = tf.squeeze(self.tensor_dict['detection_masks'], [0])
             # Reframe is required to translate mask from box coordinates to image coordinates and fit the image size.
-            real_num_detection = tf.cast(tensor_dict['num_detections'][0], tf.int32)
+            real_num_detection = tf.cast(self.tensor_dict['num_detections'][0], tf.int32)
             self.detection_boxes = tf.slice(detection_boxes, [0, 0], [real_num_detection, -1])
             self.detection_masks = tf.slice(detection_masks, [0, 0, 0], [real_num_detection, -1, -1])
 
-        self.tensor_dict = tensor_dict
-
-        self.image_tensor = graph.get_tensor_by_name('image_tensor:0')
+        self.image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
 
         # run the first detection because it takes more time than the following
         self.detect(get_sample_image_bytes())
@@ -126,9 +123,12 @@ class ObjectDetector(object):
             use_normalized_coordinates=True,
             line_thickness=8)
         
-        image_bytes_new = Image.fromarray(image_np)
+        image_new = Image.fromarray(image_np)
+        image_bytes_new = io.BytesIO()
+        image_new.save(image_bytes_new, format=image.format)
+
         end_time = datetime.now()
         print('********************************************')
         print('**** detect() duration: ', end_time - start_time, '****')
         print('********************************************')
-        return image_bytes_new
+        return image_bytes_new.getvalue()
