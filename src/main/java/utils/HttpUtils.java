@@ -1,5 +1,8 @@
 package utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,10 +11,30 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class HttpUtils {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final int REQUEST_TIMEOUT = 5000;
+
+    public static JsonNode httpGetRequestAsJson(String urlIn) throws IOException {
+        byte[] response = httpGetRequest(urlIn);
+        return OBJECT_MAPPER.readTree(response);
+    }
 
     public static byte[] httpGetRequest(String urlIn) throws IOException {
         return httpRequest(urlIn, "GET", null);
+    }
+
+    public static JsonNode httpPutRequest(String urlIn, JsonNode requestBody) throws IOException {
+        byte[] response = httpPutRequest(urlIn, OBJECT_MAPPER.writeValueAsBytes(requestBody));
+        return OBJECT_MAPPER.readTree(response);
+    }
+
+    public static byte[] httpPutRequest(String urlIn, byte[] requestBody) throws IOException {
+        return httpRequest(urlIn, "PUT", requestBody);
+    }
+
+    public static JsonNode httpPostRequest(String urlIn, JsonNode requestBody) throws IOException {
+        byte[] response = httpPostRequest(urlIn, OBJECT_MAPPER.writeValueAsBytes(requestBody));
+        return OBJECT_MAPPER.readTree(response);
     }
 
     public static byte[] httpPostRequest(String urlIn, byte[] requestBody) throws IOException {
@@ -26,7 +49,7 @@ public class HttpUtils {
         connection.setConnectTimeout(REQUEST_TIMEOUT);
         connection.setReadTimeout(REQUEST_TIMEOUT);
 
-        if (method.equals("POST")) {
+        if (method.equals("POST") || method.equals("PUT")) {
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setDoOutput(true);
             OutputStream os = connection.getOutputStream();
