@@ -8,6 +8,8 @@
     <artifactId>fog-orchestrator</artifactId>
     <version>0.0.1</version>
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <jackson-2-version>2.9.8</jackson-2-version>
         <eclipse-paho-repo>https://repo.eclipse.org/content/repositories/paho-releases/</eclipse-paho-repo>
         <eclipse-paho-version>1.2.0</eclipse-paho-version>
