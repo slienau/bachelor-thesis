@@ -44,29 +44,25 @@ public class FogNode {
     }
 
     public boolean deployModule(AppModule appModule) {
-        System.out.println(String.format("Trying to deploy %s on %s", appModule.getId(), this.getId()));
+//        System.out.println(String.format("Trying to deploy %s on %s", appModule.getId(), this.getId()));
         if (appModule.getRequiredRam() > this.getRamFree() || appModule.getRequiredStorage() > this.getStorageFree()) {
-            System.out.println(String.format("%s can not be deployed to %s", appModule.getId(), this.getId()));
+//            System.out.println(String.format("%s can not be deployed on %s", appModule.getId(), this.getId()));
             return false;
         }
 
         deployedModules.add(appModule);
-        System.out.println(String.format("%s successfully deployed to %s; freeRam: %s; freeStorage: %s", appModule.getId(), this.getId(), this.getRamFree(), this.getStorageFree()));
+//        System.out.println(String.format("%s successfully deployed to %s; freeRam: %s; freeStorage: %s", appModule.getId(), this.getId(), this.getRamFree(), this.getStorageFree()));
         return true;
     }
 
     public boolean undeployModule(AppModule moduleToUndeploy) {
         int sizeBefore = this.deployedModules.size();
-        Iterator<AppModule> itr = this.deployedModules.iterator();
-        while (itr.hasNext()) {
-            AppModule module = itr.next();
-            if (module.getId().equals(moduleToUndeploy.getId()))
-                itr.remove();
-        }
-        if (sizeBefore == this.deployedModules.size())
-            return false;
-        else
-            return true;
+        this.deployedModules.removeIf(module -> module.getId().equals(moduleToUndeploy.getId()));
+        return sizeBefore != this.deployedModules.size();
+    }
+
+    public void undeployAllModules() {
+        this.deployedModules.clear();
     }
 
     public int getRamFree() {

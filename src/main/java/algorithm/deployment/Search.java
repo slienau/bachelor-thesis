@@ -25,7 +25,7 @@ public class Search {
      *
      * @return
      */
-    public List<AppDeployment> getAppDeploymentsUnchecked() {
+    private List<AppDeployment> getAppDeploymentsUnchecked() {
         List<AppModule> modules = a.getRequiredModules();
         List<FogNode> fogNodes = i.getFogNodes();
 
@@ -37,7 +37,7 @@ public class Search {
 
         List<AppDeployment> appDeployments = new ArrayList<>();
 
-        deploymentsWithoutModule.stream().forEach(depWithout -> {
+        deploymentsWithoutModule.forEach(depWithout -> {
             List<ModuleDeployment> moduleDeployments = new ArrayList<>();
             for (int i = 0; i < depWithout.size(); i++) {
                 AppModule module = modules.get(i);
@@ -51,35 +51,13 @@ public class Search {
         return appDeployments;
     }
 
-    private int getMaxPossibleDeploymentAmount() {
-        int allModules = a.getRequiredModules().size();
-        int allFogNodes = i.getFogNodes().size();
-        double possibleDeployments;
-        if (allFogNodes == 0 || allModules == 0)
-            possibleDeployments = 0;
-        else
-            possibleDeployments = Math.pow(allFogNodes, allModules);
-
-        return (int) possibleDeployments;
+    public List<AppDeployment> getValidAppDeployments() {
+        List<AppDeployment> validDeployments = new ArrayList<>();
+        for (AppDeployment dep : this.getAppDeploymentsUnchecked()) {
+            if (dep.checkValidity())
+                validDeployments.add(dep);
+        }
+        return validDeployments;
     }
 
-    public void printInfo() {
-        List<AppModule> allModules = a.getRequiredModules();
-        List<FogNode> allFogNodes = i.getFogNodes();
-
-        int possibleDeployments = this.getMaxPossibleDeploymentAmount();
-
-        System.out.println(String.format("%s possible (maybe not valid) deployments", possibleDeployments));
-
-        System.out.println(String.format("required modules for application '%s':", this.a.getName()));
-        for (AppModule m : allModules) {
-            System.out.println("\t" + m);
-        }
-
-        System.out.println("available nodes:");
-        for (FogNode node : allFogNodes) {
-            System.out.println("\t" + node);
-        }
-
-    }
 }

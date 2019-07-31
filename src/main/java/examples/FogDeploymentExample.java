@@ -11,7 +11,9 @@ import algorithm.infrastructure.Infrastructure;
 import algorithm.infrastructure.NetworkConnection;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FogDeploymentExample {
     public static void main(String[] args) {
@@ -22,17 +24,17 @@ public class FogDeploymentExample {
 //        raspi1.addConnectedThing(camera1);
         infrastructure.addFogNode(raspi1);
 
-        FogNode raspi2 = new FogNode("raspi-02", 4096, 16, 4, 3000);
+        FogNode raspi2 = new FogNode("raspi-02", 1024 * 4, 16, 4, 3000);
         infrastructure.addFogNode(raspi2);
 
-        FogNode raspi3 = new FogNode("raspi-03", 4096 * 4, 512, 8, 20000);
-        infrastructure.addFogNode(raspi3);
+        FogNode mbp = new FogNode("dsl-mbp", 1024 * 16, 512, 8, 20000);
+//        infrastructure.addFogNode(mbp);
 
         infrastructure.addNetworkConnection(new NetworkConnection("raspi-01", "raspi-02", 1, 1000.0, 1000.0));
 
-        AppModule cameraController = new AppModule("camera-controller", 50, 0.2);
-        AppModule objectDetector = new AppModule("object-detector", 2048, 1.5);
-        AppModule imageViewer = new AppModule("image-viewer", 256, 0.1);
+        AppModule cameraController = new AppModule("camera-controller", 100, 0.2);
+        AppModule objectDetector = new AppModule("object-detector", 2000, 1.5);
+        AppModule imageViewer = new AppModule("image-viewer", 300, 0.1);
 
         Application objectDetectionApp = new Application("object-detection", 500);
         objectDetectionApp.addModuleConnection(new AppModuleConnection(cameraController, objectDetector, 500));
@@ -40,28 +42,24 @@ public class FogDeploymentExample {
 
 
         Search s = new Search(objectDetectionApp, infrastructure);
-//        s.printInfo();
 
-        List<AppDeployment> uncheckedAppDeployments = s.getAppDeploymentsUnchecked();
-        for (AppDeployment dep : uncheckedAppDeployments) {
-            System.out.println(dep);
-        }
+        List<AppDeployment> validDeployments = s.getValidAppDeployments();
+
+        System.out.println("Valid Deployments:" + validDeployments.stream().map(dep -> "\n\t" + dep.toString()).collect(Collectors.joining()));
+
+        validDeployments.forEach(AppDeployment::printUsage);
 
     }
 
     private static List<String> asList(String... strings) {
         List<String> result = new ArrayList<>();
-        for (String s : strings) {
-            result.add(s);
-        }
+        Collections.addAll(result, strings);
         return result;
     }
 
     private static List<SensorType> asList(SensorType... thingTypes) {
         List<SensorType> result = new ArrayList<>();
-        for (SensorType tt : thingTypes) {
-            result.add(tt);
-        }
+        Collections.addAll(result, thingTypes);
         return result;
     }
 
