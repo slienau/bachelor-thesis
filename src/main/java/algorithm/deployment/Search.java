@@ -1,7 +1,7 @@
 package algorithm.deployment;
 
+import algorithm.application.AppModule;
 import algorithm.application.Application;
-import algorithm.application.ApplicationModule;
 import algorithm.entities.FogNode;
 import algorithm.infrastructure.Infrastructure;
 import org.paukov.combinatorics3.Generator;
@@ -26,7 +26,7 @@ public class Search {
      * @return
      */
     public List<AppDeployment> getAppDeploymentsUnchecked() {
-        List<ApplicationModule> modules = a.getRequiredModules();
+        List<AppModule> modules = a.getRequiredModules();
         List<FogNode> fogNodes = i.getFogNodes();
 
         List<List<FogNode>> deploymentsWithoutModule = Generator
@@ -40,7 +40,7 @@ public class Search {
         deploymentsWithoutModule.stream().forEach(depWithout -> {
             List<ModuleDeployment> moduleDeployments = new ArrayList<>();
             for (int i = 0; i < depWithout.size(); i++) {
-                ApplicationModule module = modules.get(i);
+                AppModule module = modules.get(i);
                 FogNode node = depWithout.get(i);
                 ModuleDeployment md = new ModuleDeployment(module, node);
                 moduleDeployments.add(md);
@@ -64,7 +64,7 @@ public class Search {
     }
 
     public void printInfo() {
-        List<ApplicationModule> allModules = a.getRequiredModules();
+        List<AppModule> allModules = a.getRequiredModules();
         List<FogNode> allFogNodes = i.getFogNodes();
 
         int possibleDeployments = this.getMaxPossibleDeploymentAmount();
@@ -72,7 +72,7 @@ public class Search {
         System.out.println(String.format("%s possible (maybe not valid) deployments", possibleDeployments));
 
         System.out.println(String.format("required modules for application '%s':", this.a.getName()));
-        for (ApplicationModule m : allModules) {
+        for (AppModule m : allModules) {
             System.out.println("\t" + m);
         }
 

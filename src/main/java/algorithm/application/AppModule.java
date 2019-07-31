@@ -1,11 +1,11 @@
 package algorithm.application;
 
-public class ApplicationModule {
+public class AppModule {
     private final String id;
     private final int requiredRam; // MB
     private final double requiredStorage; // GB
 
-    public ApplicationModule(String id, int requiredRam, double requiredStorage) {
+    public AppModule(String id, int requiredRam, double requiredStorage) {
         this.id = id;
         this.requiredRam = requiredRam;
         this.requiredStorage = requiredStorage;
@@ -26,7 +26,7 @@ public class ApplicationModule {
 
     @Override
     public String toString() {
-        return "ApplicationModule{" +
+        return "AppModule{" +
                 "id='" + id + '\'' +
                 ", requiredRam=" + requiredRam +
                 ", requiredStorage=" + requiredStorage +

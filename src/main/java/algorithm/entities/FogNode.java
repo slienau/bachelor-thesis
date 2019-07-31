@@ -1,12 +1,10 @@
 package algorithm.entities;
 
-import algorithm.application.Application;
-import algorithm.application.ApplicationModule;
+import algorithm.application.AppModule;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FogNode {
     private final String id;
@@ -14,7 +12,7 @@ public class FogNode {
     private final int storageTotal;
     private final int cpuCores;
     private final int cpuScoreSingleCore;
-    private List<ApplicationModule> deployedModules;
+    private List<AppModule> deployedModules;
 
     public FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore) {
         this.id = id;
@@ -45,7 +43,7 @@ public class FogNode {
         return cpuScoreSingleCore;
     }
 
-    public boolean deployModule(ApplicationModule appModule) {
+    public boolean deployModule(AppModule appModule) {
         System.out.println(String.format("Trying to deploy %s on %s", appModule.getId(), this.getId()));
         if (appModule.getRequiredRam() > this.getRamFree() || appModule.getRequiredStorage() > this.getStorageFree()) {
             System.out.println(String.format("%s can not be deployed to %s", appModule.getId(), this.getId()));
@@ -57,11 +55,11 @@ public class FogNode {
         return true;
     }
 
-    public boolean undeployModule(ApplicationModule moduleToUndeploy) {
+    public boolean undeployModule(AppModule moduleToUndeploy) {
         int sizeBefore = this.deployedModules.size();
-        Iterator<ApplicationModule> itr = this.deployedModules.iterator();
+        Iterator<AppModule> itr = this.deployedModules.iterator();
         while (itr.hasNext()) {
-            ApplicationModule module = itr.next();
+            AppModule module = itr.next();
             if (module.getId().equals(moduleToUndeploy.getId()))
                 itr.remove();
         }
@@ -73,7 +71,7 @@ public class FogNode {
 
     public int getRamFree() {
         int ramFree = this.ramTotal;
-        for (ApplicationModule module : this.deployedModules) {
+        for (AppModule module : this.deployedModules) {
             ramFree -= module.getRequiredRam();
         }
         return ramFree;
@@ -81,7 +79,7 @@ public class FogNode {
 
     public int getStorageFree() {
         int storageFree = this.storageTotal;
-        for (ApplicationModule module : this.deployedModules) {
+        for (AppModule module : this.deployedModules) {
             storageFree -= module.getRequiredStorage();
         }
         return storageFree;

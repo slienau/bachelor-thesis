@@ -1,11 +1,11 @@
 package examples;
 
-import algorithm.application.ApplicationModuleConnection;
+import algorithm.application.AppModule;
+import algorithm.application.AppModuleConnection;
 import algorithm.deployment.AppDeployment;
 import algorithm.deployment.Search;
 import algorithm.entities.FogNode;
 import algorithm.application.Application;
-import algorithm.application.ApplicationModule;
 import algorithm.entities.SensorType;
 import algorithm.infrastructure.Infrastructure;
 import algorithm.infrastructure.NetworkConnection;
@@ -30,13 +30,13 @@ public class FogDeploymentExample {
 
         infrastructure.addNetworkConnection(new NetworkConnection("raspi-01", "raspi-02", 1, 1000.0, 1000.0));
 
-        ApplicationModule cameraController = new ApplicationModule("camera-controller", 50, 0.2);
-        ApplicationModule objectDetector = new ApplicationModule("object-detector", 2048, 1.5);
-        ApplicationModule imageViewer = new ApplicationModule("image-viewer", 256, 0.1);
+        AppModule cameraController = new AppModule("camera-controller", 50, 0.2);
+        AppModule objectDetector = new AppModule("object-detector", 2048, 1.5);
+        AppModule imageViewer = new AppModule("image-viewer", 256, 0.1);
 
         Application objectDetectionApp = new Application("object-detection", 500);
-        objectDetectionApp.addModuleConnection(new ApplicationModuleConnection(cameraController, objectDetector, 500));
-        objectDetectionApp.addModuleConnection(new ApplicationModuleConnection(objectDetector, imageViewer, 500));
+        objectDetectionApp.addModuleConnection(new AppModuleConnection(cameraController, objectDetector, 500));
+        objectDetectionApp.addModuleConnection(new AppModuleConnection(objectDetector, imageViewer, 500));
 
 
         Search s = new Search(objectDetectionApp, infrastructure);

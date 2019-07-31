@@ -8,7 +8,7 @@ import java.util.Set;
 public class Application {
     private final String name;
     private final int maxLatency;
-    private List<ApplicationModuleConnection> moduleConnections = new ArrayList<>();
+    private List<AppModuleConnection> moduleConnections = new ArrayList<>();
 
     public Application(String name, int maxLatency) {
         this.name = name;
@@ -23,17 +23,17 @@ public class Application {
         return maxLatency;
     }
 
-    public Application addModuleConnection(ApplicationModuleConnection connection) {
+    public Application addModuleConnection(AppModuleConnection connection) {
         this.moduleConnections.add(connection);
         return this;
     }
 
-    public List<ApplicationModuleConnection> getModuleConnections() {
+    public List<AppModuleConnection> getModuleConnections() {
         return moduleConnections;
     }
 
-    public List<ApplicationModule> getRequiredModules() {
-        Set<ApplicationModule> moduleSet = new HashSet<>();
+    public List<AppModule> getRequiredModules() {
+        Set<AppModule> moduleSet = new HashSet<>();
         this.moduleConnections.stream().forEach(connection -> {
             moduleSet.add(connection.getSource());
             moduleSet.add(connection.getDestination());
