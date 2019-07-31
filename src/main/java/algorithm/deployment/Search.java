@@ -4,11 +4,10 @@ import algorithm.application.Application;
 import algorithm.application.ApplicationModule;
 import algorithm.entities.FogNode;
 import algorithm.infrastructure.Infrastructure;
+import org.paukov.combinatorics3.Generator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Search {
@@ -20,51 +19,36 @@ public class Search {
         this.i = i;
     }
 
-    public List<Deployment> findAllValidDeployments() {
+    /**
+     * Returns a List of all possible combinations of module to node mappings.
+     * Deployments are possibly invalid because it's not checked if software, hardware or network requirements are fulfilled.
+     *
+     * @return
+     */
+    public List<AppDeployment> getAppDeploymentsUnchecked() {
+        List<ApplicationModule> modules = a.getRequiredModules();
+        List<FogNode> fogNodes = i.getFogNodes();
 
-        Map<ApplicationModule, List<FogNode>> possibleNodesForModule = new HashMap<>();
+        List<List<FogNode>> deploymentsWithoutModule = Generator
+                .permutation(fogNodes)
+                .withRepetitions(modules.size())
+                .stream()
+                .collect(Collectors.toList());
 
-        for (ApplicationModule module : a.getRequiredModules()) {
-            List<FogNode> possibleExecutionNode = new ArrayList<>();
-            for (FogNode node : i.getFogNodes()) {
-                if (module.getRequiredRam() <= node.getRamTotal() && module.getRequiredStorage() <= node.getStorageTotal()) {
-                    possibleExecutionNode.add(node);
-                }
+        List<AppDeployment> appDeployments = new ArrayList<>();
+
+        deploymentsWithoutModule.stream().forEach(depWithout -> {
+            List<ModuleDeployment> moduleDeployments = new ArrayList<>();
+            for (int i = 0; i < depWithout.size(); i++) {
+                ApplicationModule module = modules.get(i);
+                FogNode node = depWithout.get(i);
+                ModuleDeployment md = new ModuleDeployment(module, node);
+                moduleDeployments.add(md);
             }
-            possibleNodesForModule.put(module, possibleExecutionNode);
-        }
-
-        possibleNodesForModule.forEach((module, nodeList) -> {
-            System.out.println("possible nodes to execute " + module.getId() + ":");
-            System.out.println("\t" + nodeList.stream().map(entry -> entry.getId()).collect(Collectors.joining("; ")));
+            appDeployments.add(new AppDeployment(moduleDeployments));
         });
 
-        List<Deployment> possibleDeployments = new ArrayList<>();
-
-        possibleNodesForModule.forEach((module, nodeList) -> {
-            nodeList.forEach(fogNode -> {
-                fogNode.deployModule(module);
-            });
-        });
-
-
-        return null;
-    }
-
-    public void getPossibleDeployments() {
-        List<ApplicationModule> allModules = a.getRequiredModules();
-        List<FogNode> allFogNodes = i.getFogNodes();
-
-        int maxPossibleDeploymentAmount = this.getMaxPossibleDeploymentAmount();
-        int modulesAmount = allModules.size();
-        int fogNodesAmount = allFogNodes.size();
-
-        int divider = maxPossibleDeploymentAmount / fogNodesAmount;
-        System.out.println("divider: " + divider);
-
-        for (FogNode fogNode : allFogNodes) {
-
-        }
+        return appDeployments;
     }
 
     private int getMaxPossibleDeploymentAmount() {

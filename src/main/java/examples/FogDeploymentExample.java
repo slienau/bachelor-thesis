@@ -1,6 +1,7 @@
 package examples;
 
 import algorithm.application.ApplicationModuleConnection;
+import algorithm.deployment.AppDeployment;
 import algorithm.deployment.Search;
 import algorithm.entities.FogNode;
 import algorithm.application.Application;
@@ -24,8 +25,8 @@ public class FogDeploymentExample {
         FogNode raspi2 = new FogNode("raspi-02", 4096, 16, 4, 3000);
         infrastructure.addFogNode(raspi2);
 
-        FogNode mbp = new FogNode("mbp", 4096 * 4, 512, 8, 20000);
-        infrastructure.addFogNode(mbp);
+        FogNode raspi3 = new FogNode("raspi-03", 4096 * 4, 512, 8, 20000);
+        infrastructure.addFogNode(raspi3);
 
         infrastructure.addNetworkConnection(new NetworkConnection("raspi-01", "raspi-02", 1, 1000.0, 1000.0));
 
@@ -35,11 +36,16 @@ public class FogDeploymentExample {
 
         Application objectDetectionApp = new Application("object-detection", 500);
         objectDetectionApp.addModuleConnection(new ApplicationModuleConnection(cameraController, objectDetector, 500));
-//        objectDetectionApp.addModuleConnection(new ApplicationModuleConnection(objectDetector, imageViewer, 500));
+        objectDetectionApp.addModuleConnection(new ApplicationModuleConnection(objectDetector, imageViewer, 500));
+
 
         Search s = new Search(objectDetectionApp, infrastructure);
-        s.printInfo();
-        s.getPossibleDeployments();
+//        s.printInfo();
+
+        List<AppDeployment> uncheckedAppDeployments = s.getAppDeploymentsUnchecked();
+        for (AppDeployment dep : uncheckedAppDeployments) {
+            System.out.println(dep);
+        }
 
     }
 

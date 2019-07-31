@@ -74,6 +74,11 @@
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
             <version>${eclipse-paho-version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.dpaukov</groupId>
+            <artifactId>combinatoricslib3</artifactId>
+            <version>3.3.0</version>
+        </dependency>
     </dependencies>
 
 
