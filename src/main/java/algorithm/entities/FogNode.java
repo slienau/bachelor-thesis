@@ -3,7 +3,6 @@ package algorithm.entities;
 import algorithm.application.AppModule;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class FogNode {
@@ -12,7 +11,8 @@ public class FogNode {
     private final int storageTotal;
     private final int cpuCores;
     private final int cpuScoreSingleCore;
-    private List<AppModule> deployedModules;
+    private final List<Sensor> connectedSensors;
+    private final List<AppModule> deployedModules;
 
     public FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore) {
         this.id = id;
@@ -20,6 +20,7 @@ public class FogNode {
         this.storageTotal = storageTotal;
         this.cpuCores = cpuCores;
         this.cpuScoreSingleCore = cpuScoreSingleCore;
+        this.connectedSensors = new ArrayList<>();
         this.deployedModules = new ArrayList<>();
     }
 
@@ -43,11 +44,30 @@ public class FogNode {
         return cpuScoreSingleCore;
     }
 
+    public void addSensor(Sensor sensor) {
+        this.connectedSensors.add(sensor);
+    }
+
+    public boolean hasSensorType(SensorType sensorType) {
+        for (Sensor connectedSensor : connectedSensors) {
+            if (connectedSensor.getType().equals(sensorType))
+                return true;
+        }
+        return false;
+    }
+
     public boolean deployModule(AppModule appModule) {
 //        System.out.println(String.format("Trying to deploy %s on %s", appModule.getId(), this.getId()));
         if (appModule.getRequiredRam() > this.getRamFree() || appModule.getRequiredStorage() > this.getStorageFree()) {
 //            System.out.println(String.format("%s can not be deployed on %s", appModule.getId(), this.getId()));
             return false;
+        }
+
+        for (SensorType requiredSensorType : appModule.getRequiredSensorTypes()) {
+            if (!this.getConnectedSensorTypes().contains(requiredSensorType)) {
+//                System.out.println(String.format("%s can not be deployed to %s because it doesn't contain sensor type %s", appModule.getId(), this.getId(), requiredSensorType));
+                return false;
+            }
         }
 
         deployedModules.add(appModule);
@@ -79,6 +99,14 @@ public class FogNode {
             storageFree -= module.getRequiredStorage();
         }
         return storageFree;
+    }
+
+    private List<SensorType> getConnectedSensorTypes() {
+        List<SensorType> connectedSensorTypes = new ArrayList<>();
+        this.connectedSensors.forEach(sensor -> {
+            connectedSensorTypes.add(sensor.getType());
+        });
+        return connectedSensorTypes;
     }
 
     @Override

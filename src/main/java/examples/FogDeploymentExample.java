@@ -6,6 +6,7 @@ import algorithm.deployment.AppDeployment;
 import algorithm.deployment.Search;
 import algorithm.entities.FogNode;
 import algorithm.application.Application;
+import algorithm.entities.Sensor;
 import algorithm.entities.SensorType;
 import algorithm.infrastructure.Infrastructure;
 import algorithm.infrastructure.NetworkConnection;
@@ -20,8 +21,8 @@ public class FogDeploymentExample {
         Infrastructure infrastructure = new Infrastructure();
 
         FogNode raspi1 = new FogNode("raspi-01", 1024, 32, 4, 1000);
-//        Sensor camera1 = new Sensor("camera-01", SensorType.CAMERA);
-//        raspi1.addConnectedThing(camera1);
+        Sensor camera1 = new Sensor("camera-01", SensorType.CAMERA);
+        raspi1.addSensor(camera1);
         infrastructure.addFogNode(raspi1);
 
         FogNode raspi2 = new FogNode("raspi-02", 1024 * 4, 16, 4, 3000);
@@ -33,6 +34,7 @@ public class FogDeploymentExample {
         infrastructure.addNetworkConnection(new NetworkConnection("raspi-01", "raspi-02", 1, 1000.0, 1000.0));
 
         AppModule cameraController = new AppModule("camera-controller", 100, 0.2);
+        cameraController.addRequiredSensorType(SensorType.CAMERA);
         AppModule objectDetector = new AppModule("object-detector", 2000, 1.5);
         AppModule imageViewer = new AppModule("image-viewer", 300, 0.1);
 
