@@ -26,8 +26,8 @@ public class FogNode {
         this.infrastructure = infrastructure;
     }
 
-    public NetworkUplink getUplinkToDestination(FogNode destination) {
-        return this.infrastructure.getUplink(this.getId(), destination.getId());
+    public NetworkUplink getUplinkToDestination(String destinationId) {
+        return this.infrastructure.getUplink(this.getId(), destinationId);
     }
 
     public String getId() {

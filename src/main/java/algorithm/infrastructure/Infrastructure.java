@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Infrastructure {
-    private final Map<String, FogNode> fogNodes = new HashMap<>(); // <nodeId, node object>
-    private final List<NetworkUplink> networkUplinks = new ArrayList<>();
+    private final Map<String, FogNode> fogNodes = new HashMap<>(); // <nodeId, FogNode object>
+    private final Map<String, NetworkUplink> networkUplinks = new HashMap<>(); // <source->destination, NetworkUplink object>
 
     public void createFogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore) throws IllegalArgumentException {
         this.addFogNode(new FogNode(id, ramTotal, storageTotal, cpuCores, cpuScoreSingleCore, this));
@@ -47,17 +47,10 @@ public class Infrastructure {
                     "Couldn't add %s to infrastructure because either source or destination doesn't exist", uplink
             ));
         }
-
-        // check if uplink already exists
-        for (NetworkUplink existingUplink : this.networkUplinks) {
-            if (existingUplink.getSource().getId().equals(uplink.getSource().getId())
-                    && existingUplink.getDestination().getId().equals(uplink.getDestination().getId())) {
-                throw new IllegalArgumentException(String.format("Unable to add %s because it already exists.", uplink));
-            }
+        // add uplink to infrastructure if it doesn't exist
+        if (networkUplinks.putIfAbsent(uplinkKey(uplink), uplink) != null) {
+            throw new IllegalArgumentException(String.format("Unable to add %s because it already exists.", uplink));
         }
-
-        // add uplink to infrastructure
-        networkUplinks.add(uplink);
         System.out.println(String.format("[Infrastructure] Added %s", uplink));
     }
 
@@ -66,11 +59,10 @@ public class Infrastructure {
     }
 
     NetworkUplink getUplink(String source, String destination) throws NullPointerException {
-        for (NetworkUplink uplink : this.networkUplinks) {
-            if (uplink.getSource().getId().equals(source) && uplink.getDestination().getId().equals(destination))
-                return uplink;
-        }
-        throw new NullPointerException(String.format("Uplink form %s to %s not found.", source, destination));
+        NetworkUplink uplink = networkUplinks.get(uplinkKey(source, destination));
+        if (uplink == null)
+            throw new NullPointerException(String.format("Uplink form %s to %s not found.", source, destination));
+        return uplink;
     }
 
     public void updateUplinks(FogNode nodeA, FogNode nodeB, int latency, double bandwidthAtoB, double bandwidthBtoA) {
@@ -87,5 +79,17 @@ public class Infrastructure {
         } catch (NullPointerException e) {
             throw new NullPointerException(String.format("Unable to create uplinks. %s", e.getMessage()));
         }
+    }
+
+    private static String uplinkKey(NetworkUplink uplink) {
+        return uplinkKey(uplink.getSource(), uplink.getDestination());
+    }
+
+    private static String uplinkKey(FogNode source, FogNode destination) {
+        return uplinkKey(source.getId(), destination.getId());
+    }
+
+    private static String uplinkKey(String source, String destination) {
+        return String.format("%s->%s", source, destination);
     }
 }
