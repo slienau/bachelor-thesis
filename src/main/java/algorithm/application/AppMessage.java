@@ -1,11 +1,13 @@
 package algorithm.application;
 
-public class AppModuleConnection {
+public class AppMessage {
+    private final String content;
     private final AppModule source; // sending module
     private final AppModule destination; // receiving module
     private final double dataPerMessage; // kb
 
-    public AppModuleConnection(AppModule source, AppModule destination, double dataPerMessage) {
+    AppMessage(String content, AppModule source, AppModule destination, double dataPerMessage) {
+        this.content = content;
         this.source = source;
         this.destination = destination;
         this.dataPerMessage = dataPerMessage;
@@ -21,5 +23,18 @@ public class AppModuleConnection {
 
     public double getDataPerMessage() {
         return dataPerMessage;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    @Override
+    public String toString() {
+        return "AppMessage{" +
+                "source=" + source +
+                ", destination=" + destination +
+                ", dataPerMessage=" + dataPerMessage +
+                '}';
     }
 }

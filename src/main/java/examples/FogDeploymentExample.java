@@ -1,13 +1,12 @@
 package examples;
 
-import algorithm.application.AppModule;
-import algorithm.application.AppModuleConnection;
 import algorithm.deployment.AppDeployment;
 import algorithm.deployment.Search;
 import algorithm.application.Application;
 import algorithm.infrastructure.SensorType;
 import algorithm.infrastructure.Infrastructure;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,14 +31,14 @@ public class FogDeploymentExample {
         infrastructure.createUplinks("raspi-02", "mbp", 15, 250, 250);
 //        infrastructure.createUplinks("raspi-02", "mbp", 10, 10, 10); // error: create existing uplink
 
-        AppModule cameraController = new AppModule("camera-controller", 100, 0.2);
-        cameraController.addRequiredSensorType(SensorType.CAMERA);
-        AppModule objectDetector = new AppModule("object-detector", 2000, 1.5);
-        AppModule imageViewer = new AppModule("image-viewer", 300, 0.1);
-
+        // create application and application modules
         Application objectDetectionApp = new Application("object-detection", 500);
-        objectDetectionApp.addModuleConnection(new AppModuleConnection(cameraController, objectDetector, 500));
-        objectDetectionApp.addModuleConnection(new AppModuleConnection(objectDetector, imageViewer, 500));
+        objectDetectionApp.addModule("camera-controller", 100, 0.2, Arrays.asList(SensorType.CAMERA));
+        objectDetectionApp.addModule("object-detector", 2000, 1.5);
+        objectDetectionApp.addModule("image-viewer", 300, 0.1);
+
+        objectDetectionApp.addMessage("IMAGE_ORIGINAL", "camera-controller", "object-detector", 500);
+        objectDetectionApp.addMessage("IMAGE_DETECTED", "object-detector", "image-viewer", 500);
 
 
         Search s = new Search(objectDetectionApp, infrastructure);
@@ -48,7 +47,8 @@ public class FogDeploymentExample {
 
         System.out.println("Valid Deployments:" + validDeployments.stream().map(dep -> "\n\t" + dep.toString()).collect(Collectors.joining()));
 
-        validDeployments.forEach(AppDeployment::printUsage);
+//        validDeployments.forEach(AppDeployment::printUsage);
+//        validDeployments.forEach(AppDeployment::getTotalLatency);
 
     }
 

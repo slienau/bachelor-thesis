@@ -9,17 +9,18 @@ public class AppModule {
     private final String id;
     private final int requiredRam; // MB
     private final double requiredStorage; // GB
-    private final List<SensorType> requiredSensorTypes;
+    private final List<SensorType> requiredSensorTypes = new ArrayList<>();
 
     public AppModule(String id, int requiredRam, double requiredStorage) {
-        this(id, requiredRam, requiredStorage, new ArrayList<>());
+        this(id, requiredRam, requiredStorage, null);
     }
 
-    public AppModule(String id, int requiredRam, double requiredStorage, List<SensorType> requiredSensorTypes) {
+    AppModule(String id, int requiredRam, double requiredStorage, List<SensorType> requiredSensorTypes) {
         this.id = id;
         this.requiredRam = requiredRam;
         this.requiredStorage = requiredStorage;
-        this.requiredSensorTypes = requiredSensorTypes;
+        if (requiredSensorTypes != null)
+            this.requiredSensorTypes.addAll(requiredSensorTypes);
     }
 
     public String getId() {
@@ -36,10 +37,6 @@ public class AppModule {
 
     public List<SensorType> getRequiredSensorTypes() {
         return requiredSensorTypes;
-    }
-
-    public void addRequiredSensorType(SensorType sensorType) {
-        requiredSensorTypes.add(sensorType);
     }
 
     @Override
