@@ -1,9 +1,6 @@
 package algorithm.infrastructure;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Infrastructure {
     private final Map<String, FogNode> fogNodes = new HashMap<>(); // <nodeId, FogNode object>
@@ -24,11 +21,11 @@ public class Infrastructure {
         }
     }
 
-    public FogNode getFogNodeById(String fogNodeId) throws NullPointerException {
+    public FogNode getFogNodeById(String fogNodeId) throws NoSuchElementException {
         FogNode result = fogNodes.get(fogNodeId);
         if (result != null)
             return result;
-        throw new NullPointerException(String.format("Unable to find fog node with id '%s'", fogNodeId));
+        throw new NoSuchElementException(String.format("Unable to find fog node with id '%s'", fogNodeId));
     }
 
     public boolean removeFogNode(String nodeIdToDelete) {
@@ -40,10 +37,10 @@ public class Infrastructure {
         return wasRemoved;
     }
 
-    private void addUplink(NetworkUplink uplink) throws NullPointerException {
+    private void addUplink(NetworkUplink uplink) throws NoSuchElementException {
         // check if nodes exist
         if ((!this.fogNodes.containsKey(uplink.getSource().getId())) || (!this.fogNodes.containsKey(uplink.getDestination().getId()))) {
-            throw new NullPointerException(String.format(
+            throw new NoSuchElementException(String.format(
                     "Couldn't add %s to infrastructure because either source or destination doesn't exist", uplink
             ));
         }
@@ -58,10 +55,10 @@ public class Infrastructure {
         return new ArrayList<>(fogNodes.values());
     }
 
-    NetworkUplink getUplink(String source, String destination) throws NullPointerException {
+    NetworkUplink getUplink(String source, String destination) throws NoSuchElementException {
         NetworkUplink uplink = networkUplinks.get(uplinkKey(source, destination));
         if (uplink == null)
-            throw new NullPointerException(String.format("Uplink form %s to %s not found.", source, destination));
+            throw new NoSuchElementException(String.format("Uplink form %s to %s not found.", source, destination));
         return uplink;
     }
 
@@ -70,14 +67,14 @@ public class Infrastructure {
         System.err.println("TODO: updateUplinks(FogNode nodeA, FogNode nodeB, int latency, double bandwidthAtoB, double bandwidthBtoA)");
     }
 
-    public void createUplinks(String fogNodeA, String fogNodeB, int latency, double bandwidthAtoB, double bandwidthBtoA) throws NullPointerException {
+    public void createUplinks(String fogNodeA, String fogNodeB, int latency, double bandwidthAtoB, double bandwidthBtoA) throws NoSuchElementException {
         try {
             FogNode nodeA = this.getFogNodeById(fogNodeA);
             FogNode nodeB = this.getFogNodeById(fogNodeB);
             this.addUplink(new NetworkUplink(nodeA, nodeB, latency, bandwidthAtoB)); // A to B
             this.addUplink(new NetworkUplink(nodeB, nodeA, latency, bandwidthBtoA)); // B to A
-        } catch (NullPointerException e) {
-            throw new NullPointerException(String.format("Unable to create uplinks. %s", e.getMessage()));
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(String.format("Unable to create uplinks. %s", e.getMessage()));
         }
     }
 
