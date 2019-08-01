@@ -37,8 +37,10 @@ public class FogDeploymentExample {
         objectDetectionApp.addModule("object-detector", 2000, 1.5);
         objectDetectionApp.addModule("image-viewer", 300, 0.1);
 
+        // add
         objectDetectionApp.addMessage("IMAGE_ORIGINAL", "camera-controller", "object-detector", 500);
         objectDetectionApp.addMessage("IMAGE_DETECTED", "object-detector", "image-viewer", 500);
+//        objectDetectionApp.addMessage("IMAGE_DETECTED", "adfg", "image-viewer", 500); // error: module not found
 
 
         Search s = new Search(objectDetectionApp, infrastructure);

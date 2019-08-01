@@ -39,8 +39,15 @@ public class Application {
     }
 
     public void addMessage(String content, String sourceModule, String destinationModule, double dataPerMessage) {
-        AppModule source = modules.get(sourceModule);
-        AppModule destination = modules.get(destinationModule);
+        AppModule source;
+        AppModule destination;
+        try {
+            source = this.getModuleById(sourceModule);
+            destination = this.getModuleById(destinationModule);
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException(
+                    String.format("Failed to add message '%s' (%s) to %s. %s", content, messageKey(sourceModule, destinationModule), this.getName(), e.getMessage()));
+        }
         AppMessage message = new AppMessage(content, source, destination, dataPerMessage);
         if (this.messages.putIfAbsent(messageKey(message), message) != null) {
             throw new IllegalArgumentException(String.format("Failed to add %s to %s. Already exists.", message.getContent(), this.getName()));
@@ -52,8 +59,23 @@ public class Application {
         return new ArrayList<>(this.modules.values());
     }
 
+    private AppModule getModuleById(String id) {
+        AppModule result = modules.get(id);
+        if (result == null)
+            throw new NoSuchElementException(String.format("Unable to find module '%s'", id));
+        return result;
+    }
+
     private static String messageKey(AppMessage message) {
-        return String.format("%s->%s", message.getSource(), message.getDestination());
+        return messageKey(message.getSource(), message.getDestination());
+    }
+
+    private static String messageKey(AppModule source, AppModule destination) {
+        return messageKey(source.getId(), destination.getId());
+    }
+
+    private static String messageKey(String source, String destination) {
+        return String.format("%s->%s", source, destination);
     }
 
     @Override
