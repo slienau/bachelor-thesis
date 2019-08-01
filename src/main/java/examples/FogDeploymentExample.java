@@ -4,15 +4,10 @@ import algorithm.application.AppModule;
 import algorithm.application.AppModuleConnection;
 import algorithm.deployment.AppDeployment;
 import algorithm.deployment.Search;
-import algorithm.entities.FogNode;
 import algorithm.application.Application;
-import algorithm.entities.Sensor;
-import algorithm.entities.SensorType;
+import algorithm.infrastructure.SensorType;
 import algorithm.infrastructure.Infrastructure;
-import algorithm.infrastructure.NetworkConnection;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,18 +15,21 @@ public class FogDeploymentExample {
     public static void main(String[] args) {
         Infrastructure infrastructure = new Infrastructure();
 
-        FogNode raspi1 = new FogNode("raspi-01", 1024, 32, 4, 1000);
-        Sensor camera1 = new Sensor("camera-01", SensorType.CAMERA);
-        raspi1.addSensor(camera1);
-        infrastructure.addFogNode(raspi1);
+        // create fog nodes
+        infrastructure.createFogNode("raspi-01", 1024, 32, 4, 1000);
+        infrastructure.createFogNode("raspi-02", 1024 * 4, 32, 4, 3000);
+        infrastructure.createFogNode("mbp", 1024 * 16, 512, 8, 20000);
+//        infrastructure.createFogNode("mbp", 1024 * 16, 512, 8, 20000);
+//        infrastructure.removeFogNode("mbp");
+//        infrastructure.removeFogNode("mbp");
 
-        FogNode raspi2 = new FogNode("raspi-02", 1024 * 4, 16, 4, 3000);
-        infrastructure.addFogNode(raspi2);
+        // create sensors
+        infrastructure.getFogNodeById("raspi-01").addSensor("camera-01", SensorType.CAMERA);
 
-        FogNode mbp = new FogNode("dsl-mbp", 1024 * 16, 512, 8, 20000);
-//        infrastructure.addFogNode(mbp);
-
-        infrastructure.addNetworkConnection(new NetworkConnection("raspi-01", "raspi-02", 1, 1000.0, 1000.0));
+        // create uplinks
+        infrastructure.createUplinks("raspi-01", "raspi-02", 1, 1000.0, 1000.0);
+        infrastructure.createUplinks("raspi-01", "mbp", 15, 250, 250);
+        infrastructure.createUplinks("raspi-02", "mbp", 15, 250, 250);
 
         AppModule cameraController = new AppModule("camera-controller", 100, 0.2);
         cameraController.addRequiredSensorType(SensorType.CAMERA);
@@ -51,18 +49,6 @@ public class FogDeploymentExample {
 
         validDeployments.forEach(AppDeployment::printUsage);
 
-    }
-
-    private static List<String> asList(String... strings) {
-        List<String> result = new ArrayList<>();
-        Collections.addAll(result, strings);
-        return result;
-    }
-
-    private static List<SensorType> asList(SensorType... thingTypes) {
-        List<SensorType> result = new ArrayList<>();
-        Collections.addAll(result, thingTypes);
-        return result;
     }
 
 }

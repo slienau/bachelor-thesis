@@ -1,22 +1,22 @@
 package algorithm.deployment;
 
 import algorithm.application.AppModule;
-import algorithm.entities.FogNode;
+import algorithm.infrastructure.FogNode;
 
 public class ModuleDeployment {
     private final AppModule module;
     private final FogNode node;
 
-    public ModuleDeployment(AppModule module, FogNode node) {
+    ModuleDeployment(AppModule module, FogNode node) {
         this.module = module;
         this.node = node;
     }
 
-    public AppModule getModule() {
+    AppModule getModule() {
         return module;
     }
 
-    public FogNode getNode() {
+    FogNode getNode() {
         return node;
     }
 

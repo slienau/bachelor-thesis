@@ -1,7 +1,7 @@
 package algorithm.deployment;
 
 import algorithm.application.AppModule;
-import algorithm.entities.FogNode;
+import algorithm.infrastructure.FogNode;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class AppDeployment {
     private final List<ModuleDeployment> moduleDeployments;
 
-    public AppDeployment(List<ModuleDeployment> moduleDeployments) {
+    AppDeployment(List<ModuleDeployment> moduleDeployments) {
         this.moduleDeployments = moduleDeployments;
     }
 
@@ -35,7 +35,7 @@ public class AppDeployment {
         }).collect(Collectors.toList());
     }
 
-    public boolean checkValidity() {
+    boolean checkValidity() {
         boolean valid = true;
         for (ModuleDeployment modDep : moduleDeployments) {
             AppModule module = modDep.getModule();

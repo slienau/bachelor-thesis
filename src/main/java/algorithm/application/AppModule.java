@@ -1,6 +1,6 @@
 package algorithm.application;
 
-import algorithm.entities.SensorType;
+import algorithm.infrastructure.SensorType;
 
 import java.util.ArrayList;
 import java.util.List;

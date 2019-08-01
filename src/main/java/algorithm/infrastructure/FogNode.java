@@ -1,4 +1,4 @@
-package algorithm.entities;
+package algorithm.infrastructure;
 
 import algorithm.application.AppModule;
 
@@ -13,8 +13,9 @@ public class FogNode {
     private final int cpuScoreSingleCore;
     private final List<Sensor> connectedSensors;
     private final List<AppModule> deployedModules;
+    private final Infrastructure infrastructure;
 
-    public FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore) {
+    FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore, Infrastructure infrastructure) {
         this.id = id;
         this.ramTotal = ramTotal;
         this.storageTotal = storageTotal;
@@ -22,38 +23,19 @@ public class FogNode {
         this.cpuScoreSingleCore = cpuScoreSingleCore;
         this.connectedSensors = new ArrayList<>();
         this.deployedModules = new ArrayList<>();
+        this.infrastructure = infrastructure;
+    }
+
+    public NetworkUplink getUplinkToDestination(FogNode destination) {
+        return this.infrastructure.getUplink(this.getId(), destination.getId());
     }
 
     public String getId() {
         return id;
     }
 
-    public int getRamTotal() {
-        return ramTotal;
-    }
-
-    public int getStorageTotal() {
-        return storageTotal;
-    }
-
-    public int getCpuCores() {
-        return cpuCores;
-    }
-
-    public int getCpuScoreSingleCore() {
-        return cpuScoreSingleCore;
-    }
-
-    public void addSensor(Sensor sensor) {
-        this.connectedSensors.add(sensor);
-    }
-
-    public boolean hasSensorType(SensorType sensorType) {
-        for (Sensor connectedSensor : connectedSensors) {
-            if (connectedSensor.getType().equals(sensorType))
-                return true;
-        }
-        return false;
+    public void addSensor(String id, SensorType type) {
+        this.connectedSensors.add(new Sensor(id, type));
     }
 
     public boolean deployModule(AppModule appModule) {
@@ -73,12 +55,6 @@ public class FogNode {
         deployedModules.add(appModule);
 //        System.out.println(String.format("%s successfully deployed to %s; freeRam: %s; freeStorage: %s", appModule.getId(), this.getId(), this.getRamFree(), this.getStorageFree()));
         return true;
-    }
-
-    public boolean undeployModule(AppModule moduleToUndeploy) {
-        int sizeBefore = this.deployedModules.size();
-        this.deployedModules.removeIf(module -> module.getId().equals(moduleToUndeploy.getId()));
-        return sizeBefore != this.deployedModules.size();
     }
 
     public void undeployAllModules() {

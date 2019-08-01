@@ -2,7 +2,7 @@ package algorithm.deployment;
 
 import algorithm.application.AppModule;
 import algorithm.application.Application;
-import algorithm.entities.FogNode;
+import algorithm.infrastructure.FogNode;
 import algorithm.infrastructure.Infrastructure;
 import org.paukov.combinatorics3.Generator;
 
