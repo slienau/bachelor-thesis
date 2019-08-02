@@ -45,7 +45,7 @@ public class Search {
                 ModuleDeployment md = new ModuleDeployment(module, node);
                 moduleDeployments.add(md);
             }
-            appDeployments.add(new AppDeployment(moduleDeployments));
+            appDeployments.add(new AppDeployment(a, moduleDeployments));
         });
 
         return appDeployments;
@@ -54,8 +54,10 @@ public class Search {
     public List<AppDeployment> getValidAppDeployments() {
         List<AppDeployment> validDeployments = new ArrayList<>();
         for (AppDeployment dep : this.getAppDeploymentsUnchecked()) {
-            if (dep.checkValidity())
+            if (dep.checkValidity()) {
+                System.out.println(String.format("[Search] Found valid %s with latency of %sms", dep, dep.calculateTotalTransferTime()));
                 validDeployments.add(dep);
+            }
         }
         return validDeployments;
     }

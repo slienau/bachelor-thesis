@@ -14,7 +14,7 @@ public class Infrastructure {
         if (fogNodes.putIfAbsent(newFogNode.getId(), newFogNode) == null) {
             // fognode added
             System.out.println(String.format("[Infrastructure] Added %s", newFogNode));
-            this.addUplink(new NetworkUplink(newFogNode, newFogNode, 0, Double.MAX_VALUE));
+            this.addUplink(new NetworkUplink(newFogNode, newFogNode, 0, Long.MAX_VALUE));
         } else {
             // not added because exists already
             throw new IllegalArgumentException(String.format("Can not add %s to infrastructure because it already exists", newFogNode.getId()));
@@ -67,12 +67,22 @@ public class Infrastructure {
         System.err.println("TODO: updateUplinks(FogNode nodeA, FogNode nodeB, int latency, double bandwidthAtoB, double bandwidthBtoA)");
     }
 
+    /**
+     * @param fogNodeA
+     * @param fogNodeB
+     * @param latency       in milliseconds
+     * @param bandwidthAtoB link bandwidth from node A to node B in Mbit/s
+     * @param bandwidthBtoA link bandwidth from node B to node A in Mbit/s
+     * @throws NoSuchElementException
+     */
     public void createUplinks(String fogNodeA, String fogNodeB, int latency, double bandwidthAtoB, double bandwidthBtoA) throws NoSuchElementException {
         try {
             FogNode nodeA = this.getFogNodeById(fogNodeA);
             FogNode nodeB = this.getFogNodeById(fogNodeB);
-            this.addUplink(new NetworkUplink(nodeA, nodeB, latency, bandwidthAtoB)); // A to B
-            this.addUplink(new NetworkUplink(nodeB, nodeA, latency, bandwidthBtoA)); // B to A
+            int bandwidthAtoB_bitsPerSecond = (int) (bandwidthAtoB * Math.pow(10, 6)); // Mbit/s -> bit/s
+            int bandwidthBtoA_bitsPerSecond = (int) (bandwidthBtoA * Math.pow(10, 6)); // Mbit/s -> bit/s
+            this.addUplink(new NetworkUplink(nodeA, nodeB, latency, bandwidthAtoB_bitsPerSecond)); // A to B
+            this.addUplink(new NetworkUplink(nodeB, nodeA, latency, bandwidthBtoA_bitsPerSecond)); // B to A
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException(String.format("Unable to create uplinks. %s", e.getMessage()));
         }

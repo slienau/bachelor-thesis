@@ -32,8 +32,9 @@ public class AppMessage {
     @Override
     public String toString() {
         return "AppMessage{" +
-                "source=" + source +
-                ", destination=" + destination +
+                "content='" + content + '\'' +
+                ", source=" + source.getId() +
+                ", destination=" + destination.getId() +
                 ", dataPerMessage=" + dataPerMessage +
                 '}';
     }

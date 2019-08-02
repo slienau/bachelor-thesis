@@ -27,12 +27,12 @@ public class FogDeploymentExample {
 
         // create uplinks
         infrastructure.createUplinks("raspi-01", "raspi-02", 1, 1000.0, 1000.0);
-        infrastructure.createUplinks("raspi-01", "mbp", 15, 250, 250);
+        infrastructure.createUplinks("raspi-01", "mbp", 15, 10, 250);
         infrastructure.createUplinks("raspi-02", "mbp", 15, 250, 250);
 //        infrastructure.createUplinks("raspi-02", "mbp", 10, 10, 10); // error: create existing uplink
 
         // create application and application modules
-        Application objectDetectionApp = new Application("object-detection", 500);
+        Application objectDetectionApp = new Application("object-detection", 100);
         objectDetectionApp.addModule("camera-controller", 100, 0.2, Arrays.asList(SensorType.CAMERA));
         objectDetectionApp.addModule("object-detector", 2000, 1.5);
         objectDetectionApp.addModule("image-viewer", 300, 0.1);
@@ -47,10 +47,9 @@ public class FogDeploymentExample {
 
         List<AppDeployment> validDeployments = s.getValidAppDeployments();
 
-        System.out.println("Valid Deployments:" + validDeployments.stream().map(dep -> "\n\t" + dep.toString()).collect(Collectors.joining()));
-
 //        validDeployments.forEach(AppDeployment::printUsage);
-//        validDeployments.forEach(AppDeployment::getTotalLatency);
+//        validDeployments.get(0).getTotalLatency();
+//        validDeployments.forEach(AppDeployment::calculateTotalTransferTime);
 
     }
 
