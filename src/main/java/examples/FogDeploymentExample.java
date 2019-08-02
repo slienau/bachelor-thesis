@@ -43,8 +43,8 @@ public class FogDeploymentExample {
 
 
         Search s = new Search(objectDetectionApp, infrastructure);
-
-        List<AppDeployment> validDeployments = s.getValidAppDeployments();
+        AppDeployment fastestDeployment = s.getFastestDeployment();
+        System.out.println(String.format("Fastest deployment is %s with latency of %sms", fastestDeployment, fastestDeployment.calculateTotalLatency()));
 
 //        validDeployments.forEach(AppDeployment::printUsage);
 //        validDeployments.get(0).getTotalLatency();

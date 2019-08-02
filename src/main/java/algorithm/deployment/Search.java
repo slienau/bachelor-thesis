@@ -19,6 +19,21 @@ public class Search {
         this.i = i;
     }
 
+    public AppDeployment getFastestDeployment() {
+        return Search.getFastestDeployment(this.getValidAppDeployments());
+    }
+
+    private List<AppDeployment> getValidAppDeployments() {
+        List<AppDeployment> validDeployments = new ArrayList<>();
+        for (AppDeployment dep : this.getAppDeploymentsUnchecked()) {
+            if (dep.checkValidity()) {
+                System.out.println(String.format("[Search] Found valid %s with latency of %sms", dep, dep.calculateTotalLatency()));
+                validDeployments.add(dep);
+            }
+        }
+        return validDeployments;
+    }
+
     /**
      * Returns a List of all possible combinations of module to node mappings.
      * Deployments are possibly invalid because it's not checked if software, hardware or network requirements are fulfilled.
@@ -51,15 +66,14 @@ public class Search {
         return appDeployments;
     }
 
-    public List<AppDeployment> getValidAppDeployments() {
-        List<AppDeployment> validDeployments = new ArrayList<>();
-        for (AppDeployment dep : this.getAppDeploymentsUnchecked()) {
-            if (dep.checkValidity()) {
-                System.out.println(String.format("[Search] Found valid %s with latency of %sms", dep, dep.calculateTotalLatency()));
-                validDeployments.add(dep);
-            }
+    private static AppDeployment getFastestDeployment(List<AppDeployment> validDeployments) {
+        AppDeployment fastestDeployment = null;
+        for (AppDeployment dep : validDeployments) {
+            double thisLatency = dep.calculateTotalLatency();
+            if (fastestDeployment == null || fastestDeployment.calculateTotalLatency() > thisLatency)
+                fastestDeployment = dep;
         }
-        return validDeployments;
+        return fastestDeployment;
     }
 
 }
