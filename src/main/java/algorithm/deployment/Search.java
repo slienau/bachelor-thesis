@@ -7,7 +7,9 @@ import algorithm.infrastructure.Infrastructure;
 import org.paukov.combinatorics3.Generator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Search {
@@ -53,14 +55,13 @@ public class Search {
         List<AppDeployment> appDeployments = new ArrayList<>();
 
         deploymentsWithoutModule.forEach(depWithout -> {
-            List<ModuleDeployment> moduleDeployments = new ArrayList<>();
+            Map<AppModule, FogNode> moduleToNodeMap = new HashMap<>();
             for (int i = 0; i < depWithout.size(); i++) {
                 AppModule module = modules.get(i);
                 FogNode node = depWithout.get(i);
-                ModuleDeployment md = new ModuleDeployment(module, node);
-                moduleDeployments.add(md);
+                moduleToNodeMap.put(module, node);
             }
-            appDeployments.add(new AppDeployment(a, moduleDeployments));
+            appDeployments.add(new AppDeployment(a, moduleToNodeMap));
         });
 
         return appDeployments;

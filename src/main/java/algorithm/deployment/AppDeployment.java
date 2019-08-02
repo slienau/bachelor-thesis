@@ -11,14 +11,13 @@ import java.util.stream.Collectors;
 
 public class AppDeployment {
     private final Application application;
-    private final Map<String, ModuleDeployment> moduleDeployments; // <ModuleId; Deployment>
+    private final Map<AppModule, FogNode> moduleToNodeMap;
     private final boolean valid;
     private final double totalLatency;
 
-    AppDeployment(Application application, List<ModuleDeployment> moduleDeployments) {
+    AppDeployment(Application application, Map<AppModule, FogNode> moduleToNodeMap) {
         this.application = application;
-        this.moduleDeployments = new HashMap<>();
-        moduleDeployments.forEach(modDep -> this.moduleDeployments.put(modDep.getModule().getId(), modDep));
+        this.moduleToNodeMap = moduleToNodeMap;
         this.valid = this.checkValidity();
         this.totalLatency = this.calculateTotalLatency();
     }
@@ -33,9 +32,9 @@ public class AppDeployment {
 
     @Override
     public String toString() {
-        String moduleDeployments = this.moduleDeployments.values().stream().map(moduleDeployment -> {
-            String moduleId = moduleDeployment.getModule().getId();
-            String nodeId = moduleDeployment.getNode().getId();
+        String moduleDeployments = this.moduleToNodeMap.entrySet().stream().map(mapping -> {
+            String moduleId = mapping.getKey().getId();
+            String nodeId = mapping.getValue().getId();
             return String.format("%s->%s", moduleId, nodeId);
         }).collect(Collectors.toList()).toString();
 
@@ -57,9 +56,9 @@ public class AppDeployment {
     private boolean validateHardwareRequirements() {
         boolean valid = true;
         // validate hardware requirements
-        for (ModuleDeployment modDep : moduleDeployments.values()) {
-            AppModule module = modDep.getModule();
-            FogNode node = modDep.getNode();
+        for (Map.Entry<AppModule, FogNode> entry : moduleToNodeMap.entrySet()) {
+            AppModule module = entry.getKey();
+            FogNode node = entry.getValue();
             if (!node.deployModule(module)) {
                 valid = false;
                 break;
@@ -92,11 +91,7 @@ public class AppDeployment {
     }
 
     private double calculateTotalProcessingTime() {
-        double totalProcessingTime = 0;
-        for (ModuleDeployment deployments : moduleDeployments.values()) {
-            totalProcessingTime += deployments.getNode().calculateProcessingTimeForModule(deployments.getModule());
-        }
-        return totalProcessingTime;
+        return moduleToNodeMap.entrySet().stream().mapToDouble(entry -> entry.getValue().calculateProcessingTimeForModule(entry.getKey())).sum();
     }
 
     private double calculateTotalTransferTime() {
@@ -106,8 +101,8 @@ public class AppDeployment {
         for (AppMessage message : application.getMessages()) {
             AppModule sourceModule = message.getSource();
             AppModule destinationModule = message.getDestination();
-            FogNode sourceNode = moduleDeployments.get(sourceModule.getId()).getNode();
-            FogNode destinationNode = moduleDeployments.get(destinationModule.getId()).getNode();
+            FogNode sourceNode = moduleToNodeMap.get(sourceModule);
+            FogNode destinationNode = moduleToNodeMap.get(destinationModule);
 
             NetworkUplink uplink = sourceNode.getUplinkToDestination(destinationNode.getId());
             double messageTransferTime = calculateTransferTime(uplink.getLatency(), uplink.getBandwidthBitsPerSecond(), message.getDataPerMessage());
@@ -133,23 +128,22 @@ public class AppDeployment {
         return latency + dataSize_bits / bandwidth_bits_per_ms;
     }
 
-    private FogNode getNode(AppModule module) {
-        return null;
-    }
-
-    public void printUsage() {
+    public void printDetails() {
         System.out.println("Usage for " + this);
-        this.moduleDeployments.values().forEach(moduleDeployment -> moduleDeployment.getNode().deployModule(moduleDeployment.getModule()));
         this.getAllInvolvedFogNodes().forEach(fogNode -> System.out.println(
                 String.format("\t[%s]: ramFree:%s; storageFree:%s", fogNode.getId(), fogNode.getRamFree(), fogNode.getStorageFree())
         ));
         this.undeployAllModulesFromNodes();
     }
 
-    private List<FogNode> getAllInvolvedFogNodes() {
-        Set<FogNode> result = new HashSet<>();
-        this.moduleDeployments.values().forEach(modDep -> result.add(modDep.getNode()));
-        return new ArrayList<>(result);
+    private Map<FogNode, List<AppModule>> getNodeToModulesMap() {
+        Map<FogNode, List<AppModule>> result = new HashMap<>();
+        // TODO
+        return result;
+    }
+
+    private Set<FogNode> getAllInvolvedFogNodes() {
+        return new HashSet<>(this.moduleToNodeMap.values());
     }
 
     private void undeployAllModulesFromNodes() {
