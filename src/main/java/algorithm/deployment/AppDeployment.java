@@ -4,7 +4,6 @@ import algorithm.application.AppMessage;
 import algorithm.application.AppModule;
 import algorithm.application.Application;
 import algorithm.infrastructure.FogNode;
-import algorithm.infrastructure.NetworkUplink;
 
 import java.util.*;
 import java.util.function.Function;

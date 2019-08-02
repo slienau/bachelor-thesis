@@ -6,6 +6,18 @@ public class Infrastructure {
     private final Map<String, FogNode> fogNodes = new HashMap<>(); // <nodeId, FogNode object>
     private final Map<String, NetworkUplink> networkUplinks = new HashMap<>(); // <source->destination, NetworkUplink object>
 
+    private static String uplinkKey(NetworkUplink uplink) {
+        return uplinkKey(uplink.getSource(), uplink.getDestination());
+    }
+
+    private static String uplinkKey(FogNode source, FogNode destination) {
+        return uplinkKey(source.getId(), destination.getId());
+    }
+
+    private static String uplinkKey(String source, String destination) {
+        return String.format("%s->%s", source, destination);
+    }
+
     public void createFogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore) throws IllegalArgumentException {
         this.addFogNode(new FogNode(id, ramTotal, storageTotal, cpuCores, cpuScoreSingleCore, this));
     }
@@ -86,17 +98,5 @@ public class Infrastructure {
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException(String.format("Unable to create uplinks. %s", e.getMessage()));
         }
-    }
-
-    private static String uplinkKey(NetworkUplink uplink) {
-        return uplinkKey(uplink.getSource(), uplink.getDestination());
-    }
-
-    private static String uplinkKey(FogNode source, FogNode destination) {
-        return uplinkKey(source.getId(), destination.getId());
-    }
-
-    private static String uplinkKey(String source, String destination) {
-        return String.format("%s->%s", source, destination);
     }
 }

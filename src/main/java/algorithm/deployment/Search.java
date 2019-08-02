@@ -21,6 +21,16 @@ public class Search {
         this.i = i;
     }
 
+    private static AppDeployment getFastestDeployment(List<AppDeployment> validDeployments) {
+        AppDeployment fastestDeployment = null;
+        for (AppDeployment dep : validDeployments) {
+            double thisLatency = dep.getTotalLatency();
+            if (fastestDeployment == null || fastestDeployment.getTotalLatency() > thisLatency)
+                fastestDeployment = dep;
+        }
+        return fastestDeployment;
+    }
+
     public AppDeployment getFastestDeployment() {
         return Search.getFastestDeployment(this.getValidAppDeployments());
     }
@@ -65,16 +75,6 @@ public class Search {
         });
 
         return appDeployments;
-    }
-
-    private static AppDeployment getFastestDeployment(List<AppDeployment> validDeployments) {
-        AppDeployment fastestDeployment = null;
-        for (AppDeployment dep : validDeployments) {
-            double thisLatency = dep.getTotalLatency();
-            if (fastestDeployment == null || fastestDeployment.getTotalLatency() > thisLatency)
-                fastestDeployment = dep;
-        }
-        return fastestDeployment;
     }
 
 }

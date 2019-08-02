@@ -15,6 +15,18 @@ public class Application {
         this.maxLatency = maxLatency;
     }
 
+    private static String messageKey(AppMessage message) {
+        return messageKey(message.getSource(), message.getDestination());
+    }
+
+    private static String messageKey(AppModule source, AppModule destination) {
+        return messageKey(source.getId(), destination.getId());
+    }
+
+    private static String messageKey(String source, String destination) {
+        return String.format("%s->%s", source, destination);
+    }
+
     public String getName() {
         return name;
     }
@@ -64,18 +76,6 @@ public class Application {
         if (result == null)
             throw new NoSuchElementException(String.format("Unable to find module '%s'", id));
         return result;
-    }
-
-    private static String messageKey(AppMessage message) {
-        return messageKey(message.getSource(), message.getDestination());
-    }
-
-    private static String messageKey(AppModule source, AppModule destination) {
-        return messageKey(source.getId(), destination.getId());
-    }
-
-    private static String messageKey(String source, String destination) {
-        return String.format("%s->%s", source, destination);
     }
 
     @Override

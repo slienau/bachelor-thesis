@@ -35,8 +35,7 @@ public class AppMessage {
 
     public double calculateMessageTransferTime(FogNode sourceNode, FogNode destinationNode) {
         NetworkUplink uplink = sourceNode.getUplinkToDestination(destinationNode.getId());
-        double messageTransferTime = Utils.calculateTransferTime(uplink.getLatency(), uplink.getBandwidthBitsPerSecond(), this.getDataPerMessage());
-        return messageTransferTime;
+        return Utils.calculateTransferTime(uplink.getLatency(), uplink.getBandwidthBitsPerSecond(), this.getDataPerMessage());
     }
 
     public String createMessageTransferTimeString(FogNode sourceNode, FogNode destinationNode) {
