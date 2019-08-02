@@ -8,7 +8,6 @@ import algorithm.infrastructure.Infrastructure;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FogDeploymentExample {
     public static void main(String[] args) {
@@ -17,7 +16,7 @@ public class FogDeploymentExample {
         // create fog nodes
         infrastructure.createFogNode("raspi-01", 1024, 32, 4, 1000);
         infrastructure.createFogNode("raspi-02", 1024 * 4, 32, 4, 3000);
-        infrastructure.createFogNode("mbp", 1024 * 16, 512, 8, 20000);
+        infrastructure.createFogNode("mbp", 1024 * 16, 512, 8, 15623);
 //        infrastructure.createFogNode("mbp", 1024 * 16, 512, 8, 20000); // error: already exists
 //        infrastructure.removeFogNode("mbp");
 //        infrastructure.removeFogNode("mbp"); // error (log only): remove twice
@@ -32,10 +31,10 @@ public class FogDeploymentExample {
 //        infrastructure.createUplinks("raspi-02", "mbp", 10, 10, 10); // error: create existing uplink
 
         // create application and application modules
-        Application objectDetectionApp = new Application("object-detection", 100);
-        objectDetectionApp.addModule("camera-controller", 100, 0.2, Arrays.asList(SensorType.CAMERA));
-        objectDetectionApp.addModule("object-detector", 2000, 1.5);
-        objectDetectionApp.addModule("image-viewer", 300, 0.1);
+        Application objectDetectionApp = new Application("object-detection", 1000);
+        objectDetectionApp.addModule("camera-controller", 100, 0.2, 100, Arrays.asList(SensorType.CAMERA));
+        objectDetectionApp.addModule("object-detector", 2000, 1.5, 5000);
+        objectDetectionApp.addModule("image-viewer", 300, 0.1, 100);
 
         // add
         objectDetectionApp.addMessage("IMAGE_ORIGINAL", "camera-controller", "object-detector", 500);

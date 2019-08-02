@@ -27,15 +27,15 @@ public class Application {
         return new ArrayList<>(messages.values());
     }
 
-    public void addModule(String id, int requiredRam, double requiredStorage) {
-        this.addModule(id, requiredRam, requiredStorage, null);
+    public void addModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructions) {
+        this.addModule(id, requiredRam, requiredStorage, requiredCpuInstructions, null);
     }
 
-    public void addModule(String id, int requiredRam, double requiredStorage, List<SensorType> requiredSensorTypes) {
-        AppModule newModule = new AppModule(id, requiredRam, requiredStorage, requiredSensorTypes);
+    public void addModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructions, List<SensorType> requiredSensorTypes) {
+        AppModule newModule = new AppModule(id, requiredRam, requiredStorage, requiredCpuInstructions, requiredSensorTypes);
         if (modules.putIfAbsent(id, newModule) != null)
             throw new IllegalArgumentException(String.format("Failed to add %s to %s. Already exists.", id, name));
-        System.out.println(String.format("[Application:%s] Added module '%s'", name, id));
+        System.out.println(String.format("[Application (%s)] Added %s", name, newModule));
     }
 
     public void addMessage(String content, String sourceModule, String destinationModule, double dataPerMessage) {
@@ -52,7 +52,7 @@ public class Application {
         if (this.messages.putIfAbsent(messageKey(message), message) != null) {
             throw new IllegalArgumentException(String.format("Failed to add %s to %s. Already exists.", message.getContent(), this.getName()));
         }
-        System.out.println(String.format("[Application:%s] Added message '%s' from '%s' to '%s'", this.getName(), message.getContent(), sourceModule, destinationModule));
+        System.out.println(String.format("[Application (%s)] Added message '%s' from '%s' to '%s'", this.getName(), message.getContent(), sourceModule, destinationModule));
     }
 
     public List<AppModule> getRequiredModules() {

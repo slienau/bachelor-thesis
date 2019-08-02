@@ -70,17 +70,29 @@ public class AppDeployment {
     }
 
     private boolean validateLatencyRequirements() {
-        double totalTransferTime = this.calculateTotalTransferTime();
-        boolean valid = totalTransferTime < this.application.getMaxLatency();
+        double totalLatency = this.calculateTotalLatency();
+        boolean valid = totalLatency < this.application.getMaxLatency();
 
 //        if (valid)
-//            System.out.println(String.format("[AppDeployment] [Latency Requirement Check] SUCCESS (Required: %s; Has: %s)", this.application.getMaxLatency(), totalTransferTime));
+//            System.out.println(String.format("[AppDeployment] [Latency Requirement Check] SUCCESS (Required: %s; Has: %s)", this.application.getMaxLatency(), totalLatency));
 //        else
-//            System.out.println(String.format("[AppDeployment] [Latency Requirement Check] FAILED (Required: %s; Has: %s)", this.application.getMaxLatency(), totalTransferTime));
+//            System.out.println(String.format("[AppDeployment] [Latency Requirement Check] FAILED (Required: %s; Has: %s)", this.application.getMaxLatency(), totalLatency));
         return valid;
     }
 
-    public double calculateTotalTransferTime() {
+    public double calculateTotalLatency() {
+        return calculateTotalTransferTime() + calculateTotalProcessingTime();
+    }
+
+    private double calculateTotalProcessingTime() {
+        double totalProcessingTime = 0;
+        for (ModuleDeployment deployments : moduleDeployments.values()) {
+            totalProcessingTime += deployments.getNode().calculateProcessingTimeForModule(deployments.getModule());
+        }
+        return totalProcessingTime;
+    }
+
+    private double calculateTotalTransferTime() {
 //        System.out.println(String.format("[Calculating total transfer time] for %s", this));
         double totalTransferTime = 0;
         int messageCount = 0;

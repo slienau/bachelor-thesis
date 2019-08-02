@@ -10,17 +10,17 @@ public class FogNode {
     private final int ramTotal;
     private final int storageTotal;
     private final int cpuCores;
-    private final int cpuScoreSingleCore;
+    private final int cpuInstructionsPerSecond;
     private final List<Sensor> connectedSensors;
     private final List<AppModule> deployedModules;
     private final Infrastructure infrastructure;
 
-    FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore, Infrastructure infrastructure) {
+    FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuInstructionsPerSecond, Infrastructure infrastructure) {
         this.id = id;
         this.ramTotal = ramTotal;
         this.storageTotal = storageTotal;
         this.cpuCores = cpuCores;
-        this.cpuScoreSingleCore = cpuScoreSingleCore;
+        this.cpuInstructionsPerSecond = cpuInstructionsPerSecond;
         this.connectedSensors = new ArrayList<>();
         this.deployedModules = new ArrayList<>();
         this.infrastructure = infrastructure;
@@ -85,6 +85,14 @@ public class FogNode {
         return connectedSensorTypes;
     }
 
+    /**
+     * @param module The AppModule to execute on this node
+     * @return Processing time for module on this node in milliseconds
+     */
+    public double calculateProcessingTimeForModule(AppModule module) {
+        return (double) module.getRequiredCpuInstructionsPerMessage() / (double) (this.cpuInstructionsPerSecond / 1000); // seconds -> milliseconds
+    }
+
     @Override
     public String toString() {
         return "FogNode{" +
@@ -92,7 +100,7 @@ public class FogNode {
                 ", ram=" + ramTotal +
                 ", storage=" + storageTotal +
                 ", cpuCores=" + cpuCores +
-                ", cpuScoreSingleCore=" + cpuScoreSingleCore +
+                ", cpuScoreSingleCore=" + cpuInstructionsPerSecond +
                 '}';
     }
 }
