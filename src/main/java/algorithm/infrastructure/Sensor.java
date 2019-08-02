@@ -9,6 +9,10 @@ public class Sensor {
         this.type = type;
     }
 
+    public String getId() {
+        return id;
+    }
+
     SensorType getType() {
         return type;
     }

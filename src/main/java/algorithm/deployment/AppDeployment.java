@@ -30,19 +30,6 @@ public class AppDeployment {
         return totalLatency;
     }
 
-    @Override
-    public String toString() {
-        String moduleDeployments = this.moduleToNodeMap.entrySet().stream().map(mapping -> {
-            String moduleId = mapping.getKey().getId();
-            String nodeId = mapping.getValue().getId();
-            return String.format("%s->%s", moduleId, nodeId);
-        }).collect(Collectors.toList()).toString();
-
-        return "AppDeployment{" +
-                "moduleDeployments=" + moduleDeployments +
-                '}';
-    }
-
     private boolean checkValidity() {
 //        System.out.println(String.format("[AppDeployment] Validating %s", this));
         if (!this.validateHardwareRequirements())
@@ -148,5 +135,21 @@ public class AppDeployment {
 
     private void undeployAllModulesFromNodes() {
         this.getAllInvolvedFogNodes().forEach(FogNode::undeployAllModules);
+    }
+
+    @Override
+    public String toString() {
+        String moduleDeployments = this.moduleToNodeMap.entrySet().stream().map(mapping -> {
+            String moduleId = mapping.getKey().getId();
+            String nodeId = mapping.getValue().getId();
+            return String.format("%s->%s", moduleId, nodeId);
+        }).collect(Collectors.toList()).toString();
+
+        return "AppDeployment{" +
+                "application=" + application.getName() +
+                ", moduleToNodeMap=" + moduleDeployments +
+                ", valid=" + valid +
+                ", totalLatency=" + (int) totalLatency + "ms" +
+                '}';
     }
 }

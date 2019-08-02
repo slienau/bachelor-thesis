@@ -83,7 +83,8 @@ public class Application {
         return "Application{" +
                 "name='" + name + '\'' +
                 ", maxLatency=" + maxLatency +
-                ", moduleConnections=" + messages +
+                ", modules=" + modules +
+                ", messages=" + messages +
                 '}';
     }
 }

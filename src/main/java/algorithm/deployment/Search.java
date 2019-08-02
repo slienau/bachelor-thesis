@@ -29,7 +29,7 @@ public class Search {
         List<AppDeployment> validDeployments = new ArrayList<>();
         for (AppDeployment dep : this.getAppDeploymentsUnchecked()) {
             if (dep.isValid()) {
-                System.out.println(String.format("[Search] Found valid %s with latency of %sms", dep, dep.getTotalLatency()));
+                System.out.println(String.format("[Search] Found valid %s", dep));
                 validDeployments.add(dep);
             }
         }

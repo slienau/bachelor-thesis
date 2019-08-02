@@ -4,11 +4,12 @@ import algorithm.application.AppModule;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FogNode {
     private final String id;
     private final int ramTotal;
-    private final int storageTotal;
+    private final double storageTotal;
     private final int cpuCores;
     private final int cpuInstructionsPerSecond;
     private final List<Sensor> connectedSensors;
@@ -61,7 +62,7 @@ public class FogNode {
         this.deployedModules.clear();
     }
 
-    public int getRamFree() {
+    private int getRamFree() {
         int ramFree = this.ramTotal;
         for (AppModule module : this.deployedModules) {
             ramFree -= module.getRequiredRam();
@@ -69,12 +70,28 @@ public class FogNode {
         return ramFree;
     }
 
-    public int getStorageFree() {
-        int storageFree = this.storageTotal;
+    private int getRamUsed() {
+        return this.ramTotal - this.getRamFree();
+    }
+
+    private double getRamUsedPercent() {
+        return makePercent(this.getRamUsed(), this.ramTotal);
+    }
+
+    private double getStorageFree() {
+        double storageFree = this.storageTotal;
         for (AppModule module : this.deployedModules) {
             storageFree -= module.getRequiredStorage();
         }
         return storageFree;
+    }
+
+    private double getStorageUsed() {
+        return round(this.storageTotal - this.getStorageFree());
+    }
+
+    private double getStorageUsedPercent() {
+        return makePercent(this.getStorageUsed(), this.storageTotal);
     }
 
     private List<SensorType> getConnectedSensorTypes() {
@@ -93,14 +110,24 @@ public class FogNode {
         return (double) module.getRequiredCpuInstructionsPerMessage() / (double) (this.cpuInstructionsPerSecond / 1000); // seconds -> milliseconds
     }
 
+    private static double makePercent(double used, double total) {
+        return round((used / total) * 100);
+    }
+
+    private static double round(double number) {
+        return Math.round(number * 100.0) / 100.0;
+    }
+
     @Override
     public String toString() {
         return "FogNode{" +
                 "id='" + id + '\'' +
-                ", ram=" + ramTotal +
-                ", storage=" + storageTotal +
+                String.format(", ramUsed=%sMB/%sMB (%s%%)", this.getRamUsed(), this.ramTotal, this.getRamUsedPercent()) +
+                String.format(", storageUsed=%sGB/%sGB (%s%%)", this.getStorageUsed(), this.storageTotal, this.getStorageUsedPercent()) +
                 ", cpuCores=" + cpuCores +
-                ", cpuScoreSingleCore=" + cpuInstructionsPerSecond +
+                ", cpuInstructionsPerSecond=" + cpuInstructionsPerSecond +
+                ", connectedSensors=[" + connectedSensors.stream().map(Sensor::getId).collect(Collectors.joining(", ")) + "]" +
+                ", deployedModules=[" + deployedModules.stream().map(module -> String.format("%s (RAM %sMB/Storage %sGB)", module.getId(), module.getRequiredRam(), module.getRequiredStorage())).collect(Collectors.joining(", ")) + "]" +
                 '}';
     }
 }
