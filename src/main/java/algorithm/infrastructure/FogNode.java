@@ -1,9 +1,9 @@
 package algorithm.infrastructure;
 
+import algorithm.Utils;
 import algorithm.application.AppModule;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FogNode {
@@ -75,7 +75,7 @@ public class FogNode {
     }
 
     private double getRamUsedPercent() {
-        return makePercent(this.getRamUsed(), this.ramTotal);
+        return Utils.makePercent(this.getRamUsed(), this.ramTotal);
     }
 
     private double getStorageFree() {
@@ -87,11 +87,11 @@ public class FogNode {
     }
 
     private double getStorageUsed() {
-        return round(this.storageTotal - this.getStorageFree());
+        return Utils.round(this.storageTotal - this.getStorageFree());
     }
 
     private double getStorageUsedPercent() {
-        return makePercent(this.getStorageUsed(), this.storageTotal);
+        return Utils.makePercent(this.getStorageUsed(), this.storageTotal);
     }
 
     private List<SensorType> getConnectedSensorTypes() {
@@ -107,15 +107,9 @@ public class FogNode {
      * @return Processing time for module on this node in milliseconds
      */
     public double calculateProcessingTimeForModule(AppModule module) {
-        return (double) module.getRequiredCpuInstructionsPerMessage() / (double) (this.cpuInstructionsPerSecond / 1000); // seconds -> milliseconds
-    }
-
-    private static double makePercent(double used, double total) {
-        return round((used / total) * 100);
-    }
-
-    private static double round(double number) {
-        return Math.round(number * 100.0) / 100.0;
+        double instructionsPerMessage = module.getRequiredCpuInstructionsPerMessage();
+        double cpuInstructionsPerSecond = this.cpuInstructionsPerSecond;
+        return Utils.round((instructionsPerMessage / cpuInstructionsPerSecond) * 1000);
     }
 
     @Override
