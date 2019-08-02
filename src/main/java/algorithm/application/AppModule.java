@@ -1,5 +1,6 @@
 package algorithm.application;
 
+import algorithm.infrastructure.FogNode;
 import algorithm.infrastructure.SensorType;
 
 import java.util.ArrayList;
@@ -43,6 +44,10 @@ public class AppModule {
 
     public List<SensorType> getRequiredSensorTypes() {
         return requiredSensorTypes;
+    }
+
+    public String createProcessingTimeString(FogNode node) {
+        return node.createProcessingTimeString(this);
     }
 
     @Override

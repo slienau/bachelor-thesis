@@ -1,5 +1,9 @@
 package algorithm.application;
 
+import algorithm.Utils;
+import algorithm.infrastructure.FogNode;
+import algorithm.infrastructure.NetworkUplink;
+
 public class AppMessage {
     private final String content;
     private final AppModule source; // sending module
@@ -27,6 +31,20 @@ public class AppMessage {
 
     public String getContent() {
         return content;
+    }
+
+    public double calculateMessageTransferTime(FogNode sourceNode, FogNode destinationNode) {
+        NetworkUplink uplink = sourceNode.getUplinkToDestination(destinationNode.getId());
+        double messageTransferTime = Utils.calculateTransferTime(uplink.getLatency(), uplink.getBandwidthBitsPerSecond(), this.getDataPerMessage());
+        return messageTransferTime;
+    }
+
+    public String createMessageTransferTimeString(FogNode sourceNode, FogNode destinationNode) {
+        String transferStringTemplate = "%6sms Transfer time from '%s' to '%s' for message content '%s' (size: %sKB; bandwidth: %sMBit/s, RTT: %sms)";
+        NetworkUplink uplink = sourceNode.getUplinkToDestination(destinationNode.getId());
+        double messageTransferTime = this.calculateMessageTransferTime(sourceNode, destinationNode);
+        return String.format(transferStringTemplate,
+                messageTransferTime, sourceNode.getId(), destinationNode.getId(), this.getContent(), this.getDataPerMessage(), uplink.getBandwidthMBitsPerSecond(), uplink.getLatency());
     }
 
     @Override

@@ -7,7 +7,6 @@ import algorithm.infrastructure.SensorType;
 import algorithm.infrastructure.Infrastructure;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class FogDeploymentExample {
     public static void main(String[] args) {
@@ -45,7 +44,7 @@ public class FogDeploymentExample {
         Search s = new Search(objectDetectionApp, infrastructure);
         AppDeployment fastestDeployment = s.getFastestDeployment();
         System.out.println(String.format("Fastest deployment is %s", fastestDeployment));
-        fastestDeployment.printDetails();
+        System.out.println(fastestDeployment.createDetailsString());
 
 //        validDeployments.forEach(AppDeployment::printUsage);
 //        validDeployments.get(0).getTotalLatency();

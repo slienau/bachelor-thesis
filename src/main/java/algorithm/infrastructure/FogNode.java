@@ -58,6 +58,23 @@ public class FogNode {
         return true;
     }
 
+    public boolean deployModules(List<AppModule> modules) {
+        boolean result = true;
+        for (AppModule module : modules) {
+            if (!this.deployModule(module)) {
+                result = false;
+                break;
+            }
+        }
+        if (!result)
+            modules.forEach(this::undeployModule);
+        return result;
+    }
+
+    public void undeployModule(AppModule module) {
+        this.deployedModules.remove(module);
+    }
+
     public void undeployAllModules() {
         this.deployedModules.clear();
     }
@@ -94,11 +111,9 @@ public class FogNode {
         return Utils.makePercent(this.getStorageUsed(), this.storageTotal);
     }
 
-    private List<SensorType> getConnectedSensorTypes() {
-        List<SensorType> connectedSensorTypes = new ArrayList<>();
-        this.connectedSensors.forEach(sensor -> {
-            connectedSensorTypes.add(sensor.getType());
-        });
+    private Set<SensorType> getConnectedSensorTypes() {
+        Set<SensorType> connectedSensorTypes = new HashSet<>();
+        this.connectedSensors.forEach(sensor -> connectedSensorTypes.add(sensor.getType()));
         return connectedSensorTypes;
     }
 
@@ -110,6 +125,12 @@ public class FogNode {
         double instructionsPerMessage = module.getRequiredCpuInstructionsPerMessage();
         double cpuInstructionsPerSecond = this.cpuInstructionsPerSecond;
         return Utils.round((instructionsPerMessage / cpuInstructionsPerSecond) * 1000);
+    }
+
+    public String createProcessingTimeString(AppModule module) {
+        String processingStringTemplate = "%6sms Processing time for module '%s' on '%s'.";
+        double processingTime = this.calculateProcessingTimeForModule(module);
+        return String.format(processingStringTemplate, processingTime, module.getId(), this.getId());
     }
 
     @Override

@@ -7,6 +7,7 @@ import algorithm.infrastructure.FogNode;
 import algorithm.infrastructure.NetworkUplink;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class AppDeployment {
@@ -82,50 +83,80 @@ public class AppDeployment {
     }
 
     private double calculateTotalTransferTime() {
-//        System.out.println(String.format("[Calculating total transfer time] for %s", this));
         double totalTransferTime = 0;
-        int messageCount = 0;
         for (AppMessage message : application.getMessages()) {
-            AppModule sourceModule = message.getSource();
-            AppModule destinationModule = message.getDestination();
-            FogNode sourceNode = moduleToNodeMap.get(sourceModule);
-            FogNode destinationNode = moduleToNodeMap.get(destinationModule);
-
-            NetworkUplink uplink = sourceNode.getUplinkToDestination(destinationNode.getId());
-            double messageTransferTime = calculateTransferTime(uplink.getLatency(), uplink.getBandwidthBitsPerSecond(), message.getDataPerMessage());
-            totalTransferTime += messageTransferTime;
-//            System.out.println(String.format("[Calculating total transfer time] %s. Message(%sKByte) from %s(%s) to %s(%s) has a transfer time of %sms",
-//                    ++messageCount, message.getDataPerMessage(), sourceNode.getId(), sourceModule.getId(),
-//                    destinationNode.getId(), destinationModule.getId(), messageTransferTime));
+            FogNode sourceNode = moduleToNodeMap.get(message.getSource());
+            FogNode destinationNode = moduleToNodeMap.get(message.getDestination());
+            totalTransferTime += message.calculateMessageTransferTime(sourceNode, destinationNode);
         }
-//        System.out.println(String.format("[Calculating total transfer time] Result: %sms", totalTransferTime));
         return totalTransferTime;
     }
 
-    /**
-     * @param latency                in milliseconds
-     * @param bandwidthBitsPerSecond in bit/s
-     * @param dataSizeKByte          in KByte
-     * @return transfer time in milliseconds
-     */
-    private static double calculateTransferTime(int latency, double bandwidthBitsPerSecond, double dataSizeKByte) {
-        double dataSize_bits = dataSizeKByte * 1024 * 8; // KByte -> Byte -> bit
-        double bandwidth_bits_per_ms = bandwidthBitsPerSecond / 1000; // bits/s -> bits/ms
-//        System.out.println(String.format("Transfer time for %skb with %sMbit/s and latency of %sms: %sms", dataSizeKByte, bandwidthBitsPerSecond / 1000000, latency, (latency + dataSize_bits / bandwidth_bits_per_ms)));
-        return latency + dataSize_bits / bandwidth_bits_per_ms;
+    public String createDetailsString() {
+        StringBuilder sb = new StringBuilder()
+                .append("**************************************************************\n")
+                .append("****** Details for " + this + "\n")
+                .append("**************************************************************");
+
+        sb.append(createStepsString());
+        sb.append(createFogNodeUsageString());
+
+        return sb.toString();
     }
 
-    public void printDetails() {
-        System.out.println("Usage for " + this);
-        this.getAllInvolvedFogNodes().forEach(fogNode -> System.out.println(
-                String.format("\t[%s]: ramFree:%s; storageFree:%s", fogNode.getId(), fogNode.getRamFree(), fogNode.getStorageFree())
-        ));
+    private String createStepsString() {
+        Function<Integer, String> delimiterString = (stepIn) -> String.format("\n%2s.\t", stepIn);
+
+        StringBuilder sb = new StringBuilder();
+        int step = 0;
+        int iteration = 0;
+        for (AppMessage message : this.application.getMessages()) {
+            AppModule sourceModule = message.getSource();
+            FogNode sourceNode = this.moduleToNodeMap.get(sourceModule);
+            AppModule destinationModule = message.getDestination();
+            FogNode destinationNode = this.moduleToNodeMap.get(destinationModule);
+
+            // Print sensor types if needed
+            if (sourceModule.getRequiredSensorTypes().size() > 0) {
+                String sensorString = String.format(
+                        "Module '%s' has required sensors '%s' which are connected to node '%s'",
+                        sourceModule.getId(), sourceModule.getRequiredSensorTypes(), sourceNode.getId());
+                sb.append(delimiterString.apply(++step)).append(sensorString);
+            }
+
+            sb
+                    .append(delimiterString.apply(++step))
+                    .append(sourceModule.createProcessingTimeString(sourceNode))
+                    .append(delimiterString.apply(++step))
+                    .append(message.createMessageTransferTimeString(sourceNode, destinationNode));
+            if (++iteration == application.getMessages().size()) {
+                // last message -> also print destination
+                sb.append(delimiterString.apply(++step))
+                        .append(destinationModule.createProcessingTimeString(destinationNode));
+            }
+        }
+        return sb.append("\n").toString();
+    }
+
+    private String createFogNodeUsageString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("-------------------------\n")
+                .append(String.format("--> Total time: %sms\n", this.getTotalLatency()))
+                .append("-------------------------\n")
+                .append("Fog node details\n")
+                .append("----------------\n");
+        this.getNodeToModulesMap().forEach(FogNode::deployModules);
+        this.getAllInvolvedFogNodes().forEach(node -> sb.append(node).append("\n"));
         this.undeployAllModulesFromNodes();
+        return sb.toString();
     }
 
     private Map<FogNode, List<AppModule>> getNodeToModulesMap() {
         Map<FogNode, List<AppModule>> result = new HashMap<>();
-        // TODO
+        // initialize Map with keys and empty list
+        this.getAllInvolvedFogNodes().forEach(fogNode -> result.put(fogNode, new ArrayList<>()));
+        // add modules to list (values)
+        this.moduleToNodeMap.forEach((module, node) -> result.get(node).add(module));
         return result;
     }
 

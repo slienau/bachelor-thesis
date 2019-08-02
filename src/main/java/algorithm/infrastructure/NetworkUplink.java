@@ -35,6 +35,10 @@ public class NetworkUplink {
         return bandwidthBitsPerSecond;
     }
 
+    public long getBandwidthMBitsPerSecond() {
+        return bandwidthBitsPerSecond / 1000000;
+    }
+
     @Override
     public String toString() {
         return "NetworkUplink{" +
