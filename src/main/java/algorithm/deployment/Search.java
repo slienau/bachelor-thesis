@@ -26,8 +26,8 @@ public class Search {
     private List<AppDeployment> getValidAppDeployments() {
         List<AppDeployment> validDeployments = new ArrayList<>();
         for (AppDeployment dep : this.getAppDeploymentsUnchecked()) {
-            if (dep.checkValidity()) {
-                System.out.println(String.format("[Search] Found valid %s with latency of %sms", dep, dep.calculateTotalLatency()));
+            if (dep.isValid()) {
+                System.out.println(String.format("[Search] Found valid %s with latency of %sms", dep, dep.getTotalLatency()));
                 validDeployments.add(dep);
             }
         }
@@ -69,8 +69,8 @@ public class Search {
     private static AppDeployment getFastestDeployment(List<AppDeployment> validDeployments) {
         AppDeployment fastestDeployment = null;
         for (AppDeployment dep : validDeployments) {
-            double thisLatency = dep.calculateTotalLatency();
-            if (fastestDeployment == null || fastestDeployment.calculateTotalLatency() > thisLatency)
+            double thisLatency = dep.getTotalLatency();
+            if (fastestDeployment == null || fastestDeployment.getTotalLatency() > thisLatency)
                 fastestDeployment = dep;
         }
         return fastestDeployment;

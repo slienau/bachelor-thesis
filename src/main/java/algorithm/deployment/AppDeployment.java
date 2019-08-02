@@ -12,37 +12,44 @@ import java.util.stream.Collectors;
 public class AppDeployment {
     private final Application application;
     private final Map<String, ModuleDeployment> moduleDeployments; // <ModuleId; Deployment>
+    private final boolean valid;
+    private final double totalLatency;
 
     AppDeployment(Application application, List<ModuleDeployment> moduleDeployments) {
         this.application = application;
         this.moduleDeployments = new HashMap<>();
         moduleDeployments.forEach(modDep -> this.moduleDeployments.put(modDep.getModule().getId(), modDep));
+        this.valid = this.checkValidity();
+        this.totalLatency = this.calculateTotalLatency();
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public double getTotalLatency() {
+        return totalLatency;
     }
 
     @Override
     public String toString() {
-        return "AppDeployment{" +
-                "moduleDeployments=" + this.getModuleDeploymentsIdsOnly() +
-                '}';
-    }
-
-    private List<String> getModuleDeploymentsIdsOnly() {
-        return moduleDeployments.values().stream().map(moduleDeployment -> {
+        String moduleDeployments = this.moduleDeployments.values().stream().map(moduleDeployment -> {
             String moduleId = moduleDeployment.getModule().getId();
             String nodeId = moduleDeployment.getNode().getId();
             return String.format("%s->%s", moduleId, nodeId);
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toList()).toString();
+
+        return "AppDeployment{" +
+                "moduleDeployments=" + moduleDeployments +
+                '}';
     }
 
-    boolean checkValidity() {
+    private boolean checkValidity() {
 //        System.out.println(String.format("[AppDeployment] Validating %s", this));
-
         if (!this.validateHardwareRequirements())
             return false; // no further checking if hardware requirement check already failed
-
         if (!this.validateLatencyRequirements())
             return false;
-
 //        System.out.println(String.format("[AppDeployment] Valid %s", this));
         return true;
     }
@@ -80,7 +87,7 @@ public class AppDeployment {
         return valid;
     }
 
-    public double calculateTotalLatency() {
+    private double calculateTotalLatency() {
         return calculateTotalTransferTime() + calculateTotalProcessingTime();
     }
 
@@ -122,9 +129,8 @@ public class AppDeployment {
     private static double calculateTransferTime(int latency, double bandwidthBitsPerSecond, double dataSizeKByte) {
         double dataSize_bits = dataSizeKByte * 1024 * 8; // KByte -> Byte -> bit
         double bandwidth_bits_per_ms = bandwidthBitsPerSecond / 1000; // bits/s -> bits/ms
-        double transferTime = latency + dataSize_bits / bandwidth_bits_per_ms;
-//        System.out.println(String.format("Transfer time for %skb with %sMbit/s and latency of %sms: %sms", dataSizeKByte, bandwidthMbits, latency, transferTime));
-        return transferTime;
+//        System.out.println(String.format("Transfer time for %skb with %sMbit/s and latency of %sms: %sms", dataSizeKByte, bandwidthBitsPerSecond / 1000000, latency, (latency + dataSize_bits / bandwidth_bits_per_ms)));
+        return latency + dataSize_bits / bandwidth_bits_per_ms;
     }
 
     private FogNode getNode(AppModule module) {
