@@ -47,7 +47,7 @@ public class Application {
         AppModule newModule = new AppModule(id, requiredRam, requiredStorage, requiredCpuInstructions, requiredSensorTypes);
         if (modules.putIfAbsent(id, newModule) != null)
             throw new IllegalArgumentException(String.format("Failed to add %s to %s. Already exists.", id, name));
-        System.out.println(String.format("[Application (%s)] Added %s", name, newModule));
+        System.out.println(String.format("[Application][%s] Added %s", name, newModule));
     }
 
     public void addMessage(String content, String sourceModule, String destinationModule, double dataPerMessage) {
@@ -64,7 +64,7 @@ public class Application {
         if (this.messages.putIfAbsent(messageKey(message), message) != null) {
             throw new IllegalArgumentException(String.format("Failed to add %s to %s. Already exists.", message.getContent(), this.getName()));
         }
-        System.out.println(String.format("[Application (%s)] Added message '%s' from '%s' to '%s'", this.getName(), message.getContent(), sourceModule, destinationModule));
+        System.out.println(String.format("[Application][%s] Added message '%s' from '%s' to '%s'", this.getName(), message.getContent(), sourceModule, destinationModule));
     }
 
     public List<AppModule> getRequiredModules() {

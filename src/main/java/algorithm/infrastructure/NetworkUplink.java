@@ -4,19 +4,19 @@ public class NetworkUplink {
     private final FogNode source;
     private final FogNode destination;
     private int latency;
-    private long bandwidthBitsPerSecond;
+    private long bitPerSecond;
 
     /**
-     * @param source                 source FogNode
-     * @param destination            destination FogNode
-     * @param latency                in milliseconds
-     * @param bandwidthBitsPerSecond in bits per second
+     * @param source       source FogNode
+     * @param destination  destination FogNode
+     * @param latency      in milliseconds
+     * @param bitPerSecond bandwidth in bit per second
      */
-    NetworkUplink(FogNode source, FogNode destination, int latency, long bandwidthBitsPerSecond) {
+    NetworkUplink(FogNode source, FogNode destination, int latency, long bitPerSecond) {
         this.source = source;
         this.destination = destination;
         this.latency = latency;
-        this.bandwidthBitsPerSecond = bandwidthBitsPerSecond;
+        this.bitPerSecond = bitPerSecond;
     }
 
     FogNode getSource() {
@@ -31,12 +31,12 @@ public class NetworkUplink {
         return latency;
     }
 
-    public long getBandwidthBitsPerSecond() {
-        return bandwidthBitsPerSecond;
+    public long getBitPerSecond() {
+        return bitPerSecond;
     }
 
-    public long getBandwidthMBitsPerSecond() {
-        return bandwidthBitsPerSecond / 1000000;
+    public long getMBitPerSecond() {
+        return bitPerSecond / 1000000;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class NetworkUplink {
                 "source=" + source.getId() +
                 ", destination=" + destination.getId() +
                 ", latency=" + latency +
-                ", bandwidth=" + bandwidthBitsPerSecond / 1000000 + "Mbit/s" +
+                ", bandwidth=" + this.getMBitPerSecond() + "Mbit/s" +
                 '}';
     }
 }

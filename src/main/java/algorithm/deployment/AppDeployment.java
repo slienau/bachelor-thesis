@@ -1,5 +1,6 @@
 package algorithm.deployment;
 
+import algorithm.Utils;
 import algorithm.application.AppMessage;
 import algorithm.application.AppModule;
 import algorithm.application.Application;
@@ -125,23 +126,25 @@ public class AppDeployment {
 
             sb
                     .append(delimiterString.apply(++step))
-                    .append(sourceModule.createProcessingTimeString(sourceNode))
+                    .append(sourceModule.getProcessingTimeString(sourceNode))
                     .append(delimiterString.apply(++step))
                     .append(message.createMessageTransferTimeString(sourceNode, destinationNode));
             if (++iteration == application.getMessages().size()) {
                 // last message -> also print destination
                 sb.append(delimiterString.apply(++step))
-                        .append(destinationModule.createProcessingTimeString(destinationNode));
+                        .append(destinationModule.getProcessingTimeString(destinationNode));
             }
         }
-        return sb.append("\n").toString();
+        sb
+                .append("\n")
+                .append("-------------------------\n")
+                .append(String.format("--> Total time: %sms\n", Utils.round(this.getTotalLatency())))
+                .append("-------------------------\n");
+        return sb.toString();
     }
 
     private String createFogNodeUsageString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("-------------------------\n")
-                .append(String.format("--> Total time: %sms\n", this.getTotalLatency()))
-                .append("-------------------------\n")
+        StringBuilder sb = new StringBuilder()
                 .append("Fog node details\n")
                 .append("----------------\n");
         this.getNodeToModulesMap().forEach(FogNode::deployModules);

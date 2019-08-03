@@ -46,8 +46,8 @@ public class AppModule {
         return requiredSensorTypes;
     }
 
-    public String createProcessingTimeString(FogNode node) {
-        return node.createProcessingTimeString(this);
+    public String getProcessingTimeString(FogNode node) {
+        return node.getProcessingTimeString(this);
     }
 
     @Override

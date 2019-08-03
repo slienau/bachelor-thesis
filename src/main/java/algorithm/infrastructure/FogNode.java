@@ -3,10 +3,7 @@ package algorithm.infrastructure;
 import algorithm.Utils;
 import algorithm.application.AppModule;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FogNode {
@@ -17,9 +14,9 @@ public class FogNode {
     private final int cpuInstructionsPerSecond;
     private final List<Sensor> connectedSensors;
     private final List<AppModule> deployedModules;
-    private final Infrastructure infrastructure;
+    private final Map<String, NetworkUplink> uplinks; // key: destination node
 
-    FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuInstructionsPerSecond, Infrastructure infrastructure) {
+    FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuInstructionsPerSecond) {
         this.id = id;
         this.ramTotal = ramTotal;
         this.storageTotal = storageTotal;
@@ -27,11 +24,19 @@ public class FogNode {
         this.cpuInstructionsPerSecond = cpuInstructionsPerSecond;
         this.connectedSensors = new ArrayList<>();
         this.deployedModules = new ArrayList<>();
-        this.infrastructure = infrastructure;
+        this.uplinks = new HashMap<>();
+        // add uplink to node itself with 0 latency and unlimited bandwidth
+        this.uplinks.put(this.getId(), new NetworkUplink(this, this, 0, Long.MAX_VALUE));
     }
 
-    public NetworkUplink getUplinkToDestination(String destinationId) {
-        return this.infrastructure.getUplink(this.getId(), destinationId);
+    void addUplink(NetworkUplink uplink) {
+        if (this.uplinks.putIfAbsent(uplink.getDestination().getId(), uplink) != null)
+            throw new IllegalArgumentException(String.format("Unable to add %s because it already exists.", uplink));
+        System.out.println(String.format("[FogNode][%10s] Added %s", this.getId(), uplink));
+    }
+
+    public NetworkUplink getUplinkTo(String destinationId) {
+        return this.uplinks.get(destinationId);
     }
 
     public String getId() {
@@ -130,7 +135,7 @@ public class FogNode {
         return Utils.round((instructionsPerMessage / cpuInstructionsPerSecond) * 1000);
     }
 
-    public String createProcessingTimeString(AppModule module) {
+    public String getProcessingTimeString(AppModule module) {
         String processingStringTemplate = "%6sms Processing time for module '%s' on '%s'.";
         double processingTime = this.calculateProcessingTimeForModule(module);
         return String.format(processingStringTemplate, processingTime, module.getId(), this.getId());
@@ -146,6 +151,7 @@ public class FogNode {
                 ", cpuInstructionsPerSecond=" + cpuInstructionsPerSecond +
                 ", connectedSensors=[" + connectedSensors.stream().map(Sensor::getId).collect(Collectors.joining(", ")) + "]" +
                 ", deployedModules=[" + deployedModules.stream().map(module -> String.format("%s (RAM %sMB/Storage %sGB)", module.getId(), module.getRequiredRam(), module.getRequiredStorage())).collect(Collectors.joining(", ")) + "]" +
+                ", uplinks=[" + uplinks.values().stream().map(uplink -> String.format("{to: %s, %sms, %sMbit/s}", uplink.getDestination().getId(), uplink.getLatency(), uplink.getMBitPerSecond())).collect(Collectors.joining(", ")) + "]" +
                 '}';
     }
 }

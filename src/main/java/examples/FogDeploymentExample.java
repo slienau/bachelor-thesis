@@ -1,10 +1,10 @@
 package examples;
 
+import algorithm.application.Application;
 import algorithm.deployment.AppDeployment;
 import algorithm.deployment.Search;
-import algorithm.application.Application;
-import algorithm.infrastructure.SensorType;
 import algorithm.infrastructure.Infrastructure;
+import algorithm.infrastructure.SensorType;
 
 import java.util.Arrays;
 
@@ -19,9 +19,10 @@ public class FogDeploymentExample {
 //        infrastructure.createFogNode("mbp", 1024 * 16, 512, 8, 20000); // error: already exists
 //        infrastructure.removeFogNode("mbp");
 //        infrastructure.removeFogNode("mbp"); // error (log only): remove twice
+//        infrastructure.getFogNode("randomFogNode"); // error: node doesn't exist
 
         // create sensors
-        infrastructure.getFogNodeById("raspi-01").addSensor("camera-01", SensorType.CAMERA);
+        infrastructure.getFogNode("raspi-01").addSensor("camera-01", SensorType.CAMERA);
 
         // create uplinks
         infrastructure.createUplinks("raspi-01", "raspi-02", 1, 1000.0, 1000.0);
