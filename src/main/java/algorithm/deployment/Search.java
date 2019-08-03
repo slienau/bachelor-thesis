@@ -24,8 +24,8 @@ public class Search {
     private static AppDeployment getFastestDeployment(List<AppDeployment> validDeployments) {
         AppDeployment fastestDeployment = null;
         for (AppDeployment dep : validDeployments) {
-            double thisLatency = dep.getTotalLatency();
-            if (fastestDeployment == null || fastestDeployment.getTotalLatency() > thisLatency)
+            double thisLatency = dep.getMaxLoopLatency();
+            if (fastestDeployment == null || fastestDeployment.getMaxLoopLatency() > thisLatency)
                 fastestDeployment = dep;
         }
         return fastestDeployment;
@@ -37,7 +37,7 @@ public class Search {
 
     private List<AppDeployment> getValidAppDeployments() {
         List<AppDeployment> validDeployments = new ArrayList<>();
-        for (AppDeployment dep : this.getAppDeploymentsUnchecked()) {
+        for (AppDeployment dep : this.getAppLoopDeploymentsUnchecked()) {
             if (dep.isValid()) {
                 System.out.println(String.format("[Search] Found valid %s", dep));
                 validDeployments.add(dep);
@@ -52,7 +52,7 @@ public class Search {
      *
      * @return
      */
-    private List<AppDeployment> getAppDeploymentsUnchecked() {
+    private List<AppDeployment> getAppLoopDeploymentsUnchecked() {
         List<AppSoftwareModule> modules = a.getRequiredSoftwareModules();
         List<FogNode> fogNodes = i.getFogNodes();
 

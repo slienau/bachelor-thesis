@@ -7,8 +7,12 @@ import java.util.*;
 public class Infrastructure {
     private final Map<String, FogNode> fogNodes = new HashMap<>(); // <nodeId, FogNode object>
 
-    public void createFogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore) throws IllegalArgumentException {
-        this.addFogNode(new FogNode(id, ramTotal, storageTotal, cpuCores, cpuScoreSingleCore));
+    public void addFogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore) throws IllegalArgumentException {
+        this.addFogNode(id, ramTotal, storageTotal, cpuCores, cpuScoreSingleCore, null);
+    }
+
+    public void addFogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore, List<String> connectedHardware) throws IllegalArgumentException {
+        this.addFogNode(new FogNode(id, ramTotal, storageTotal, cpuCores, cpuScoreSingleCore, connectedHardware));
     }
 
     private void addFogNode(FogNode newFogNode) throws IllegalArgumentException {
@@ -48,7 +52,7 @@ public class Infrastructure {
      * @param bandwidthAtoB link bandwidth from node A to node B in Mbit/s
      * @param bandwidthBtoA link bandwidth from node B to node A in Mbit/s
      */
-    public void createUplinks(String fogNodeA, String fogNodeB, int latency, double bandwidthAtoB, double bandwidthBtoA) {
+    public void addNetworkLink(String fogNodeA, String fogNodeB, int latency, double bandwidthAtoB, double bandwidthBtoA) {
         try {
             long bandwidthAtoB_bitPerSecond = Utils.mbitToBit(bandwidthAtoB);
             long bandwidthBtoA_bitPerSecond = Utils.mbitToBit(bandwidthBtoA);
@@ -62,7 +66,7 @@ public class Infrastructure {
     }
 
     public void updateUplinks(String nodeA, String nodeB, int latency, double bandwidthAtoB, double bandwidthBtoA) {
-        // TODO
         System.err.println("TODO: updateUplinks(FogNode nodeA, FogNode nodeB, int latency, double bandwidthAtoB, double bandwidthBtoA)");
+        throw new RuntimeException("TODO: Implement method.");
     }
 }

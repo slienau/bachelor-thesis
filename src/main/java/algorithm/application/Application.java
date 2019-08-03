@@ -1,19 +1,16 @@
 package algorithm.application;
 
-import algorithm.infrastructure.SensorType;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Application {
     private final String name;
-    private final int maxLatency;
     private Map<String, AppModule> modules = new HashMap<>();
     private Map<String, AppMessage> messages = new HashMap<>();
+    private List<AppLoop> loops = new ArrayList<>();
 
-    public Application(String name, int maxLatency) {
+    public Application(String name) {
         this.name = name;
-        this.maxLatency = maxLatency;
     }
 
     private static String messageKey(AppMessage message) {
@@ -28,12 +25,16 @@ public class Application {
         return String.format("%s->%s", source, destination);
     }
 
-    public String getName() {
-        return name;
+    public void addLoop(String loopName, int maxLatency, List<String> modules) {
+        this.loops.add(new AppLoop(loopName, maxLatency, modules));
     }
 
-    public int getMaxLatency() {
-        return maxLatency;
+    public List<AppLoop> getLoops() {
+        return loops;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public List<AppMessage> getMessages() {
@@ -41,14 +42,17 @@ public class Application {
     }
 
     public void addSoftwareModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructions) {
-        this.addSoftwareModule(id, requiredRam, requiredStorage, requiredCpuInstructions, null);
+        this.addModule(new AppSoftwareModule(id, requiredRam, requiredStorage, requiredCpuInstructions));
     }
 
-    public void addSoftwareModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructions, List<SensorType> requiredSensorTypes) {
-        AppSoftwareModule newModule = new AppSoftwareModule(id, requiredRam, requiredStorage, requiredCpuInstructions, requiredSensorTypes);
-        if (modules.putIfAbsent(id, newModule) != null)
-            throw new IllegalArgumentException(String.format("Failed to add %s to %s. Already exists.", id, name));
-        System.out.println(String.format("[Application][%s] Added %s", name, newModule));
+    public void addHardwareModule(String id) {
+        this.addModule(new AppHardwareModule(id));
+    }
+
+    private void addModule(AppModule newModule) {
+        if (modules.putIfAbsent(newModule.getId(), newModule) != null)
+            throw new IllegalArgumentException(String.format("Failed to add %s to %s. Already exists.", newModule.getId(), this.getName()));
+        System.out.println(String.format("[Application][%s] Added %s", this.getName(), newModule));
     }
 
     public void addMessage(String content, String sourceModule, String destinationModule, double dataPerMessage) {
@@ -91,7 +95,6 @@ public class Application {
     public String toString() {
         return "Application{" +
                 "name='" + name + '\'' +
-                ", maxLatency=" + maxLatency +
                 ", modules=" + modules +
                 ", messages=" + messages +
                 '}';

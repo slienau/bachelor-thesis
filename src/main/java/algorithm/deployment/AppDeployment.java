@@ -1,6 +1,6 @@
 package algorithm.deployment;
 
-import algorithm.application.AppMessage;
+import algorithm.application.AppLoop;
 import algorithm.application.AppSoftwareModule;
 import algorithm.application.Application;
 import algorithm.infrastructure.FogNode;
@@ -12,21 +12,15 @@ public class AppDeployment {
     private final Application application;
     private final Map<AppSoftwareModule, FogNode> moduleToNodeMap;
     private final boolean valid;
-    private final double totalLatency;
 
     AppDeployment(Application application, Map<AppSoftwareModule, FogNode> moduleToNodeMap) {
         this.application = application;
         this.moduleToNodeMap = moduleToNodeMap;
         this.valid = this.checkValidity();
-        this.totalLatency = this.calculateTotalLatency();
     }
 
     public boolean isValid() {
         return valid;
-    }
-
-    public double getTotalLatency() {
-        return totalLatency;
     }
 
     private boolean checkValidity() {
@@ -62,37 +56,52 @@ public class AppDeployment {
     }
 
     private boolean validateLatencyRequirements() {
-        double totalLatency = this.calculateTotalLatency();
-        boolean valid = totalLatency < this.application.getMaxLatency();
-
-//        if (valid)
-//            System.out.println(String.format("[AppDeployment] [Latency Requirement Check] SUCCESS (Required: %s; Has: %s)", this.application.getMaxLatency(), totalLatency));
-//        else
-//            System.out.println(String.format("[AppDeployment] [Latency Requirement Check] FAILED (Required: %s; Has: %s)", this.application.getMaxLatency(), totalLatency));
+        boolean valid = true;
+        for (AppLoop loop : this.application.getLoops()) {
+            valid = loop.hasValidLatencyRequirements(this);
+            if (!valid)
+                break;
+        }
         return valid;
     }
 
-    private double calculateTotalLatency() {
-        return calculateTotalTransferTime() + calculateTotalProcessingTime();
+    /**
+     * Gets latency for every AppLoop and returns max.
+     *
+     * @return
+     */
+    public double getMaxLoopLatency() {
+        return getMaxLoopTransferTime() + getMaxLoopProcessingTime();
     }
 
-    private double calculateTotalProcessingTime() {
-        return moduleToNodeMap.entrySet().stream().mapToDouble(entry -> entry.getValue().calculateProcessingTimeForModule(entry.getKey())).sum();
-    }
-
-    private double calculateTotalTransferTime() {
-        double totalTransferTime = 0;
-        for (AppMessage message : application.getMessages()) {
-            // TODO: calculate by AppLoop
-            FogNode sourceNode = moduleToNodeMap.get(message.getSourceModuleId());
-            FogNode destinationNode = moduleToNodeMap.get(message.getDestinationModuleId());
-            if (sourceNode == null || destinationNode == null) {
-                // no software module in moduleToNodeMap -> hardwareModule
-                continue;
-            }
-            totalTransferTime += message.calculateMessageTransferTime(sourceNode, destinationNode);
+    /**
+     * Gets processing time for every AppLoop and returns max.
+     *
+     * @return
+     */
+    private double getMaxLoopProcessingTime() {
+        double result = 0.0;
+        for (AppLoop loop : this.application.getLoops()) {
+            double loopProcessingTime = loop.getProcessingTime(this);
+            if (result < loopProcessingTime)
+                result = loopProcessingTime;
         }
-        return totalTransferTime;
+        return result;
+    }
+
+    /**
+     * Gets loop transfer time for every AppLoop and returns max.
+     *
+     * @return
+     */
+    private double getMaxLoopTransferTime() {
+        double result = 0.0;
+        for (AppLoop loop : this.application.getLoops()) {
+            double loopTransferTime = loop.getTransferTime(this);
+            if (result < loopTransferTime)
+                result = loopTransferTime;
+        }
+        return result;
     }
 
     public String createDetailsString() {
@@ -102,13 +111,13 @@ public class AppDeployment {
                 .append("**************************************************************");
 
         sb.append(createStepsString());
-//        sb.append(createFogNodeUsageString()); // TODO
+        sb.append(createFogNodeUsageString());
 
         return sb.toString();
     }
 
     private String createStepsString() {
-        // TODO: create string by apploop
+        // TODO: create string for every apploop (implement in AppLoop and call from here for every apploop)
         /*
         Function<Integer, String> delimiterString = (stepIn) -> String.format("\n%2s.\t", stepIn);
 
@@ -146,6 +155,8 @@ public class AppDeployment {
                 .append(String.format("--> Total time: %sms\n", Utils.round(this.getTotalLatency())))
                 .append("-------------------------\n");
         return sb.toString();
+         */
+        return null;
     }
 
     private String createFogNodeUsageString() {
@@ -156,9 +167,6 @@ public class AppDeployment {
         this.getAllInvolvedFogNodes().forEach(node -> sb.append(node).append("\n"));
         this.undeployAllModulesFromNodes();
         return sb.toString();
-
-        */
-        return null;
     }
 
     private Map<FogNode, List<AppSoftwareModule>> getNodeToModulesMap() {
@@ -178,6 +186,14 @@ public class AppDeployment {
         this.getAllInvolvedFogNodes().forEach(FogNode::undeployAllModules);
     }
 
+    public Application getApplication() {
+        return application;
+    }
+
+    public Map<AppSoftwareModule, FogNode> getModuleToNodeMap() {
+        return moduleToNodeMap;
+    }
+
     @Override
     public String toString() {
         String moduleDeployments = this.moduleToNodeMap.entrySet().stream().map(mapping -> {
@@ -190,7 +206,7 @@ public class AppDeployment {
                 "application=" + application.getName() +
                 ", moduleToNodeMap=" + moduleDeployments +
                 ", valid=" + valid +
-                ", totalLatency=" + (int) totalLatency + "ms" +
+                ", maxLatency=" + (int) this.getMaxLoopLatency() + "ms" +
                 '}';
     }
 }

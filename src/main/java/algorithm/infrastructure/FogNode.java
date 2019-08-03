@@ -1,6 +1,7 @@
 package algorithm.infrastructure;
 
 import algorithm.Utils;
+import algorithm.application.AppHardwareModule;
 import algorithm.application.AppSoftwareModule;
 
 import java.util.*;
@@ -12,17 +13,19 @@ public class FogNode {
     private final double storageTotal;
     private final int cpuCores;
     private final int cpuInstructionsPerSecond;
-    private final List<Sensor> connectedSensors;
+    private final Set<AppHardwareModule> connectedHardware;
     private final List<AppSoftwareModule> deployedModules;
     private final Map<String, NetworkUplink> uplinks; // key: destination node
 
-    FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuInstructionsPerSecond) {
+    FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
         this.id = id;
         this.ramTotal = ramTotal;
         this.storageTotal = storageTotal;
         this.cpuCores = cpuCores;
         this.cpuInstructionsPerSecond = cpuInstructionsPerSecond;
-        this.connectedSensors = new ArrayList<>();
+        this.connectedHardware = new HashSet<>();
+        if (connectedHardware != null)
+            connectedHardware.forEach(this::addHardware);
         this.deployedModules = new ArrayList<>();
         this.uplinks = new HashMap<>();
         // add uplink to node itself with 0 latency and unlimited bandwidth
@@ -43,8 +46,8 @@ public class FogNode {
         return id;
     }
 
-    public void addSensor(String id, SensorType type) {
-        this.connectedSensors.add(new Sensor(id, type));
+    public void addHardware(String id) {
+        this.connectedHardware.add(new AppHardwareModule(id));
     }
 
     public boolean deployModule(AppSoftwareModule appSoftwareModule) {
@@ -52,13 +55,6 @@ public class FogNode {
         if (appSoftwareModule.getRequiredRam() > this.getRamFree() || appSoftwareModule.getRequiredStorage() > this.getStorageFree()) {
 //            System.out.println(String.format("%s can not be deployed on %s", appSoftwareModule.getId(), this.getId()));
             return false;
-        }
-
-        for (SensorType requiredSensorType : appSoftwareModule.getRequiredSensorTypes()) {
-            if (!this.getConnectedSensorTypes().contains(requiredSensorType)) {
-//                System.out.println(String.format("%s can not be deployed to %s because it doesn't contain sensor type %s", appSoftwareModule.getId(), this.getId(), requiredSensorType));
-                return false;
-            }
         }
 
         deployedModules.add(appSoftwareModule);
@@ -119,12 +115,6 @@ public class FogNode {
         return Utils.makePercent(this.getStorageUsed(), this.storageTotal);
     }
 
-    private Set<SensorType> getConnectedSensorTypes() {
-        Set<SensorType> connectedSensorTypes = new HashSet<>();
-        this.connectedSensors.forEach(sensor -> connectedSensorTypes.add(sensor.getType()));
-        return connectedSensorTypes;
-    }
-
     /**
      * @param module The AppSoftwareModule to execute on this node
      * @return Processing time for module on this node in milliseconds
@@ -149,7 +139,7 @@ public class FogNode {
                 String.format(", storageUsed=%sGB/%sGB (%s%%)", this.getStorageUsed(), this.storageTotal, this.getStorageUsedPercent()) +
                 ", cpuCores=" + cpuCores +
                 ", cpuInstructionsPerSecond=" + cpuInstructionsPerSecond +
-                ", connectedSensors=[" + connectedSensors.stream().map(Sensor::getId).collect(Collectors.joining(", ")) + "]" +
+                ", connectedHardware=[" + connectedHardware.stream().map(hw -> hw.getId()).collect(Collectors.joining(", ")) + "]" +
                 ", deployedModules=[" + deployedModules.stream().map(module -> String.format("%s (RAM %sMB/Storage %sGB)", module.getId(), module.getRequiredRam(), module.getRequiredStorage())).collect(Collectors.joining(", ")) + "]" +
                 ", uplinks=[" + uplinks.values().stream().map(uplink -> String.format("{to: %s, %sms, %sMbit/s}", uplink.getDestination().getId(), uplink.getLatency(), uplink.getMBitPerSecond())).collect(Collectors.joining(", ")) + "]" +
                 '}';
