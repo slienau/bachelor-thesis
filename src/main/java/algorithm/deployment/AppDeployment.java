@@ -2,7 +2,7 @@ package algorithm.deployment;
 
 import algorithm.Utils;
 import algorithm.application.AppMessage;
-import algorithm.application.AppModule;
+import algorithm.application.AppSoftwareModule;
 import algorithm.application.Application;
 import algorithm.infrastructure.FogNode;
 
@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 
 public class AppDeployment {
     private final Application application;
-    private final Map<AppModule, FogNode> moduleToNodeMap;
+    private final Map<AppSoftwareModule, FogNode> moduleToNodeMap;
     private final boolean valid;
     private final double totalLatency;
 
-    AppDeployment(Application application, Map<AppModule, FogNode> moduleToNodeMap) {
+    AppDeployment(Application application, Map<AppSoftwareModule, FogNode> moduleToNodeMap) {
         this.application = application;
         this.moduleToNodeMap = moduleToNodeMap;
         this.valid = this.checkValidity();
@@ -44,8 +44,8 @@ public class AppDeployment {
     private boolean validateHardwareRequirements() {
         boolean valid = true;
         // validate hardware requirements
-        for (Map.Entry<AppModule, FogNode> entry : moduleToNodeMap.entrySet()) {
-            AppModule module = entry.getKey();
+        for (Map.Entry<AppSoftwareModule, FogNode> entry : moduleToNodeMap.entrySet()) {
+            AppSoftwareModule module = entry.getKey();
             FogNode node = entry.getValue();
             if (!node.deployModule(module)) {
                 valid = false;
@@ -111,9 +111,9 @@ public class AppDeployment {
         int step = 0;
         int iteration = 0;
         for (AppMessage message : this.application.getMessages()) {
-            AppModule sourceModule = message.getSource();
+            AppSoftwareModule sourceModule = message.getSource();
             FogNode sourceNode = this.moduleToNodeMap.get(sourceModule);
-            AppModule destinationModule = message.getDestination();
+            AppSoftwareModule destinationModule = message.getDestination();
             FogNode destinationNode = this.moduleToNodeMap.get(destinationModule);
 
             // Print sensor types if needed
@@ -153,8 +153,8 @@ public class AppDeployment {
         return sb.toString();
     }
 
-    private Map<FogNode, List<AppModule>> getNodeToModulesMap() {
-        Map<FogNode, List<AppModule>> result = new HashMap<>();
+    private Map<FogNode, List<AppSoftwareModule>> getNodeToModulesMap() {
+        Map<FogNode, List<AppSoftwareModule>> result = new HashMap<>();
         // initialize Map with keys and empty list
         this.getAllInvolvedFogNodes().forEach(fogNode -> result.put(fogNode, new ArrayList<>()));
         // add modules to list (values)

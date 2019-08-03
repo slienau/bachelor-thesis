@@ -32,14 +32,16 @@ public class FogDeploymentExample {
 
         // create application and application modules
         Application objectDetectionApp = new Application("object-detection", 1000);
-        objectDetectionApp.addModule("camera-controller", 100, 0.2, 100, Arrays.asList(SensorType.CAMERA));
-        objectDetectionApp.addModule("object-detector", 2000, 1.5, 5000);
-        objectDetectionApp.addModule("image-viewer", 300, 0.1, 100);
+        objectDetectionApp.addSoftwareModule("camera-controller", 100, 0.2, 100, Arrays.asList(SensorType.CAMERA));
+        objectDetectionApp.addSoftwareModule("object-detector", 2000, 1.5, 5000);
+        objectDetectionApp.addSoftwareModule("image-viewer", 300, 0.1, 100);
 
         // add
         objectDetectionApp.addMessage("IMAGE_ORIGINAL", "camera-controller", "object-detector", 500);
         objectDetectionApp.addMessage("IMAGE_DETECTED", "object-detector", "image-viewer", 500);
 //        objectDetectionApp.addMessage("IMAGE_DETECTED", "adfg", "image-viewer", 500); // error: module not found
+
+//        AppLoop objectDetectionLoop = new AppLoop("object-detection", Arrays.asList("CAMERA", "camera-controller", "object-detector", "image-viewer"));
 
 
         Search s = new Search(objectDetectionApp, infrastructure);

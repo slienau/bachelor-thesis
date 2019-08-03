@@ -7,7 +7,7 @@ import java.util.*;
 public class Application {
     private final String name;
     private final int maxLatency;
-    private Map<String, AppModule> modules = new HashMap<>();
+    private Map<String, AppSoftwareModule> modules = new HashMap<>();
     private Map<String, AppMessage> messages = new HashMap<>();
 
     public Application(String name, int maxLatency) {
@@ -19,7 +19,7 @@ public class Application {
         return messageKey(message.getSource(), message.getDestination());
     }
 
-    private static String messageKey(AppModule source, AppModule destination) {
+    private static String messageKey(AppSoftwareModule source, AppSoftwareModule destination) {
         return messageKey(source.getId(), destination.getId());
     }
 
@@ -39,20 +39,20 @@ public class Application {
         return new ArrayList<>(messages.values());
     }
 
-    public void addModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructions) {
-        this.addModule(id, requiredRam, requiredStorage, requiredCpuInstructions, null);
+    public void addSoftwareModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructions) {
+        this.addSoftwareModule(id, requiredRam, requiredStorage, requiredCpuInstructions, null);
     }
 
-    public void addModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructions, List<SensorType> requiredSensorTypes) {
-        AppModule newModule = new AppModule(id, requiredRam, requiredStorage, requiredCpuInstructions, requiredSensorTypes);
+    public void addSoftwareModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructions, List<SensorType> requiredSensorTypes) {
+        AppSoftwareModule newModule = new AppSoftwareModule(id, requiredRam, requiredStorage, requiredCpuInstructions, requiredSensorTypes);
         if (modules.putIfAbsent(id, newModule) != null)
             throw new IllegalArgumentException(String.format("Failed to add %s to %s. Already exists.", id, name));
         System.out.println(String.format("[Application][%s] Added %s", name, newModule));
     }
 
     public void addMessage(String content, String sourceModule, String destinationModule, double dataPerMessage) {
-        AppModule source;
-        AppModule destination;
+        AppSoftwareModule source;
+        AppSoftwareModule destination;
         try {
             source = this.getModuleById(sourceModule);
             destination = this.getModuleById(destinationModule);
@@ -67,12 +67,12 @@ public class Application {
         System.out.println(String.format("[Application][%s] Added message '%s' from '%s' to '%s'", this.getName(), message.getContent(), sourceModule, destinationModule));
     }
 
-    public List<AppModule> getRequiredModules() {
+    public List<AppSoftwareModule> getRequiredModules() {
         return new ArrayList<>(this.modules.values());
     }
 
-    private AppModule getModuleById(String id) {
-        AppModule result = modules.get(id);
+    private AppSoftwareModule getModuleById(String id) {
+        AppSoftwareModule result = modules.get(id);
         if (result == null)
             throw new NoSuchElementException(String.format("Unable to find module '%s'", id));
         return result;

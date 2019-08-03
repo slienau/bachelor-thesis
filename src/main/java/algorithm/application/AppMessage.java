@@ -6,22 +6,22 @@ import algorithm.infrastructure.NetworkUplink;
 
 public class AppMessage {
     private final String content;
-    private final AppModule source; // sending module
-    private final AppModule destination; // receiving module
+    private final AppSoftwareModule source; // sending module
+    private final AppSoftwareModule destination; // receiving module
     private final double dataPerMessage; // kb
 
-    AppMessage(String content, AppModule source, AppModule destination, double dataPerMessage) {
+    AppMessage(String content, AppSoftwareModule source, AppSoftwareModule destination, double dataPerMessage) {
         this.content = content;
         this.source = source;
         this.destination = destination;
         this.dataPerMessage = dataPerMessage;
     }
 
-    public AppModule getSource() {
+    public AppSoftwareModule getSource() {
         return source;
     }
 
-    public AppModule getDestination() {
+    public AppSoftwareModule getDestination() {
         return destination;
     }
 

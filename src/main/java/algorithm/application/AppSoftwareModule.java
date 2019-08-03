@@ -6,18 +6,18 @@ import algorithm.infrastructure.SensorType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AppModule {
+public class AppSoftwareModule {
     private final String id;
     private final int requiredRam; // MB
     private final double requiredStorage; // GB
     private final int requiredCpuInstructionsPerMessage;
     private final List<SensorType> requiredSensorTypes = new ArrayList<>();
 
-    public AppModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructionsPerMessage) {
+    public AppSoftwareModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructionsPerMessage) {
         this(id, requiredRam, requiredStorage, requiredCpuInstructionsPerMessage, null);
     }
 
-    AppModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructionsPerMessage, List<SensorType> requiredSensorTypes) {
+    AppSoftwareModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructionsPerMessage, List<SensorType> requiredSensorTypes) {
         this.id = id;
         this.requiredRam = requiredRam;
         this.requiredStorage = requiredStorage;
@@ -52,7 +52,7 @@ public class AppModule {
 
     @Override
     public String toString() {
-        return "AppModule{" +
+        return "AppSoftwareModule{" +
                 "id='" + id + '\'' +
                 ", requiredRam=" + requiredRam +
                 ", requiredStorage=" + requiredStorage +

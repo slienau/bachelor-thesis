@@ -1,7 +1,7 @@
 package algorithm.infrastructure;
 
 import algorithm.Utils;
-import algorithm.application.AppModule;
+import algorithm.application.AppSoftwareModule;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,7 +13,7 @@ public class FogNode {
     private final int cpuCores;
     private final int cpuInstructionsPerSecond;
     private final List<Sensor> connectedSensors;
-    private final List<AppModule> deployedModules;
+    private final List<AppSoftwareModule> deployedModules;
     private final Map<String, NetworkUplink> uplinks; // key: destination node
 
     FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuInstructionsPerSecond) {
@@ -47,28 +47,28 @@ public class FogNode {
         this.connectedSensors.add(new Sensor(id, type));
     }
 
-    public boolean deployModule(AppModule appModule) {
-//        System.out.println(String.format("Trying to deploy %s on %s", appModule.getId(), this.getId()));
-        if (appModule.getRequiredRam() > this.getRamFree() || appModule.getRequiredStorage() > this.getStorageFree()) {
-//            System.out.println(String.format("%s can not be deployed on %s", appModule.getId(), this.getId()));
+    public boolean deployModule(AppSoftwareModule appSoftwareModule) {
+//        System.out.println(String.format("Trying to deploy %s on %s", appSoftwareModule.getId(), this.getId()));
+        if (appSoftwareModule.getRequiredRam() > this.getRamFree() || appSoftwareModule.getRequiredStorage() > this.getStorageFree()) {
+//            System.out.println(String.format("%s can not be deployed on %s", appSoftwareModule.getId(), this.getId()));
             return false;
         }
 
-        for (SensorType requiredSensorType : appModule.getRequiredSensorTypes()) {
+        for (SensorType requiredSensorType : appSoftwareModule.getRequiredSensorTypes()) {
             if (!this.getConnectedSensorTypes().contains(requiredSensorType)) {
-//                System.out.println(String.format("%s can not be deployed to %s because it doesn't contain sensor type %s", appModule.getId(), this.getId(), requiredSensorType));
+//                System.out.println(String.format("%s can not be deployed to %s because it doesn't contain sensor type %s", appSoftwareModule.getId(), this.getId(), requiredSensorType));
                 return false;
             }
         }
 
-        deployedModules.add(appModule);
-//        System.out.println(String.format("%s successfully deployed to %s; freeRam: %s; freeStorage: %s", appModule.getId(), this.getId(), this.getRamFree(), this.getStorageFree()));
+        deployedModules.add(appSoftwareModule);
+//        System.out.println(String.format("%s successfully deployed to %s; freeRam: %s; freeStorage: %s", appSoftwareModule.getId(), this.getId(), this.getRamFree(), this.getStorageFree()));
         return true;
     }
 
-    public boolean deployModules(List<AppModule> modules) {
+    public boolean deployModules(List<AppSoftwareModule> modules) {
         boolean result = true;
-        for (AppModule module : modules) {
+        for (AppSoftwareModule module : modules) {
             if (!this.deployModule(module)) {
                 result = false;
                 break;
@@ -79,7 +79,7 @@ public class FogNode {
         return result;
     }
 
-    public void undeployModule(AppModule module) {
+    public void undeployModule(AppSoftwareModule module) {
         this.deployedModules.remove(module);
     }
 
@@ -89,7 +89,7 @@ public class FogNode {
 
     private int getRamFree() {
         int ramFree = this.ramTotal;
-        for (AppModule module : this.deployedModules) {
+        for (AppSoftwareModule module : this.deployedModules) {
             ramFree -= module.getRequiredRam();
         }
         return ramFree;
@@ -105,7 +105,7 @@ public class FogNode {
 
     private double getStorageFree() {
         double storageFree = this.storageTotal;
-        for (AppModule module : this.deployedModules) {
+        for (AppSoftwareModule module : this.deployedModules) {
             storageFree -= module.getRequiredStorage();
         }
         return storageFree;
@@ -126,16 +126,16 @@ public class FogNode {
     }
 
     /**
-     * @param module The AppModule to execute on this node
+     * @param module The AppSoftwareModule to execute on this node
      * @return Processing time for module on this node in milliseconds
      */
-    public double calculateProcessingTimeForModule(AppModule module) {
+    public double calculateProcessingTimeForModule(AppSoftwareModule module) {
         double instructionsPerMessage = module.getRequiredCpuInstructionsPerMessage();
         double cpuInstructionsPerSecond = this.cpuInstructionsPerSecond;
         return Utils.round((instructionsPerMessage / cpuInstructionsPerSecond) * 1000);
     }
 
-    public String getProcessingTimeString(AppModule module) {
+    public String getProcessingTimeString(AppSoftwareModule module) {
         String processingStringTemplate = "%6sms Processing time for module '%s' on '%s'.";
         double processingTime = this.calculateProcessingTimeForModule(module);
         return String.format(processingStringTemplate, processingTime, module.getId(), this.getId());

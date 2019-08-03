@@ -1,6 +1,6 @@
 package algorithm.deployment;
 
-import algorithm.application.AppModule;
+import algorithm.application.AppSoftwareModule;
 import algorithm.application.Application;
 import algorithm.infrastructure.FogNode;
 import algorithm.infrastructure.Infrastructure;
@@ -53,7 +53,7 @@ public class Search {
      * @return
      */
     private List<AppDeployment> getAppDeploymentsUnchecked() {
-        List<AppModule> modules = a.getRequiredModules();
+        List<AppSoftwareModule> modules = a.getRequiredModules();
         List<FogNode> fogNodes = i.getFogNodes();
 
         List<List<FogNode>> deploymentsWithoutModule = Generator
@@ -65,9 +65,9 @@ public class Search {
         List<AppDeployment> appDeployments = new ArrayList<>();
 
         deploymentsWithoutModule.forEach(depWithout -> {
-            Map<AppModule, FogNode> moduleToNodeMap = new HashMap<>();
+            Map<AppSoftwareModule, FogNode> moduleToNodeMap = new HashMap<>();
             for (int i = 0; i < depWithout.size(); i++) {
-                AppModule module = modules.get(i);
+                AppSoftwareModule module = modules.get(i);
                 FogNode node = depWithout.get(i);
                 moduleToNodeMap.put(module, node);
             }
