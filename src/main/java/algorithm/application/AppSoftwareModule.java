@@ -6,8 +6,7 @@ import algorithm.infrastructure.SensorType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AppSoftwareModule {
-    private final String id;
+public class AppSoftwareModule extends AppModule {
     private final int requiredRam; // MB
     private final double requiredStorage; // GB
     private final int requiredCpuInstructionsPerMessage;
@@ -18,16 +17,13 @@ public class AppSoftwareModule {
     }
 
     AppSoftwareModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructionsPerMessage, List<SensorType> requiredSensorTypes) {
-        this.id = id;
+        super(id);
         this.requiredRam = requiredRam;
         this.requiredStorage = requiredStorage;
         this.requiredCpuInstructionsPerMessage = requiredCpuInstructionsPerMessage;
+        // TODO: Remove requiredSensorTypes from this class -> they can be found by the app loop
         if (requiredSensorTypes != null)
             this.requiredSensorTypes.addAll(requiredSensorTypes);
-    }
-
-    public String getId() {
-        return id;
     }
 
     public int getRequiredRam() {
@@ -53,7 +49,7 @@ public class AppSoftwareModule {
     @Override
     public String toString() {
         return "AppSoftwareModule{" +
-                "id='" + id + '\'' +
+                "id='" + super.getId() + '\'' +
                 ", requiredRam=" + requiredRam +
                 ", requiredStorage=" + requiredStorage +
                 ", requiredCpuInstructions=" + requiredCpuInstructionsPerMessage +

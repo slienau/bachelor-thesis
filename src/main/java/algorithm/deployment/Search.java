@@ -53,7 +53,7 @@ public class Search {
      * @return
      */
     private List<AppDeployment> getAppDeploymentsUnchecked() {
-        List<AppSoftwareModule> modules = a.getRequiredModules();
+        List<AppSoftwareModule> modules = a.getRequiredSoftwareModules();
         List<FogNode> fogNodes = i.getFogNodes();
 
         List<List<FogNode>> deploymentsWithoutModule = Generator

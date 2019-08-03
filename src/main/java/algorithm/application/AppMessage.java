@@ -6,23 +6,23 @@ import algorithm.infrastructure.NetworkUplink;
 
 public class AppMessage {
     private final String content;
-    private final AppSoftwareModule source; // sending module
-    private final AppSoftwareModule destination; // receiving module
+    private final String sourceModuleId; // sending module
+    private final String destinationModuleId; // receiving module
     private final double dataPerMessage; // kb
 
-    AppMessage(String content, AppSoftwareModule source, AppSoftwareModule destination, double dataPerMessage) {
+    AppMessage(String content, String sourceModuleId, String destinationModuleId, double dataPerMessage) {
         this.content = content;
-        this.source = source;
-        this.destination = destination;
+        this.sourceModuleId = sourceModuleId;
+        this.destinationModuleId = destinationModuleId;
         this.dataPerMessage = dataPerMessage;
     }
 
-    public AppSoftwareModule getSource() {
-        return source;
+    public String getSourceModuleId() {
+        return sourceModuleId;
     }
 
-    public AppSoftwareModule getDestination() {
-        return destination;
+    public String getDestinationModuleId() {
+        return destinationModuleId;
     }
 
     public double getDataPerMessage() {
@@ -50,8 +50,8 @@ public class AppMessage {
     public String toString() {
         return "AppMessage{" +
                 "content='" + content + '\'' +
-                ", source=" + source.getId() +
-                ", destination=" + destination.getId() +
+                ", sourceModule=" + sourceModuleId +
+                ", destinationModule=" + destinationModuleId +
                 ", dataPerMessage=" + dataPerMessage +
                 '}';
     }

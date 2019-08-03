@@ -1,13 +1,11 @@
 package algorithm.deployment;
 
-import algorithm.Utils;
 import algorithm.application.AppMessage;
 import algorithm.application.AppSoftwareModule;
 import algorithm.application.Application;
 import algorithm.infrastructure.FogNode;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class AppDeployment {
@@ -85,8 +83,13 @@ public class AppDeployment {
     private double calculateTotalTransferTime() {
         double totalTransferTime = 0;
         for (AppMessage message : application.getMessages()) {
-            FogNode sourceNode = moduleToNodeMap.get(message.getSource());
-            FogNode destinationNode = moduleToNodeMap.get(message.getDestination());
+            // TODO: calculate by AppLoop
+            FogNode sourceNode = moduleToNodeMap.get(message.getSourceModuleId());
+            FogNode destinationNode = moduleToNodeMap.get(message.getDestinationModuleId());
+            if (sourceNode == null || destinationNode == null) {
+                // no software module in moduleToNodeMap -> hardwareModule
+                continue;
+            }
             totalTransferTime += message.calculateMessageTransferTime(sourceNode, destinationNode);
         }
         return totalTransferTime;
@@ -99,21 +102,23 @@ public class AppDeployment {
                 .append("**************************************************************");
 
         sb.append(createStepsString());
-        sb.append(createFogNodeUsageString());
+//        sb.append(createFogNodeUsageString()); // TODO
 
         return sb.toString();
     }
 
     private String createStepsString() {
+        // TODO: create string by apploop
+        /*
         Function<Integer, String> delimiterString = (stepIn) -> String.format("\n%2s.\t", stepIn);
 
         StringBuilder sb = new StringBuilder();
         int step = 0;
         int iteration = 0;
         for (AppMessage message : this.application.getMessages()) {
-            AppSoftwareModule sourceModule = message.getSource();
+            String sourceModule = message.getSourceModuleId();
             FogNode sourceNode = this.moduleToNodeMap.get(sourceModule);
-            AppSoftwareModule destinationModule = message.getDestination();
+            String destinationModule = message.getDestinationModuleId();
             FogNode destinationNode = this.moduleToNodeMap.get(destinationModule);
 
             // Print sensor types if needed
@@ -151,6 +156,9 @@ public class AppDeployment {
         this.getAllInvolvedFogNodes().forEach(node -> sb.append(node).append("\n"));
         this.undeployAllModulesFromNodes();
         return sb.toString();
+
+        */
+        return null;
     }
 
     private Map<FogNode, List<AppSoftwareModule>> getNodeToModulesMap() {
