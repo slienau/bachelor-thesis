@@ -5,32 +5,20 @@ import algorithm.infrastructure.FogNode;
 import algorithm.infrastructure.NetworkUplink;
 
 public class AppMessage {
-    private final String content;
-    private final String sourceModuleId; // sending module
-    private final String destinationModuleId; // receiving module
+    private final String contentType;
     private final double dataPerMessage; // kb
 
-    AppMessage(String content, String sourceModuleId, String destinationModuleId, double dataPerMessage) {
-        this.content = content;
-        this.sourceModuleId = sourceModuleId;
-        this.destinationModuleId = destinationModuleId;
+    AppMessage(String contentType, double dataPerMessage) {
+        this.contentType = contentType;
         this.dataPerMessage = dataPerMessage;
-    }
-
-    public String getSourceModuleId() {
-        return sourceModuleId;
-    }
-
-    public String getDestinationModuleId() {
-        return destinationModuleId;
     }
 
     public double getDataPerMessage() {
         return dataPerMessage;
     }
 
-    public String getContent() {
-        return content;
+    public String getContentType() {
+        return contentType;
     }
 
     public double calculateMessageTransferTime(FogNode sourceNode, FogNode destinationNode) {
@@ -43,15 +31,13 @@ public class AppMessage {
         NetworkUplink uplink = sourceNode.getUplinkTo(destinationNode.getId());
         double messageTransferTime = this.calculateMessageTransferTime(sourceNode, destinationNode);
         return String.format(transferStringTemplate,
-                messageTransferTime, sourceNode.getId(), destinationNode.getId(), this.getContent(), this.getDataPerMessage(), uplink.getMBitPerSecond(), uplink.getLatency());
+                messageTransferTime, sourceNode.getId(), destinationNode.getId(), this.getContentType(), this.getDataPerMessage(), uplink.getMBitPerSecond(), uplink.getLatency());
     }
 
     @Override
     public String toString() {
         return "AppMessage{" +
-                "content='" + content + '\'' +
-                ", sourceModule=" + sourceModuleId +
-                ", destinationModule=" + destinationModuleId +
+                "content='" + contentType + '\'' +
                 ", dataPerMessage=" + dataPerMessage +
                 '}';
     }

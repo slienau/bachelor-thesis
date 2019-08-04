@@ -2,8 +2,8 @@ package algorithm.application;
 
 public class AppHardwareModule extends AppModule {
 
-    public AppHardwareModule(String id) {
-        super(id);
+    public AppHardwareModule(String id, String outputType) {
+        super(id, null, outputType);
     }
 
     @Override

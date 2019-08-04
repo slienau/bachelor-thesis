@@ -6,6 +6,7 @@ import algorithm.deployment.Search;
 import algorithm.infrastructure.Infrastructure;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public class FogDeploymentExample {
     public static void main(String[] args) {
@@ -13,8 +14,8 @@ public class FogDeploymentExample {
 
         // create fog nodes
         infrastructure.addFogNode("raspi-01", 1024, 32, 4, 1000, Arrays.asList("CAMERA"));
-        infrastructure.addFogNode("raspi-02", 1024 * 4, 32, 4, 3000);
-        infrastructure.addFogNode("mbp", 1024 * 16, 512, 8, 15623);
+        infrastructure.addFogNode("raspi-02", 1024 * 4, 32, 4, 3000, null);
+        infrastructure.addFogNode("mbp", 1024 * 16, 512, 8, 15623, null);
 //        infrastructure.addFogNode("mbp", 1024 * 16, 512, 8, 20000); // error: already exists
 //        infrastructure.removeFogNode("mbp");
 //        infrastructure.removeFogNode("mbp"); // error (log only): remove twice
@@ -28,15 +29,15 @@ public class FogDeploymentExample {
 
         // create application and application modules
         Application objectDetectionApp = new Application("object-detection");
-        objectDetectionApp.addHardwareModule("CAMERA");
-        objectDetectionApp.addSoftwareModule("camera-controller", 100, 0.2, 100);
-        objectDetectionApp.addSoftwareModule("object-detector", 2000, 1.5, 5000);
-        objectDetectionApp.addSoftwareModule("image-viewer", 300, 0.1, 100);
+        objectDetectionApp.addHardwareModule("CAMERA", "IMAGE_RAW");
+        objectDetectionApp.addSoftwareModule("camera-controller", "IMAGE_RAW", "IMAGE_ORIGINAL", 100, 0.2, 100, Collections.singletonList("CAMERA"));
+        objectDetectionApp.addSoftwareModule("object-detector", "IMAGE_ORIGINAL", "IMAGE_DETECTED", 2000, 1.5, 5000, null);
+        objectDetectionApp.addSoftwareModule("image-viewer", "IMAGE_DETECTED", null, 300, 0.1, 100, null);
 
         // add messages
-        objectDetectionApp.addMessage("IMAGE_RAW", "CAMERA", "camera-controller", 1000);
-        objectDetectionApp.addMessage("IMAGE_ORIGINAL", "camera-controller", "object-detector", 500);
-        objectDetectionApp.addMessage("IMAGE_DETECTED", "object-detector", "image-viewer", 500);
+        objectDetectionApp.addMessage("IMAGE_RAW", 1000);
+        objectDetectionApp.addMessage("IMAGE_ORIGINAL", 500);
+        objectDetectionApp.addMessage("IMAGE_DETECTED", 500);
 //        objectDetectionApp.addMessage("IMAGE_DETECTED", "adfg", "image-viewer", 500); // error: module not found
 
         // add loop

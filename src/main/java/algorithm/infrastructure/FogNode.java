@@ -1,7 +1,6 @@
 package algorithm.infrastructure;
 
 import algorithm.Utils;
-import algorithm.application.AppHardwareModule;
 import algorithm.application.AppSoftwareModule;
 
 import java.util.*;
@@ -13,7 +12,7 @@ public class FogNode {
     private final double storageTotal;
     private final int cpuCores;
     private final int cpuInstructionsPerSecond;
-    private final Set<AppHardwareModule> connectedHardware;
+    private final Set<String> connectedHardware;
     private final List<AppSoftwareModule> deployedModules;
     private final Map<String, NetworkUplink> uplinks; // key: destination node
 
@@ -25,7 +24,7 @@ public class FogNode {
         this.cpuInstructionsPerSecond = cpuInstructionsPerSecond;
         this.connectedHardware = new HashSet<>();
         if (connectedHardware != null)
-            connectedHardware.forEach(this::addHardware);
+            connectedHardware.forEach(hw -> this.connectedHardware.add(hw));
         this.deployedModules = new ArrayList<>();
         this.uplinks = new HashMap<>();
         // add uplink to node itself with 0 latency and unlimited bandwidth
@@ -46,20 +45,27 @@ public class FogNode {
         return id;
     }
 
-    public void addHardware(String id) {
-        this.connectedHardware.add(new AppHardwareModule(id));
-    }
-
     public boolean deployModule(AppSoftwareModule appSoftwareModule) {
 //        System.out.println(String.format("Trying to deploy %s on %s", appSoftwareModule.getId(), this.getId()));
         if (appSoftwareModule.getRequiredRam() > this.getRamFree() || appSoftwareModule.getRequiredStorage() > this.getStorageFree()) {
-//            System.out.println(String.format("%s can not be deployed on %s", appSoftwareModule.getId(), this.getId()));
+//            System.out.println(String.format("%s can not be deployed on %s because of missing hardware requirements", appSoftwareModule.getId(), this.getId()));
             return false;
         }
+
+        for (String requiredHardwareModule : appSoftwareModule.getRequiredHardwareModules())
+            if (!this.getConnectedHardware().contains(requiredHardwareModule)) {
+//                System.out.println(String.format("%s can not be deployed on %s because it doesn't fulfil hardware module requirements ('%s' not connected)", appSoftwareModule.getId(), this.getId(), requiredHardwareModule));
+                return false;
+            }
+
 
         deployedModules.add(appSoftwareModule);
 //        System.out.println(String.format("%s successfully deployed to %s; freeRam: %s; freeStorage: %s", appSoftwareModule.getId(), this.getId(), this.getRamFree(), this.getStorageFree()));
         return true;
+    }
+
+    public Set<String> getConnectedHardware() {
+        return this.connectedHardware;
     }
 
     public boolean deployModules(List<AppSoftwareModule> modules) {
@@ -139,7 +145,7 @@ public class FogNode {
                 String.format(", storageUsed=%sGB/%sGB (%s%%)", this.getStorageUsed(), this.storageTotal, this.getStorageUsedPercent()) +
                 ", cpuCores=" + cpuCores +
                 ", cpuInstructionsPerSecond=" + cpuInstructionsPerSecond +
-                ", connectedHardware=[" + connectedHardware.stream().map(hw -> hw.getId()).collect(Collectors.joining(", ")) + "]" +
+                ", connectedHardware=" + connectedHardware +
                 ", deployedModules=[" + deployedModules.stream().map(module -> String.format("%s (RAM %sMB/Storage %sGB)", module.getId(), module.getRequiredRam(), module.getRequiredStorage())).collect(Collectors.joining(", ")) + "]" +
                 ", uplinks=[" + uplinks.values().stream().map(uplink -> String.format("{to: %s, %sms, %sMbit/s}", uplink.getDestination().getId(), uplink.getLatency(), uplink.getMBitPerSecond())).collect(Collectors.joining(", ")) + "]" +
                 '}';

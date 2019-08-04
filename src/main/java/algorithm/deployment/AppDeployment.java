@@ -58,7 +58,7 @@ public class AppDeployment {
     private boolean validateLatencyRequirements() {
         boolean valid = true;
         for (AppLoop loop : this.application.getLoops()) {
-            valid = loop.hasValidLatencyRequirements(this);
+            valid = loop.hasValidLatencyRequirements(this, this.application);
             if (!valid)
                 break;
         }
@@ -82,7 +82,7 @@ public class AppDeployment {
     private double getMaxLoopProcessingTime() {
         double result = 0.0;
         for (AppLoop loop : this.application.getLoops()) {
-            double loopProcessingTime = loop.getProcessingTime(this);
+            double loopProcessingTime = loop.getTotalProcessingTime(this, this.application);
             if (result < loopProcessingTime)
                 result = loopProcessingTime;
         }
@@ -97,7 +97,7 @@ public class AppDeployment {
     private double getMaxLoopTransferTime() {
         double result = 0.0;
         for (AppLoop loop : this.application.getLoops()) {
-            double loopTransferTime = loop.getTransferTime(this);
+            double loopTransferTime = loop.getTotalTransferTime(this, this.application);
             if (result < loopTransferTime)
                 result = loopTransferTime;
         }
@@ -192,6 +192,10 @@ public class AppDeployment {
 
     public Map<AppSoftwareModule, FogNode> getModuleToNodeMap() {
         return moduleToNodeMap;
+    }
+
+    public FogNode getNodeForSoftwareModule(AppSoftwareModule softwareModule) {
+        return this.moduleToNodeMap.get(softwareModule);
     }
 
     @Override

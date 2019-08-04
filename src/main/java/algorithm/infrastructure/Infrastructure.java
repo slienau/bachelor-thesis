@@ -7,10 +7,6 @@ import java.util.*;
 public class Infrastructure {
     private final Map<String, FogNode> fogNodes = new HashMap<>(); // <nodeId, FogNode object>
 
-    public void addFogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore) throws IllegalArgumentException {
-        this.addFogNode(id, ramTotal, storageTotal, cpuCores, cpuScoreSingleCore, null);
-    }
-
     public void addFogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuScoreSingleCore, List<String> connectedHardware) throws IllegalArgumentException {
         this.addFogNode(new FogNode(id, ramTotal, storageTotal, cpuCores, cpuScoreSingleCore, connectedHardware));
     }

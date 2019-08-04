@@ -13,18 +13,6 @@ public class Application {
         this.name = name;
     }
 
-    private static String messageKey(AppMessage message) {
-        return messageKey(message.getSourceModuleId(), message.getDestinationModuleId());
-    }
-
-    private static String messageKey(AppSoftwareModule source, AppSoftwareModule destination) {
-        return messageKey(source.getId(), destination.getId());
-    }
-
-    private static String messageKey(String source, String destination) {
-        return String.format("%s->%s", source, destination);
-    }
-
     public void addLoop(String loopName, int maxLatency, List<String> modules) {
         this.loops.add(new AppLoop(loopName, maxLatency, modules));
     }
@@ -37,16 +25,16 @@ public class Application {
         return name;
     }
 
-    public List<AppMessage> getMessages() {
-        return new ArrayList<>(messages.values());
+    public AppMessage getMessage(String contentType) {
+        return this.messages.get(contentType);
     }
 
-    public void addSoftwareModule(String id, int requiredRam, double requiredStorage, int requiredCpuInstructions) {
-        this.addModule(new AppSoftwareModule(id, requiredRam, requiredStorage, requiredCpuInstructions));
+    public void addSoftwareModule(String id, String inputType, String outputType, int requiredRam, double requiredStorage, int requiredCpuInstructions, List<String> requiredHardwareModules) {
+        this.addModule(new AppSoftwareModule(id, inputType, outputType, requiredRam, requiredStorage, requiredCpuInstructions, requiredHardwareModules));
     }
 
-    public void addHardwareModule(String id) {
-        this.addModule(new AppHardwareModule(id));
+    public void addHardwareModule(String id, String outputType) {
+        this.addModule(new AppHardwareModule(id, outputType));
     }
 
     private void addModule(AppModule newModule) {
@@ -55,16 +43,12 @@ public class Application {
         System.out.println(String.format("[Application][%s] Added %s", this.getName(), newModule));
     }
 
-    public void addMessage(String content, String sourceModule, String destinationModule, double dataPerMessage) {
-        if (!this.checkIfModulesExists(sourceModule, destinationModule)) {
-            throw new NoSuchElementException(
-                    String.format("Failed to add message '%s' (%s->%s) to %s.", content, sourceModule, destinationModule, this.getName()));
+    public void addMessage(String contentType, double dataPerMessage) {
+        AppMessage message = new AppMessage(contentType, dataPerMessage);
+        if (this.messages.putIfAbsent(contentType, message) != null) {
+            throw new IllegalArgumentException(String.format("[Application][%s] Failed to add %s. Already exists.", this.getName(), message.getContentType()));
         }
-        AppMessage message = new AppMessage(content, sourceModule, destinationModule, dataPerMessage);
-        if (this.messages.putIfAbsent(messageKey(message), message) != null) {
-            throw new IllegalArgumentException(String.format("Failed to add %s to %s. Already exists.", message.getContent(), this.getName()));
-        }
-        System.out.println(String.format("[Application][%s] Added message '%s' from '%s' to '%s'", this.getName(), message.getContent(), sourceModule, destinationModule));
+        System.out.println(String.format("[Application][%s] Added message with contentType '%s'", this.getName(), message.getContentType()));
     }
 
     public List<AppSoftwareModule> getRequiredSoftwareModules() {
@@ -74,10 +58,17 @@ public class Application {
                 .collect(Collectors.toList());
     }
 
-    private AppModule getModuleById(String id) {
+    public AppSoftwareModule getSoftwareModuleById(String id) {
+        AppModule result = this.getModuleById(id);
+        if (result instanceof AppSoftwareModule)
+            return (AppSoftwareModule) result;
+        throw new NoSuchElementException(String.format("[Application][%s] Found module '%s' but it is not of type 'AppSoftwareModule'", this.getName(), id));
+    }
+
+    public AppModule getModuleById(String id) {
         AppModule result = modules.get(id);
         if (result == null)
-            throw new NoSuchElementException(String.format("Unable to find module '%s'", id));
+            throw new NoSuchElementException(String.format("[Application][%s] Unable to find module '%s'", this.getName(), id));
         return result;
     }
 
