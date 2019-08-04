@@ -65,7 +65,7 @@ public class Application {
         throw new NoSuchElementException(String.format("[Application][%s] Found module '%s' but it is not of type 'AppSoftwareModule'", this.getName(), id));
     }
 
-    public AppModule getModuleById(String id) {
+    AppModule getModuleById(String id) {
         AppModule result = modules.get(id);
         if (result == null)
             throw new NoSuchElementException(String.format("[Application][%s] Unable to find module '%s'", this.getName(), id));

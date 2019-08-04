@@ -23,6 +23,18 @@ public class AppDeployment {
         return valid;
     }
 
+    /**
+     * Returns the destination fog nodes (destinations for the output AppMessage) for a given source module (deployed on another/same fog node)
+     *
+     * @param sourceModuleId
+     * @return
+     */
+    public List<String> getDestinationNodesForSourceModule(String sourceModuleId) {
+        List<String> destinations = new ArrayList<>();
+        application.getLoops().forEach(loop -> destinations.add(loop.getDestinationNodeForSourceModule(sourceModuleId, this)));
+        return destinations;
+    }
+
     private boolean checkValidity() {
 //        System.out.println(String.format("[AppDeployment] Validating %s", this));
         if (!this.validateHardwareRequirements())
@@ -113,21 +125,26 @@ public class AppDeployment {
         for (AppLoop loop : application.getLoops()) {
             sb.append(loop.getDetailString(this));
         }
-
         sb
-                .append("\n")
+                .append(createSoftwareModuleInfoString())
                 .append(createFogNodeUsageString());
-
         return sb.toString();
     }
 
-    private String createStepsString() {
-        // TODO: create string for every apploop (implement in AppLoop and call from here for every apploop)
-        StringBuilder sb = new StringBuilder();
-        for (AppLoop loop : application.getLoops()) {
-            sb.append(loop.getDetailString(this));
+    private String createSoftwareModuleInfoString() {
+        StringBuilder sb = new StringBuilder()
+                .append("----------------------\n")
+                .append("Module deployment info\n")
+                .append("----------------------\n");
+        for (AppSoftwareModule module : application.getRequiredSoftwareModules()) {
+            String fogNodeId = this.getNodeForSoftwareModule(module).getId();
+
+            sb.append(String.format("Module '%s' deployed on node '%s'. Output message destination node: %s",
+                    module.getId(), fogNodeId, getDestinationNodesForSourceModule(module.getId())))
+                    .append("\n");
         }
         return sb.toString();
+
     }
 
     private String createFogNodeUsageString() {
@@ -164,6 +181,10 @@ public class AppDeployment {
 
     public Map<AppSoftwareModule, FogNode> getModuleToNodeMap() {
         return moduleToNodeMap;
+    }
+
+    public FogNode getNodeForSoftwareModule(String softwareModuleId) {
+        return this.getNodeForSoftwareModule(application.getSoftwareModuleById(softwareModuleId));
     }
 
     public FogNode getNodeForSoftwareModule(AppSoftwareModule softwareModule) {

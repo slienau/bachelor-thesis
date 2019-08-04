@@ -6,6 +6,7 @@ import algorithm.infrastructure.FogNode;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 public class AppLoop {
@@ -91,6 +92,31 @@ public class AppLoop {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * Returns the destination fog node (destination for the output AppMessage) for a given source module (deployed on another/same fog node)
+     *
+     * @param sourceModuleId
+     * @return
+     */
+    public String getDestinationNodeForSourceModule(String sourceModuleId, AppDeployment appDeployment) {
+        if (sourceModuleId == null)
+            return null;
+        ListIterator<String> itr = modules.listIterator(0);
+        while (itr.hasNext()) {
+            String module = itr.next();
+            String nextModule = null;
+            if (!itr.hasNext())
+                break;
+            if (module.equals(sourceModuleId))
+                nextModule = itr.next();
+            if (nextModule == null)
+                continue;
+            FogNode nextNode = appDeployment.getNodeForSoftwareModule(nextModule);
+            return nextNode.getId();
+        }
+        return null;
+    }
+
     public String getDetailString(AppDeployment appDeployment) {
         String prefix = String.format("[AppLoop][%s]", this.getLoopName());
 
@@ -123,7 +149,8 @@ public class AppLoop {
                 sb.append(prefix).append(String.format("[%7sms] Transfer message with content type '%s' from '%s' to '%s'", transferTime, message.getContentType(), sourceNode.getId(), destinationNode.getId())).append("\n");
             }
         }
-        sb.append(prefix).append(String.format("[%7sms] <-- TOTAL LATENCY", this.getTotalLatency(appDeployment)));
+        sb.append(prefix).append(String.format("[%7sms] <-- TOTAL LATENCY", this.getTotalLatency(appDeployment)))
+                .append("\n");
         return sb.toString();
     }
 
