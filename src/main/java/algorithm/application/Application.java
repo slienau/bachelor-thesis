@@ -14,7 +14,7 @@ public class Application {
     }
 
     public void addLoop(String loopName, int maxLatency, List<String> modules) {
-        this.loops.add(new AppLoop(loopName, maxLatency, modules));
+        this.loops.add(new AppLoop(loopName, maxLatency, modules, this));
     }
 
     public List<AppLoop> getLoops() {

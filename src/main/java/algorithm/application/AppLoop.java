@@ -12,11 +12,13 @@ public class AppLoop {
     private final String loopName;
     private final int maxLatency;
     private final LinkedList<String> modules = new LinkedList<>();
+    private final Application application;
 
-    public AppLoop(String loopName, int maxLatency, List<String> modules) {
+    public AppLoop(String loopName, int maxLatency, List<String> modules, Application application) {
         this.loopName = loopName;
         this.maxLatency = maxLatency;
         this.modules.addAll(modules);
+        this.application = application;
     }
 
     private static boolean inputEqualsOutputType(AppModule sourceModule, AppModule destinationModule) {
@@ -35,15 +37,15 @@ public class AppLoop {
         return modules;
     }
 
-    public boolean hasValidLatencyRequirements(AppDeployment appDeployment, Application application) {
-        return this.getTotalLatency(appDeployment, application) < this.getMaxLatency();
+    public boolean hasValidLatencyRequirements(AppDeployment appDeployment) {
+        return this.getTotalLatency(appDeployment) < this.getMaxLatency();
     }
 
-    public double getTotalLatency(AppDeployment appDeployment, Application application) {
-        return this.getTotalTransferTime(appDeployment, application) + this.getTotalProcessingTime(appDeployment, application);
+    public double getTotalLatency(AppDeployment appDeployment) {
+        return this.getTotalTransferTime(appDeployment) + this.getTotalProcessingTime(appDeployment);
     }
 
-    public double getTotalTransferTime(AppDeployment appDeployment, Application application) {
+    public double getTotalTransferTime(AppDeployment appDeployment) {
         double transferTime = 0;
         for (int i = 0; i < this.modules.size(); i++) {
             AppModule thisModule = application.getModuleById(this.modules.get(i));
@@ -59,26 +61,29 @@ public class AppLoop {
             if (!inputEqualsOutputType(thisModule, nextModule))
                 throw new IllegalStateException(String.format("[AppLoop][%s] Output type of module '%s' (type '%s') not equal to input type of module '%s' (type '%s')", this.getLoopName(), thisModule.getId(), thisModule.getOutputType(), nextModule.getId(), nextModule.getInputType()));
 
-            AppMessage message = application.getMessage(thisModule.getOutputType());
-            if (message == null)
-                throw new IllegalStateException(String.format("[AppLoop][%s] Unable to get message type '%s'", this.getLoopName(), thisModule.getOutputType()));
-
             if (thisModule instanceof AppSoftwareModule && nextModule instanceof AppSoftwareModule) {
                 FogNode sourceNode = appDeployment.getNodeForSoftwareModule((AppSoftwareModule) thisModule);
                 FogNode destinationNode = appDeployment.getNodeForSoftwareModule((AppSoftwareModule) nextModule);
-                transferTime += message.calculateMessageTransferTime(sourceNode, destinationNode);
+                transferTime += this.getAppMessageByMessageType(thisModule.getOutputType()).calculateMessageTransferTime(sourceNode, destinationNode);
             }
         }
         return transferTime;
     }
 
-    public double getTotalProcessingTime(AppDeployment appDeployment, Application application) {
-        return this.getSoftwareModules(application).stream()
+    private AppMessage getAppMessageByMessageType(String messageType) {
+        AppMessage message = application.getMessage(messageType);
+        if (message == null)
+            throw new IllegalStateException(String.format("[AppLoop][%s] Unable to get message type '%s'", this.getLoopName(), messageType));
+        return message;
+    }
+
+    public double getTotalProcessingTime(AppDeployment appDeployment) {
+        return this.getSoftwareModules().stream()
                 .mapToDouble(softwareModule -> appDeployment.getNodeForSoftwareModule(softwareModule).calculateProcessingTimeForModule(softwareModule))
                 .sum();
     }
 
-    private List<AppSoftwareModule> getSoftwareModules(Application application) {
+    private List<AppSoftwareModule> getSoftwareModules() {
         return this.modules.stream()
                 .map(application::getModuleById)
                 .filter(module -> module instanceof AppSoftwareModule)
@@ -86,12 +91,49 @@ public class AppLoop {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    public String getDetailString(AppDeployment appDeployment) {
+        String prefix = String.format("[AppLoop][%s]", this.getLoopName());
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < this.modules.size(); i++) {
+            AppModule thisModule = application.getModuleById(this.modules.get(i));
+            AppModule nextModule = null;
+            if (i < this.modules.size() - 1)
+                nextModule = application.getModuleById(this.modules.get(i + 1));
+
+
+            if (thisModule instanceof AppHardwareModule)
+                sb.append(prefix).append(String.format("[%9s] HardwareModule '%s' (connected to %s) produces message type '%s'", "0ms", thisModule.getId(), appDeployment.getNodeForSoftwareModule((AppSoftwareModule) nextModule).getId(), thisModule.getOutputType())).append("\n");
+            if (thisModule instanceof AppSoftwareModule) {
+                AppSoftwareModule thisModuleSw = (AppSoftwareModule) thisModule;
+                FogNode processingNode = appDeployment.getNodeForSoftwareModule(thisModuleSw);
+
+                sb.append(prefix).append(String.format("[%7sms] SoftwareModule '%s' processes incoming message '%s' on node '%s' and outputs message '%s'",
+                        processingNode.calculateProcessingTimeForModule(thisModuleSw), thisModule.getId(), thisModule.getInputType(), processingNode.getId(), thisModule.getOutputType())).append("\n");
+
+                if (nextModule == null) {
+                    // thisModule is final module --> end of AppLoop
+                    break;
+                }
+
+                AppMessage message = this.getAppMessageByMessageType(thisModule.getOutputType());
+                FogNode sourceNode = appDeployment.getNodeForSoftwareModule((AppSoftwareModule) thisModule);
+                FogNode destinationNode = appDeployment.getNodeForSoftwareModule((AppSoftwareModule) nextModule);
+                double transferTime = this.getAppMessageByMessageType(thisModule.getOutputType()).calculateMessageTransferTime(sourceNode, destinationNode);
+                sb.append(prefix).append(String.format("[%7sms] Transfer message with content type '%s' from '%s' to '%s'", transferTime, message.getContentType(), sourceNode.getId(), destinationNode.getId())).append("\n");
+            }
+        }
+        sb.append(prefix).append(String.format("[%7sms] <-- TOTAL LATENCY", this.getTotalLatency(appDeployment)));
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         return "AppLoop{" +
                 "loopName='" + loopName + '\'' +
-                "maxLatency='" + maxLatency + '\'' +
+                ", maxLatency=" + maxLatency +
                 ", modules=" + modules +
+                ", application=" + application.getName() +
                 '}';
     }
 }

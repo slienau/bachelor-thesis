@@ -58,7 +58,7 @@ public class AppDeployment {
     private boolean validateLatencyRequirements() {
         boolean valid = true;
         for (AppLoop loop : this.application.getLoops()) {
-            valid = loop.hasValidLatencyRequirements(this, this.application);
+            valid = loop.hasValidLatencyRequirements(this);
             if (!valid)
                 break;
         }
@@ -82,7 +82,7 @@ public class AppDeployment {
     private double getMaxLoopProcessingTime() {
         double result = 0.0;
         for (AppLoop loop : this.application.getLoops()) {
-            double loopProcessingTime = loop.getTotalProcessingTime(this, this.application);
+            double loopProcessingTime = loop.getTotalProcessingTime(this);
             if (result < loopProcessingTime)
                 result = loopProcessingTime;
         }
@@ -97,7 +97,7 @@ public class AppDeployment {
     private double getMaxLoopTransferTime() {
         double result = 0.0;
         for (AppLoop loop : this.application.getLoops()) {
-            double loopTransferTime = loop.getTotalTransferTime(this, this.application);
+            double loopTransferTime = loop.getTotalTransferTime(this);
             if (result < loopTransferTime)
                 result = loopTransferTime;
         }
@@ -108,60 +108,32 @@ public class AppDeployment {
         StringBuilder sb = new StringBuilder()
                 .append("**************************************************************\n")
                 .append("****** Details for " + this + "\n")
-                .append("**************************************************************");
+                .append("**************************************************************\n");
 
-        sb.append(createStepsString());
-        sb.append(createFogNodeUsageString());
+        for (AppLoop loop : application.getLoops()) {
+            sb.append(loop.getDetailString(this));
+        }
+
+        sb
+                .append("\n")
+                .append(createFogNodeUsageString());
 
         return sb.toString();
     }
 
     private String createStepsString() {
         // TODO: create string for every apploop (implement in AppLoop and call from here for every apploop)
-        /*
-        Function<Integer, String> delimiterString = (stepIn) -> String.format("\n%2s.\t", stepIn);
-
         StringBuilder sb = new StringBuilder();
-        int step = 0;
-        int iteration = 0;
-        for (AppMessage message : this.application.getMessages()) {
-            String sourceModule = message.getSourceModuleId();
-            FogNode sourceNode = this.moduleToNodeMap.get(sourceModule);
-            String destinationModule = message.getDestinationModuleId();
-            FogNode destinationNode = this.moduleToNodeMap.get(destinationModule);
-
-            // Print sensor types if needed
-            if (sourceModule.getRequiredSensorTypes().size() > 0) {
-                String sensorString = String.format(
-                        "Module '%s' has required sensors '%s' which are connected to node '%s'",
-                        sourceModule.getId(), sourceModule.getRequiredSensorTypes(), sourceNode.getId());
-                sb.append(delimiterString.apply(++step)).append(sensorString);
-            }
-
-            sb
-                    .append(delimiterString.apply(++step))
-                    .append(sourceModule.getProcessingTimeString(sourceNode))
-                    .append(delimiterString.apply(++step))
-                    .append(message.createMessageTransferTimeString(sourceNode, destinationNode));
-            if (++iteration == application.getMessages().size()) {
-                // last message -> also print destination
-                sb.append(delimiterString.apply(++step))
-                        .append(destinationModule.getProcessingTimeString(destinationNode));
-            }
+        for (AppLoop loop : application.getLoops()) {
+            sb.append(loop.getDetailString(this));
         }
-        sb
-                .append("\n")
-                .append("-------------------------\n")
-                .append(String.format("--> Total time: %sms\n", Utils.round(this.getTotalLatency())))
-                .append("-------------------------\n");
         return sb.toString();
-         */
-        return null;
     }
 
     private String createFogNodeUsageString() {
         StringBuilder sb = new StringBuilder()
-                .append("Fog node details\n")
+                .append("----------------\n")
+                .append("Fog node usage\n")
                 .append("----------------\n");
         this.getNodeToModulesMap().forEach(FogNode::deployModules);
         this.getAllInvolvedFogNodes().forEach(node -> sb.append(node).append("\n"));

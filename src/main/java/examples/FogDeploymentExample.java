@@ -38,7 +38,6 @@ public class FogDeploymentExample {
         objectDetectionApp.addMessage("IMAGE_RAW", 1000);
         objectDetectionApp.addMessage("IMAGE_ORIGINAL", 500);
         objectDetectionApp.addMessage("IMAGE_DETECTED", 500);
-//        objectDetectionApp.addMessage("IMAGE_DETECTED", "adfg", "image-viewer", 500); // error: module not found
 
         // add loop
         objectDetectionApp.addLoop("object-detection", 1000, Arrays.asList("CAMERA", "camera-controller", "object-detector", "image-viewer"));
@@ -47,10 +46,6 @@ public class FogDeploymentExample {
         AppDeployment fastestDeployment = s.getFastestDeployment();
         System.out.println(String.format("Fastest deployment is %s", fastestDeployment));
         System.out.println(fastestDeployment.createDetailsString());
-
-//        validDeployments.forEach(AppDeployment::printUsage);
-//        validDeployments.get(0).getTotalLatency();
-//        validDeployments.forEach(AppDeployment::calculateTotalTransferTime);
 
     }
 
