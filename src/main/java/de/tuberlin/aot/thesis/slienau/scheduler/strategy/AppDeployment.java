@@ -1,4 +1,4 @@
-package de.tuberlin.aot.thesis.slienau.scheduler.deployment;
+package de.tuberlin.aot.thesis.slienau.scheduler.strategy;
 
 import de.tuberlin.aot.thesis.slienau.scheduler.application.AppLoop;
 import de.tuberlin.aot.thesis.slienau.scheduler.application.AppSoftwareModule;

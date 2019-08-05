@@ -1,9 +1,10 @@
-package de.tuberlin.aot.thesis.slienau.scheduler.deployment;
+package de.tuberlin.aot.thesis.slienau.scheduler.strategy;
 
 import de.tuberlin.aot.thesis.slienau.scheduler.application.AppSoftwareModule;
 import de.tuberlin.aot.thesis.slienau.scheduler.application.Application;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
+import de.tuberlin.aot.thesis.slienau.scheduler.interfaces.Scheduler;
 import org.paukov.combinatorics3.Generator;
 
 import java.util.ArrayList;
@@ -12,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Search {
+public class SchedulerStrategy implements Scheduler {
     private final Application a;
     private final Infrastructure i;
 
-    public Search(Application a, Infrastructure i) {
+    public SchedulerStrategy(Application a, Infrastructure i) {
         this.a = a;
         this.i = i;
     }
@@ -32,14 +33,14 @@ public class Search {
     }
 
     public AppDeployment getFastestDeployment() {
-        return Search.getFastestDeployment(this.getValidAppDeployments());
+        return SchedulerStrategy.getFastestDeployment(this.getValidAppDeployments());
     }
 
-    private List<AppDeployment> getValidAppDeployments() {
+    public List<AppDeployment> getValidAppDeployments() {
         List<AppDeployment> validDeployments = new ArrayList<>();
         for (AppDeployment dep : this.getAppLoopDeploymentsUnchecked()) {
             if (dep.isValid()) {
-                System.out.println(String.format("[Search] Found valid %s", dep));
+                System.out.println(String.format("[SchedulerStrategy] Found valid %s", dep));
                 validDeployments.add(dep);
             }
         }

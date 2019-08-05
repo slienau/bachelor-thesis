@@ -1,7 +1,7 @@
 package de.tuberlin.aot.thesis.slienau.scheduler.application;
 
-import de.tuberlin.aot.thesis.slienau.scheduler.deployment.AppDeployment;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
+import de.tuberlin.aot.thesis.slienau.scheduler.strategy.AppDeployment;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
