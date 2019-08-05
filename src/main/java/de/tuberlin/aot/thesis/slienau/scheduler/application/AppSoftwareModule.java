@@ -1,6 +1,6 @@
-package de.tuberlin.aot.thesis.slienau.algorithm.application;
+package de.tuberlin.aot.thesis.slienau.scheduler.application;
 
-import de.tuberlin.aot.thesis.slienau.algorithm.infrastructure.FogNode;
+import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,7 @@
-package de.tuberlin.aot.thesis.slienau.algorithm.infrastructure;
+package de.tuberlin.aot.thesis.slienau.scheduler.infrastructure;
 
-import de.tuberlin.aot.thesis.slienau.algorithm.Utils;
-import de.tuberlin.aot.thesis.slienau.algorithm.application.AppSoftwareModule;
+import de.tuberlin.aot.thesis.slienau.scheduler.SchedulerUtils;
+import de.tuberlin.aot.thesis.slienau.scheduler.application.AppSoftwareModule;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -102,7 +102,7 @@ public class FogNode {
     }
 
     private double getRamUsedPercent() {
-        return Utils.makePercent(this.getRamUsed(), this.ramTotal);
+        return SchedulerUtils.makePercent(this.getRamUsed(), this.ramTotal);
     }
 
     private double getStorageFree() {
@@ -114,11 +114,11 @@ public class FogNode {
     }
 
     private double getStorageUsed() {
-        return Utils.round(this.storageTotal - this.getStorageFree());
+        return SchedulerUtils.round(this.storageTotal - this.getStorageFree());
     }
 
     private double getStorageUsedPercent() {
-        return Utils.makePercent(this.getStorageUsed(), this.storageTotal);
+        return SchedulerUtils.makePercent(this.getStorageUsed(), this.storageTotal);
     }
 
     /**
@@ -128,7 +128,7 @@ public class FogNode {
     public double calculateProcessingTimeForModule(AppSoftwareModule module) {
         double instructionsPerMessage = module.getRequiredCpuInstructionsPerMessage();
         double cpuInstructionsPerSecond = this.cpuInstructionsPerSecond;
-        return Utils.round((instructionsPerMessage / cpuInstructionsPerSecond) * 1000);
+        return SchedulerUtils.round((instructionsPerMessage / cpuInstructionsPerSecond) * 1000);
     }
 
     public String getProcessingTimeString(AppSoftwareModule module) {

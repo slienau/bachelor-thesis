@@ -1,4 +1,4 @@
-package de.tuberlin.aot.thesis.slienau.algorithm.application;
+package de.tuberlin.aot.thesis.slienau.scheduler.application;
 
 public abstract class AppModule {
     private final String id;

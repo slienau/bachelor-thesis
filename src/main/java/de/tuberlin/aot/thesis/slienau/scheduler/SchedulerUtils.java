@@ -1,6 +1,6 @@
-package de.tuberlin.aot.thesis.slienau.algorithm;
+package de.tuberlin.aot.thesis.slienau.scheduler;
 
-public class Utils {
+public class SchedulerUtils {
     public static double makePercent(double used, double total) {
         return round((used / total) * 100);
     }

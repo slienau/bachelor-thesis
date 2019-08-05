@@ -1,9 +1,9 @@
-package de.tuberlin.aot.thesis.slienau.algorithm.deployment;
+package de.tuberlin.aot.thesis.slienau.scheduler.deployment;
 
-import de.tuberlin.aot.thesis.slienau.algorithm.application.AppSoftwareModule;
-import de.tuberlin.aot.thesis.slienau.algorithm.application.Application;
-import de.tuberlin.aot.thesis.slienau.algorithm.infrastructure.FogNode;
-import de.tuberlin.aot.thesis.slienau.algorithm.infrastructure.Infrastructure;
+import de.tuberlin.aot.thesis.slienau.scheduler.application.AppSoftwareModule;
+import de.tuberlin.aot.thesis.slienau.scheduler.application.Application;
+import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
+import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 import org.paukov.combinatorics3.Generator;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package de.tuberlin.aot.thesis.slienau.algorithm.application;
+package de.tuberlin.aot.thesis.slienau.scheduler.application;
 
 public class AppHardwareModule extends AppModule {
 

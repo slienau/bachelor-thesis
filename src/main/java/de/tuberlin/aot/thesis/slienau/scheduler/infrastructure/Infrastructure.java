@@ -1,6 +1,6 @@
-package de.tuberlin.aot.thesis.slienau.algorithm.infrastructure;
+package de.tuberlin.aot.thesis.slienau.scheduler.infrastructure;
 
-import de.tuberlin.aot.thesis.slienau.algorithm.Utils;
+import de.tuberlin.aot.thesis.slienau.scheduler.SchedulerUtils;
 
 import java.util.*;
 
@@ -50,8 +50,8 @@ public class Infrastructure {
      */
     public void addNetworkLink(String fogNodeA, String fogNodeB, int latency, double bandwidthAtoB, double bandwidthBtoA) {
         try {
-            long bandwidthAtoB_bitPerSecond = Utils.mbitToBit(bandwidthAtoB);
-            long bandwidthBtoA_bitPerSecond = Utils.mbitToBit(bandwidthBtoA);
+            long bandwidthAtoB_bitPerSecond = SchedulerUtils.mbitToBit(bandwidthAtoB);
+            long bandwidthBtoA_bitPerSecond = SchedulerUtils.mbitToBit(bandwidthBtoA);
             FogNode nodeA = this.getFogNode(fogNodeA);
             FogNode nodeB = this.getFogNode(fogNodeB);
             nodeA.addUplink(new NetworkUplink(nodeA, nodeB, latency, bandwidthAtoB_bitPerSecond)); // A to B

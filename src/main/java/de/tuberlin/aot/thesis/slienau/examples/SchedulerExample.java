@@ -1,14 +1,14 @@
 package de.tuberlin.aot.thesis.slienau.examples;
 
-import de.tuberlin.aot.thesis.slienau.algorithm.application.Application;
-import de.tuberlin.aot.thesis.slienau.algorithm.deployment.AppDeployment;
-import de.tuberlin.aot.thesis.slienau.algorithm.deployment.Search;
-import de.tuberlin.aot.thesis.slienau.algorithm.infrastructure.Infrastructure;
+import de.tuberlin.aot.thesis.slienau.scheduler.application.Application;
+import de.tuberlin.aot.thesis.slienau.scheduler.deployment.AppDeployment;
+import de.tuberlin.aot.thesis.slienau.scheduler.deployment.Search;
+import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-public class FogDeploymentExample {
+public class SchedulerExample {
     public static void main(String[] args) {
         Infrastructure infrastructure = new Infrastructure();
 

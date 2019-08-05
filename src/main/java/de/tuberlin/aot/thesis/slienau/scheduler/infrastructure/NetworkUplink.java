@@ -1,4 +1,4 @@
-package de.tuberlin.aot.thesis.slienau.algorithm.infrastructure;
+package de.tuberlin.aot.thesis.slienau.scheduler.infrastructure;
 
 public class NetworkUplink {
     private final FogNode source;

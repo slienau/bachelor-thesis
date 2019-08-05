@@ -1,8 +1,8 @@
-package de.tuberlin.aot.thesis.slienau.algorithm.application;
+package de.tuberlin.aot.thesis.slienau.scheduler.application;
 
-import de.tuberlin.aot.thesis.slienau.algorithm.Utils;
-import de.tuberlin.aot.thesis.slienau.algorithm.infrastructure.FogNode;
-import de.tuberlin.aot.thesis.slienau.algorithm.infrastructure.NetworkUplink;
+import de.tuberlin.aot.thesis.slienau.scheduler.SchedulerUtils;
+import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
+import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.NetworkUplink;
 
 public class AppMessage {
     private final String contentType;
@@ -23,7 +23,7 @@ public class AppMessage {
 
     public double calculateMessageTransferTime(FogNode sourceNode, FogNode destinationNode) {
         NetworkUplink uplink = sourceNode.getUplinkTo(destinationNode.getId());
-        return Utils.calculateTransferTime(uplink.getLatency(), uplink.getBitPerSecond(), this.getDataPerMessage());
+        return SchedulerUtils.calculateTransferTime(uplink.getLatency(), uplink.getBitPerSecond(), this.getDataPerMessage());
     }
 
     public String createMessageTransferTimeString(FogNode sourceNode, FogNode destinationNode) {

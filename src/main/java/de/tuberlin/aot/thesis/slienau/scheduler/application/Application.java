@@ -1,4 +1,4 @@
-package de.tuberlin.aot.thesis.slienau.algorithm.application;
+package de.tuberlin.aot.thesis.slienau.scheduler.application;
 
 import java.util.*;
 import java.util.stream.Collectors;
