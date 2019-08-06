@@ -23,6 +23,10 @@ public class HttpUtils {
         return httpRequest(urlIn, "GET", null);
     }
 
+    public static JsonNode httpPutRequest(String urlIn, String requestBodyJsonString) throws IOException {
+        return httpPutRequest(urlIn, OBJECT_MAPPER.readTree(requestBodyJsonString));
+    }
+
     public static JsonNode httpPutRequest(String urlIn, JsonNode requestBody) throws IOException {
         byte[] response = httpPutRequest(urlIn, OBJECT_MAPPER.writeValueAsBytes(requestBody));
         return OBJECT_MAPPER.readTree(response);
@@ -39,6 +43,10 @@ public class HttpUtils {
 
     public static byte[] httpPostRequest(String urlIn, byte[] requestBody) throws IOException {
         return httpRequest(urlIn, "POST", requestBody);
+    }
+
+    public static byte[] httpDeleteRequest(String urlIn) throws IOException {
+        return httpRequest(urlIn, "DELETE", null);
     }
 
     private static byte[] httpRequest(String urlIn, String method, byte[] requestBody) throws IOException {

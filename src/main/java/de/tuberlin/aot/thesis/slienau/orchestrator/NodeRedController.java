@@ -8,29 +8,26 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static de.tuberlin.aot.thesis.slienau.utils.HttpUtils.httpGetRequestAsJson;
+import static de.tuberlin.aot.thesis.slienau.utils.HttpUtils.*;
 
 public class NodeRedController {
 
+    private static final NodeRedController flowDatabaseInstance = new NodeRedController("flowDatabaseInstance", "localhost", 2880);
+    private final String id;
     private String nodeRedAddress;
     private int nodeRedPort;
 
-
     // Constructors
-    public NodeRedController(String nodeRedAddress) {
-        this(nodeRedAddress, 1880);
+    public NodeRedController(String id, String nodeRedAddress) {
+        this(id, nodeRedAddress, 1880);
     }
 
 
-    public NodeRedController(String nodeRedAddress, int nodeRedPort) {
+    public NodeRedController(String id, String nodeRedAddress, int nodeRedPort) {
+        this.id = id;
         this.nodeRedAddress = nodeRedAddress;
         this.nodeRedPort = nodeRedPort;
     }
-
-
-    // ***************************************************
-    // **************** PUBLIC METHODS *******************
-    // ***************************************************
 
     public void changeHeartbeatFrequency(String newFrequency) throws IOException {
         String flowName = "Heartbeat";
@@ -60,6 +57,44 @@ public class NodeRedController {
         return flow;
     }
 
+    public boolean deployFlow(String flowName) throws IOException {
+        JsonNode flow = flowDatabaseInstance.getFlowByName(flowName);
+        boolean updateFlow = this.checkIfFlowExists(flowName);
+        if (updateFlow) {
+            // flow exists on node --> update
+            this.updateFlowByName(flowName, flow);
+        } else {
+            // create new flow
+            this.createFlow(flowName, flow);
+        }
+        return true;
+    }
+
+    private boolean createFlow(String flowName, JsonNode flow) throws IOException {
+        if (checkIfFlowExists(flowName)) {
+            System.out.println(String.format("[NodeRedController][%s] Failed to create flow '%s' because it already exists", this.getId(), flowName));
+            return false;
+        }
+        String endpoint = getEndpointUrlForSuffix("flow/");
+
+        httpPostRequest(endpoint, flow);
+        System.out.println(String.format("[NodeRedController][%s] Created flow '%s'", this.getId(), flowName));
+        return true;
+    }
+
+    public boolean deleteFlowByName(String flowName) {
+        try {
+            String flowId = this.getFlowIdByName(flowName);
+            String endpoint = getEndpointUrlForSuffix("flow/" + flowId);
+            httpDeleteRequest(endpoint);
+            System.out.println(String.format("[NodeRedController][%s] Successfully deleted flow '%s'", this.getId(), flowName));
+            return true;
+        } catch (Exception e) {
+            System.out.println(String.format("[NodeRedController][%s] Failed to delete flow '%s'", this.getId(), flowName));
+            return false;
+        }
+    }
+
 
     /**
      * Fetch all nodes from node-RED instance and filter them by type.
@@ -81,11 +116,6 @@ public class NodeRedController {
     }
 
 
-    // ***************************************************
-    // *********** INTERNAL PRIVATE METHODS **************
-    // ***************************************************
-
-
     /**
      * Filter all flows by flowName and return the corresponding flowId if there is a flow named like flowName.
      * Throw an Exception if 0 or more than 1 flows are named like flowName.
@@ -101,6 +131,7 @@ public class NodeRedController {
             throw new IOException(String.format("Flow with name '%s' could not be found.", flowName));
 
         Map<String, String> filteredMap = flowIds.entrySet().stream()
+                .filter(element -> element.getValue() != null)
                 .filter(element -> element.getValue().equals(flowName))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -110,6 +141,21 @@ public class NodeRedController {
             );
 
         return filteredMap.keySet().stream().findFirst().get();
+    }
+
+    /**
+     * Checks if a flow with 'flowName' exists on nodeRED instance
+     *
+     * @param flowName
+     * @return true if flow exists, false otherwise
+     */
+    public boolean checkIfFlowExists(String flowName) {
+        try {
+            this.getFlowIdByName(flowName);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
 
@@ -165,7 +211,9 @@ public class NodeRedController {
      */
     private JsonNode updateFlowByName(String flowName, JsonNode updatedFlow) throws IOException {
         String flowId = this.getFlowIdByName(flowName);
-        return this.updateFlowById(flowId, updatedFlow);
+        JsonNode response = this.updateFlowById(flowId, updatedFlow);
+        System.out.println(String.format("[NodeRedController][%s] Updated flow '%s'", this.getId(), flowName));
+        return response;
     }
 
 
@@ -189,4 +237,23 @@ public class NodeRedController {
         return String.format("http://%s:%s/%s", this.nodeRedAddress, this.nodeRedPort, suffix);
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public String getNodeRedAddress() {
+        return nodeRedAddress;
+    }
+
+    public void setNodeRedAddress(String nodeRedAddress) {
+        this.nodeRedAddress = nodeRedAddress;
+    }
+
+    public int getNodeRedPort() {
+        return nodeRedPort;
+    }
+
+    public void setNodeRedPort(int nodeRedPort) {
+        this.nodeRedPort = nodeRedPort;
+    }
 }
