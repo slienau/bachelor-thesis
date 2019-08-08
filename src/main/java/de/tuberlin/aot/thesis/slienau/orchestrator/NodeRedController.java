@@ -12,7 +12,6 @@ import static de.tuberlin.aot.thesis.slienau.utils.HttpUtils.*;
 
 public class NodeRedController {
 
-    private static final NodeRedController flowDatabaseInstance = new NodeRedController("flowDatabaseInstance", "localhost", 2880);
     private final String id;
     private String nodeRedAddress;
     private int nodeRedPort;
@@ -27,6 +26,7 @@ public class NodeRedController {
         this.id = id;
         this.nodeRedAddress = nodeRedAddress;
         this.nodeRedPort = nodeRedPort;
+        System.out.println(String.format("[NodeRedController] Created new instance %s", this));
     }
 
     public void changeHeartbeatFrequency(String newFrequency) throws IOException {
@@ -57,8 +57,9 @@ public class NodeRedController {
         return flow;
     }
 
-    public boolean deployFlow(String flowName) throws IOException {
-        JsonNode flow = flowDatabaseInstance.getFlowByName(flowName);
+    public boolean deployFlow(NodeRedFlow nodeRedFlow) throws IOException {
+        String flowName = nodeRedFlow.getName();
+        JsonNode flow = nodeRedFlow.getFlow();
         boolean updateFlow = this.checkIfFlowExists(flowName);
         if (updateFlow) {
             // flow exists on node --> update
@@ -87,7 +88,7 @@ public class NodeRedController {
             String flowId = this.getFlowIdByName(flowName);
             String endpoint = getEndpointUrlForSuffix("flow/" + flowId);
             httpDeleteRequest(endpoint);
-            System.out.println(String.format("[NodeRedController][%s] Successfully deleted flow '%s'", this.getId(), flowName));
+            System.out.println(String.format("[NodeRedController][%s] Deleted flow '%s'", this.getId(), flowName));
             return true;
         } catch (Exception e) {
             System.out.println(String.format("[NodeRedController][%s] Failed to delete flow '%s'", this.getId(), flowName));
@@ -255,5 +256,14 @@ public class NodeRedController {
 
     public void setNodeRedPort(int nodeRedPort) {
         this.nodeRedPort = nodeRedPort;
+    }
+
+    @Override
+    public String toString() {
+        return "NodeRedController{" +
+                "id='" + id + '\'' +
+                ", nodeRedAddress='" + nodeRedAddress + '\'' +
+                ", nodeRedPort=" + nodeRedPort +
+                '}';
     }
 }

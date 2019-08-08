@@ -36,14 +36,22 @@ public class NodeRedOrchestrator {
         AppDeployment d = s.getFastestDeployment();
         System.out.println(d.createDetailsString());
 
+        NodeRedFlowDatabase flowDatabase = NodeRedFlowDatabase.getInstance();
+
         NodeRedController mbp = new NodeRedController("mbp", "localhost");
-        System.out.println(String.format("Flow 'delete-me' exists: %s", mbp.checkIfFlowExists("delete-me")));
-        mbp.deployFlow("delete-me");
-        System.out.println(String.format("Flow 'delete-me' exists: %s", mbp.checkIfFlowExists("delete-me")));
-        mbp.deployFlow("delete-me");
-        System.out.println(String.format("Flow 'delete-me' exists: %s", mbp.checkIfFlowExists("delete-me")));
-//        mbp.deleteFlowByName("delete-me");
-//        System.out.println(String.format("Flow 'delete-me' exists: %s", mbp.checkIfFlowExists("delete-me")));
+        System.out.println(String.format("Flow 'test-flow' exists: %s", mbp.checkIfFlowExists("test-flow")));
+        mbp.deployFlow(flowDatabase.getFlowByName("test-flow"));
+        System.out.println(String.format("Flow 'test-flow' exists: %s", mbp.checkIfFlowExists("test-flow")));
+        mbp.deployFlow(flowDatabase.getFlowByName("test-flow"));
+        System.out.println(String.format("Flow 'test-flow' exists: %s", mbp.checkIfFlowExists("test-flow")));
+        mbp.deleteFlowByName("test-flow");
+        System.out.println(String.format("Flow 'test-flow' exists: %s", mbp.checkIfFlowExists("test-flow")));
+
+        NodeRedController raspi1 = new NodeRedController("raspi-01", "raspi-01");
+        NodeRedController raspi2 = new NodeRedController("raspi-02", "raspi-02");
+
+        raspi1.deployFlow(flowDatabase.getFlowByName("test-flow"));
+        raspi1.deleteFlowByName("test-flow");
 
     }
 }
