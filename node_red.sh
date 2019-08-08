@@ -1,7 +1,17 @@
 #!/bin/bash
 CONTAINER_NAME=nodered
-DOCKER_IMAGE=node-red:arm-slim
+DOCKER_IMAGE=node-red
 MQTT_SERVER=192.168.7.13
+
+IS_ARM=FALSE
+if [[ "$(uname -m)" == "arm"* ]]; then
+    IS_ARM=TRUE
+fi
+
+DOCKER_IMAGE_TAG="slim"
+if [ $IS_ARM == TRUE ]; then
+    DOCKER_IMAGE_TAG="arm-slim"
+fi
 
 if [ "$1" == "run" ]
 then
@@ -18,7 +28,7 @@ then
     --hostname=$HOSTNAME \
     -e MQTT_SERVER=$MQTT_SERVER \
     -p 1880:1880 \
-    $DOCKER_IMAGE
+    $DOCKER_IMAGE:$DOCKER_IMAGE_TAG
 elif [ "$1" == "start" ]
 then
     docker start $CONTAINER_NAME
