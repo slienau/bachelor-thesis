@@ -4,7 +4,7 @@
 
 ### Build images
 
-The `build.sh` script builds four docker images:
+The `build_all.sh` script inside the `scripts/` folder builds four docker images:
 
 1. `node-red`
 2. `node-red:slim`
@@ -16,14 +16,4 @@ The `build.sh` script builds four docker images:
 
 ### Run containers
 
-Set environment variables in `node_red.sh`, then run the script. The following commands are supported:
-
-- `run`
-- `stop`
-- `start`
-- `restart`
-- `remove`
-- `attach`
-- `bash`
-
-E.g. to start the container initially, run `./node_red.sh run`
+First of all, `cd` into the folder `scripts/`. Set environment variables in `env.sh`, then run the desired script, e.g. `./docker_run.sh` for the initial creation of a container based on the .
