@@ -31,7 +31,11 @@ public class AppDeployment {
      */
     public List<String> getDestinationNodesForSourceModule(String sourceModuleId) {
         List<String> destinations = new ArrayList<>();
-        application.getLoops().forEach(loop -> destinations.add(loop.getDestinationNodeForSourceModule(sourceModuleId, this)));
+        application.getLoops().forEach(loop -> {
+            String destinationNodeId = loop.getDestinationNodeForSourceModule(sourceModuleId, this);
+            if (destinationNodeId != null)
+                destinations.add(destinationNodeId);
+        });
         return destinations;
     }
 
@@ -139,7 +143,7 @@ public class AppDeployment {
         for (AppSoftwareModule module : application.getRequiredSoftwareModules()) {
             String fogNodeId = this.getNodeForSoftwareModule(module).getId();
 
-            sb.append(String.format("Module '%s' deployed on node '%s'. Output message destination node: %s",
+            sb.append(String.format("Module '%s' deployed on node '%s'. Output message destination nodes: %s",
                     module.getId(), fogNodeId, getDestinationNodesForSourceModule(module.getId())))
                     .append("\n");
         }

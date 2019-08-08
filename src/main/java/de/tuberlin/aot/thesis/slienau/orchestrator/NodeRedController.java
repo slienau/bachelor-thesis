@@ -58,6 +58,10 @@ public class NodeRedController {
     }
 
     public boolean deployFlow(NodeRedFlow nodeRedFlow) throws IOException {
+        return deployFlow(nodeRedFlow, new ArrayList<>());
+    }
+
+    public boolean deployFlow(NodeRedFlow nodeRedFlow, List<NodeRedFogNode> destinations) throws IOException {
         String flowName = nodeRedFlow.getName();
         JsonNode flow = nodeRedFlow.getFlow();
         boolean updateFlow = this.checkIfFlowExists(flowName);
@@ -142,6 +146,10 @@ public class NodeRedController {
             );
 
         return filteredMap.keySet().stream().findFirst().get();
+    }
+
+    public List<String> getAllFlowNames() throws IOException {
+        return this.getFlowIds().values().stream().collect(Collectors.toList());
     }
 
     /**

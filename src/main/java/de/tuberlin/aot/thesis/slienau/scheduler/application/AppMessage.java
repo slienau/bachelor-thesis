@@ -23,6 +23,8 @@ public class AppMessage {
 
     public double calculateMessageTransferTime(FogNode sourceNode, FogNode destinationNode) {
         NetworkUplink uplink = sourceNode.getUplinkTo(destinationNode.getId());
+        if (uplink == null) // no uplink from source to destination --> infinite transfer time
+            return Double.MAX_VALUE;
         return SchedulerUtils.calculateTransferTime(uplink.getLatency(), uplink.getBitPerSecond(), this.getDataPerMessage());
     }
 

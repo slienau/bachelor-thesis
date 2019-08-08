@@ -16,7 +16,7 @@ public class FogNode {
     private final List<AppSoftwareModule> deployedModules;
     private final Map<String, NetworkUplink> uplinks; // key: destination node
 
-    FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
+    public FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
         this.id = id;
         this.ramTotal = ramTotal;
         this.storageTotal = storageTotal;

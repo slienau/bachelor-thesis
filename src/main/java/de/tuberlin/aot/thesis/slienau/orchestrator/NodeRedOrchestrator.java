@@ -1,5 +1,6 @@
 package de.tuberlin.aot.thesis.slienau.orchestrator;
 
+import de.tuberlin.aot.thesis.slienau.scheduler.application.AppSoftwareModule;
 import de.tuberlin.aot.thesis.slienau.scheduler.application.Application;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 import de.tuberlin.aot.thesis.slienau.scheduler.interfaces.Scheduler;
@@ -9,18 +10,61 @@ import de.tuberlin.aot.thesis.slienau.scheduler.strategy.SchedulerStrategy;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class NodeRedOrchestrator {
 
-    private Map<String, NodeRedController> nodeRedInstances = new HashMap<>();
+    private Map<String, NodeRedFogNode> nodeRedInstances = new HashMap<>();
 
     public static void main(String[] args) throws IOException {
         System.out.println("[NodeRedOrchestrator] Starting...");
-        Infrastructure i = new Infrastructure();
-        i.addFogNode("mbp", 1024 * 16, 256, 8, 16000, null);
 
-        Application a = new Application("sensorNetworkApp");
+        Application a = getSensorNetworkApplication();
+
+        Infrastructure i = new Infrastructure();
+
+        NodeRedFogNode mbp = new NodeRedFogNode("mbp", "dsl-mbp", 1024 * 16, 256, 8, 16000, null);
+        NodeRedFogNode raspi1 = new NodeRedFogNode("raspi-01", "raspi-01", 1024 * 1, 32, 4, 1000, null);
+        NodeRedFogNode raspi2 = new NodeRedFogNode("raspi-02", "raspi-02", 1024 * 4, 16, 4, 3000, null);
+        i.addFogNode(mbp);
+        i.addFogNode(raspi1);
+        i.addFogNode(raspi2);
+
+        i.addNetworkLink("mbp", "raspi-01", 7, 240.0, 240.0);
+        i.addNetworkLink("mbp", "raspi-02", 6, 280.0, 280.0);
+        i.addNetworkLink("raspi-01", "raspi-02", 1, 250.0, 250.0);
+
+        Scheduler s = new SchedulerStrategy(a, i);
+        AppDeployment d = s.getFastestDeployment();
+        System.out.println(d.createDetailsString());
+
+        NodeRedFlowDatabase flowDatabase = NodeRedFlowDatabase.getInstance();
+
+        d.getModuleToNodeMap().entrySet().stream().forEach(entry -> {
+            AppSoftwareModule module = entry.getKey();
+            NodeRedFogNode node = (NodeRedFogNode) entry.getValue();
+            String flowName = String.format("%s/%s", d.getApplication().getName(), module.getId());
+
+            List<String> destinationAddresses = d.getDestinationNodesForSourceModule(module.getId()).stream().map(destinationId -> {
+                NodeRedFogNode nrfn = (NodeRedFogNode) i.getFogNode(destinationId);
+                return nrfn.getAddress();
+            }).collect(Collectors.toList());
+
+            System.out.println(String.format("[NodeRedOrchestrator] Going to deploy '%s' on node '%s'; output goes to destination addresses: %s", module.getId(), node.getId(), destinationAddresses));
+            try {
+                NodeRedFlow flowToDeploy = flowDatabase.getFlowByName(flowName).setDestinations(destinationAddresses);
+                node.getNodeRedController().deployFlow(flowToDeploy);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+    }
+
+    private static Application getSensorNetworkApplication() {
+        Application a = new Application("sensornetwork");
 
         a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 50, 0.5, 1000, null);
         a.addSoftwareModule("data-processor", "SENSOR_DATA", "SENSOR_DATA_PROCESSED", 100, 0.5, 5000, null);
@@ -31,27 +75,6 @@ public class NodeRedOrchestrator {
         a.addMessage("SENSOR_DATA_PROCESSED", 10);
 
         a.addLoop("sensorNetworkLoop1", 500, Arrays.asList("data-reader", "data-processor", "data-viewer"));
-
-        Scheduler s = new SchedulerStrategy(a, i);
-        AppDeployment d = s.getFastestDeployment();
-        System.out.println(d.createDetailsString());
-
-        NodeRedFlowDatabase flowDatabase = NodeRedFlowDatabase.getInstance();
-
-        NodeRedController mbp = new NodeRedController("mbp", "localhost");
-        System.out.println(String.format("Flow 'test-flow' exists: %s", mbp.checkIfFlowExists("test-flow")));
-        mbp.deployFlow(flowDatabase.getFlowByName("test-flow"));
-        System.out.println(String.format("Flow 'test-flow' exists: %s", mbp.checkIfFlowExists("test-flow")));
-        mbp.deployFlow(flowDatabase.getFlowByName("test-flow"));
-        System.out.println(String.format("Flow 'test-flow' exists: %s", mbp.checkIfFlowExists("test-flow")));
-        mbp.deleteFlowByName("test-flow");
-        System.out.println(String.format("Flow 'test-flow' exists: %s", mbp.checkIfFlowExists("test-flow")));
-
-        NodeRedController raspi1 = new NodeRedController("raspi-01", "raspi-01");
-        NodeRedController raspi2 = new NodeRedController("raspi-02", "raspi-02");
-
-        raspi1.deployFlow(flowDatabase.getFlowByName("test-flow"));
-        raspi1.deleteFlowByName("test-flow");
-
+        return a;
     }
 }

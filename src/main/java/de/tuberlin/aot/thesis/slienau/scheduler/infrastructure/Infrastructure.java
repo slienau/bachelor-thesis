@@ -11,7 +11,7 @@ public class Infrastructure {
         this.addFogNode(new FogNode(id, ramTotal, storageTotal, cpuCores, cpuScoreSingleCore, connectedHardware));
     }
 
-    private void addFogNode(FogNode newFogNode) throws IllegalArgumentException {
+    public void addFogNode(FogNode newFogNode) throws IllegalArgumentException {
         if (fogNodes.putIfAbsent(newFogNode.getId(), newFogNode) == null) {
             // fognode added
             System.out.println(String.format("[Infrastructure] Added %s", newFogNode));
