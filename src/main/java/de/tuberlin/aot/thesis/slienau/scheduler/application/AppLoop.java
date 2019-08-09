@@ -1,6 +1,7 @@
 package de.tuberlin.aot.thesis.slienau.scheduler.application;
 
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
+import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.NetworkUplink;
 import de.tuberlin.aot.thesis.slienau.scheduler.strategy.AppDeployment;
 
 import java.util.ArrayList;
@@ -39,14 +40,14 @@ public class AppLoop {
     }
 
     public boolean hasValidLatencyRequirements(AppDeployment appDeployment) {
-        return this.getTotalLatency(appDeployment) < this.getMaxLatency();
+        return this.calculateTotalLatency(appDeployment) < this.getMaxLatency();
     }
 
-    public double getTotalLatency(AppDeployment appDeployment) {
-        return this.getTotalTransferTime(appDeployment) + this.getTotalProcessingTime(appDeployment);
+    public double calculateTotalLatency(AppDeployment appDeployment) {
+        return this.calculateTotalTransferTime(appDeployment) + this.calculateTotalProcessingTime(appDeployment);
     }
 
-    public double getTotalTransferTime(AppDeployment appDeployment) {
+    public double calculateTotalTransferTime(AppDeployment appDeployment) {
         double transferTime = 0;
         for (int i = 0; i < this.modules.size(); i++) {
             AppModule thisModule = application.getModuleById(this.modules.get(i));
@@ -78,7 +79,7 @@ public class AppLoop {
         return message;
     }
 
-    public double getTotalProcessingTime(AppDeployment appDeployment) {
+    public double calculateTotalProcessingTime(AppDeployment appDeployment) {
         return this.getSoftwareModules().stream()
                 .mapToDouble(softwareModule -> appDeployment.getNodeForSoftwareModule(softwareModule).calculateProcessingTimeForModule(softwareModule))
                 .sum();
@@ -117,7 +118,7 @@ public class AppLoop {
         return null;
     }
 
-    public String getDetailString(AppDeployment appDeployment) {
+    public String createDetailString(AppDeployment appDeployment) {
         String prefix = String.format("[AppLoop][%s]", this.getLoopName());
 
         StringBuilder sb = new StringBuilder();
@@ -145,11 +146,12 @@ public class AppLoop {
                 AppMessage message = this.getAppMessageByMessageType(thisModule.getOutputType());
                 FogNode sourceNode = appDeployment.getNodeForSoftwareModule((AppSoftwareModule) thisModule);
                 FogNode destinationNode = appDeployment.getNodeForSoftwareModule((AppSoftwareModule) nextModule);
-                double transferTime = this.getAppMessageByMessageType(thisModule.getOutputType()).calculateMessageTransferTime(sourceNode, destinationNode);
-                sb.append(prefix).append(String.format("[%7sms] Transfer message with content type '%s' from '%s' to '%s'", transferTime, message.getContentType(), sourceNode.getId(), destinationNode.getId())).append("\n");
+                double transferTime = message.calculateMessageTransferTime(sourceNode, destinationNode);
+                NetworkUplink uplink = sourceNode.getUplinkTo(destinationNode.getId());
+                sb.append(prefix).append(String.format("[%7sms] Transfer message with content type '%s' from '%s' to '%s' (%s KB via %s Mbit/s and %sms RTT)", transferTime, message.getContentType(), sourceNode.getId(), destinationNode.getId(), message.getDataPerMessage(), uplink.getMBitPerSecond(), uplink.getLatency())).append("\n");
             }
         }
-        sb.append(prefix).append(String.format("[%7sms] <-- TOTAL LATENCY", this.getTotalLatency(appDeployment)))
+        sb.append(prefix).append(String.format("[%7sms] <-- TOTAL LATENCY", this.calculateTotalLatency(appDeployment)))
                 .append("\n");
         return sb.toString();
     }

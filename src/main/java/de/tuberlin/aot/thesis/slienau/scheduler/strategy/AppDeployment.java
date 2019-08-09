@@ -98,7 +98,7 @@ public class AppDeployment {
     private double getMaxLoopProcessingTime() {
         double result = 0.0;
         for (AppLoop loop : this.application.getLoops()) {
-            double loopProcessingTime = loop.getTotalProcessingTime(this);
+            double loopProcessingTime = loop.calculateTotalProcessingTime(this);
             if (result < loopProcessingTime)
                 result = loopProcessingTime;
         }
@@ -113,7 +113,7 @@ public class AppDeployment {
     private double getMaxLoopTransferTime() {
         double result = 0.0;
         for (AppLoop loop : this.application.getLoops()) {
-            double loopTransferTime = loop.getTotalTransferTime(this);
+            double loopTransferTime = loop.calculateTotalTransferTime(this);
             if (result < loopTransferTime)
                 result = loopTransferTime;
         }
@@ -127,7 +127,7 @@ public class AppDeployment {
                 .append("**************************************************************\n");
 
         for (AppLoop loop : application.getLoops()) {
-            sb.append(loop.getDetailString(this));
+            sb.append(loop.createDetailString(this));
         }
         sb
                 .append(createSoftwareModuleInfoString())
@@ -143,7 +143,7 @@ public class AppDeployment {
         for (AppSoftwareModule module : application.getRequiredSoftwareModules()) {
             String fogNodeId = this.getNodeForSoftwareModule(module).getId();
 
-            sb.append(String.format("Module '%s' deployed on node '%s'. Output message destination nodes: %s",
+            sb.append(String.format("Module '%s' should be deployed on node '%s'. Output message destination nodes: %s",
                     module.getId(), fogNodeId, getDestinationNodesForSourceModule(module.getId())))
                     .append("\n");
         }

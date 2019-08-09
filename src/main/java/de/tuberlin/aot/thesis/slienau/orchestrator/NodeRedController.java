@@ -13,6 +13,7 @@ import static de.tuberlin.aot.thesis.slienau.utils.HttpUtils.*;
 public class NodeRedController {
 
     private final String id;
+    private final String logPrefix;
     private String nodeRedAddress;
     private int nodeRedPort;
 
@@ -26,6 +27,7 @@ public class NodeRedController {
         this.id = id;
         this.nodeRedAddress = nodeRedAddress;
         this.nodeRedPort = nodeRedPort;
+        this.logPrefix = String.format("[NodeRedController][%s] ", this.getId());
         System.out.println(String.format("[NodeRedController] Created new instance %s", this));
     }
 
@@ -77,26 +79,36 @@ public class NodeRedController {
 
     private boolean createFlow(String flowName, JsonNode flow) throws IOException {
         if (checkIfFlowExists(flowName)) {
-            System.out.println(String.format("[NodeRedController][%s] Failed to create flow '%s' because it already exists", this.getId(), flowName));
+            System.out.println(String.format(logPrefix + "Failed to create flow '%s' because it already exists", flowName));
             return false;
         }
-        String endpoint = getEndpointUrlForSuffix("flow/");
+        String endpoint = getHttpEndpointForPath("flow/");
 
         httpPostRequest(endpoint, flow);
-        System.out.println(String.format("[NodeRedController][%s] Created flow '%s'", this.getId(), flowName));
+        System.out.println(String.format(logPrefix + "Created flow '%s'", flowName));
         return true;
     }
 
     public boolean deleteFlowByName(String flowName) {
         try {
             String flowId = this.getFlowIdByName(flowName);
-            String endpoint = getEndpointUrlForSuffix("flow/" + flowId);
+            String endpoint = getHttpEndpointForPath("flow/" + flowId);
             httpDeleteRequest(endpoint);
-            System.out.println(String.format("[NodeRedController][%s] Deleted flow '%s'", this.getId(), flowName));
+            System.out.println(String.format(logPrefix + "Deleted flow '%s'", flowName));
             return true;
         } catch (Exception e) {
-            System.out.println(String.format("[NodeRedController][%s] Failed to delete flow '%s'", this.getId(), flowName));
+            System.out.println(String.format(logPrefix + "Failed to delete flow '%s'", flowName));
             return false;
+        }
+    }
+
+    public void deleteAllFlows() throws IOException {
+        List<String> protectedFlows = Arrays.asList("Heartbeat");
+        System.out.println(String.format(logPrefix + "Going to delete all flows except %s", protectedFlows));
+        for (String flowName : this.getAllFlowNames()) {
+            if (protectedFlows.contains(flowName))
+                continue;
+            this.deleteFlowByName(flowName);
         }
     }
 
@@ -149,7 +161,7 @@ public class NodeRedController {
     }
 
     public List<String> getAllFlowNames() throws IOException {
-        return this.getFlowIds().values().stream().collect(Collectors.toList());
+        return new ArrayList<>(this.getFlowIds().values());
     }
 
     /**
@@ -192,7 +204,7 @@ public class NodeRedController {
      * @throws IOException
      */
     private JsonNode getAllNodes() throws IOException {
-        String endpoint = getEndpointUrlForSuffix("/flows");
+        String endpoint = getHttpEndpointForPath("/flows");
         return httpGetRequestAsJson(endpoint);
     }
 
@@ -205,7 +217,7 @@ public class NodeRedController {
      * @throws IOException
      */
     private JsonNode getFlowById(String flowId) throws IOException {
-        String endpoint = getEndpointUrlForSuffix("/flow/" + flowId);
+        String endpoint = getHttpEndpointForPath("/flow/" + flowId);
         return httpGetRequestAsJson(endpoint);
     }
 
@@ -221,7 +233,7 @@ public class NodeRedController {
     private JsonNode updateFlowByName(String flowName, JsonNode updatedFlow) throws IOException {
         String flowId = this.getFlowIdByName(flowName);
         JsonNode response = this.updateFlowById(flowId, updatedFlow);
-        System.out.println(String.format("[NodeRedController][%s] Updated flow '%s'", this.getId(), flowName));
+        System.out.println(String.format(logPrefix + "Updated flow '%s'", flowName));
         return response;
     }
 
@@ -235,15 +247,15 @@ public class NodeRedController {
      * @throws IOException
      */
     private JsonNode updateFlowById(String flowId, JsonNode updatedFlow) throws IOException {
-        String endpoint = this.getEndpointUrlForSuffix("/flow/" + flowId);
+        String endpoint = this.getHttpEndpointForPath("/flow/" + flowId);
         return HttpUtils.httpPutRequest(endpoint, updatedFlow);
     }
 
 
-    private String getEndpointUrlForSuffix(String suffix) {
-        if (suffix.startsWith("/"))
-            suffix = suffix.substring(1);
-        return String.format("http://%s:%s/%s", this.nodeRedAddress, this.nodeRedPort, suffix);
+    private String getHttpEndpointForPath(String path) {
+        if (path.startsWith("/"))
+            path = path.substring(1);
+        return String.format("http://%s:%s/%s", this.nodeRedAddress, this.nodeRedPort, path);
     }
 
     public String getId() {
