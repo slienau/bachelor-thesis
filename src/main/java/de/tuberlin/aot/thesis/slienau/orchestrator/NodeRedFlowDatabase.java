@@ -1,5 +1,8 @@
 package de.tuberlin.aot.thesis.slienau.orchestrator;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.io.IOException;
 
 public class NodeRedFlowDatabase {
@@ -16,6 +19,8 @@ public class NodeRedFlowDatabase {
     }
 
     public NodeRedFlow getFlowByName(String flowName) throws IOException {
-        return new NodeRedFlow(flowName, flowDatabaseInstance.getFlowByName(flowName));
+        JsonNode flow = flowDatabaseInstance.getFlowByName(flowName);
+        ((ObjectNode) flow).put("disabled", false);
+        return new NodeRedFlow(flowName, flow);
     }
 }
