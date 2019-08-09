@@ -12,13 +12,14 @@ public class NodeRedFogNode extends FogNode {
     private final NodeRedController nodeRedController;
     private final DockerClient dockerClient;
 
-    public NodeRedFogNode(String id, String address, int ramTotal, int storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
+    public NodeRedFogNode(String id, String address, float ramTotal, float storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
         super(id, ramTotal, storageTotal, cpuCores, cpuInstructionsPerSecond, connectedHardware);
         nodeRedController = new NodeRedController(id, address);
         DefaultDockerClientConfig config
                 = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(String.format("tcp://%s:52376", address)).build();
         dockerClient = DockerClientBuilder.getInstance(config).build();
+        System.out.println(String.format("[NodeRedFogNode] Created new instance %s", this));
     }
 
     public NodeRedController getNodeRedController() {
@@ -36,8 +37,8 @@ public class NodeRedFogNode extends FogNode {
     @Override
     public String toString() {
         return "NodeRedFogNode{" +
-                "nodeRedController=" + nodeRedController +
-                ", fogNode=" + super.toString() +
+                "fogNode=" + super.toString() +
+                ", nodeRedController=" + nodeRedController +
                 '}';
     }
 }

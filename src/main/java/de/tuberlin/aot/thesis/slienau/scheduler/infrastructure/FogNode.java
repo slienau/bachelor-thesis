@@ -8,15 +8,15 @@ import java.util.stream.Collectors;
 
 public class FogNode {
     private final String id;
-    private final int ramTotal;
-    private final double storageTotal;
+    private final float ramTotal;
+    private final float storageTotal;
     private final int cpuCores;
     private final int cpuInstructionsPerSecond;
     private final Set<String> connectedHardware;
     private final List<AppSoftwareModule> deployedModules;
     private final Map<String, NetworkUplink> uplinks; // key: destination node
 
-    public FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
+    public FogNode(String id, float ramTotal, float storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
         this.id = id;
         this.ramTotal = ramTotal;
         this.storageTotal = storageTotal;
@@ -89,15 +89,15 @@ public class FogNode {
         this.deployedModules.clear();
     }
 
-    private int getRamFree() {
-        int ramFree = this.ramTotal;
+    private float getRamFree() {
+        float ramFree = this.ramTotal;
         for (AppSoftwareModule module : this.deployedModules) {
             ramFree -= module.getRequiredRam();
         }
         return ramFree;
     }
 
-    private int getRamUsed() {
+    private float getRamUsed() {
         return this.ramTotal - this.getRamFree();
     }
 

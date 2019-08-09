@@ -28,7 +28,7 @@ public class NodeRedController {
         this.nodeRedAddress = nodeRedAddress;
         this.nodeRedPort = nodeRedPort;
         this.logPrefix = String.format("[NodeRedController][%s] ", this.getId());
-        System.out.println(String.format("[NodeRedController] Created new instance %s", this));
+//        System.out.println(String.format("[NodeRedController] Created new instance %s", this));
     }
 
     public void changeHeartbeatFrequency(String newFrequency) throws IOException {

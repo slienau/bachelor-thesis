@@ -14,7 +14,7 @@ public class Infrastructure {
     public void addFogNode(FogNode newFogNode) throws IllegalArgumentException {
         if (fogNodes.putIfAbsent(newFogNode.getId(), newFogNode) == null) {
             // fognode added
-            System.out.println(String.format("[Infrastructure] Added %s", newFogNode));
+            System.out.println(String.format("[Infrastructure] Added node '%s'", newFogNode.getId()));
         } else {
             // not added because exists already
             throw new IllegalArgumentException(String.format("Can not add %s to infrastructure because it already exists", newFogNode.getId()));
@@ -22,10 +22,7 @@ public class Infrastructure {
     }
 
     public FogNode getFogNode(String fogNodeId) throws NoSuchElementException {
-        FogNode result = fogNodes.get(fogNodeId);
-        if (result != null)
-            return result;
-        throw new NoSuchElementException(String.format("Unable to find fog node with id '%s'", fogNodeId));
+        return fogNodes.get(fogNodeId);
     }
 
     public boolean removeFogNode(String nodeIdToDelete) {
