@@ -4,18 +4,31 @@ The Fog orchestrator collects data about every fog nodes system load and about t
 
 ## Setup
 
+### Flow database
+
+Start a node-RED container (based on the same image the fog nodes are using) on port `2880`. The fog orchestrator will query this instance to get node-RED flows in order to deploy/distribute these flows to other fog nodes.
+
+```bash
+docker run -it -d
+--restart=unless-stopped \
+--name nodered_flow_database \
+-v nodered_flow_database:/data \
+-p 2880:1880 \
+node-red:slim
+```
+
 ### Expose Docker API on fog nodes
 
 Expose the Docker API on port `52376`
 
 #### Raspberry Pi / Linux
 
-Create file `/etc/systemd/system/docker.service.d/remote-api.conf` with content (replacing `127.0.0.1` with the address to listen):
+Create file `/etc/systemd/system/docker.service.d/remote-api.conf` with the following content (replace `127.0.0.1` with the address of the network interface where the docker API should be exposed):
 
 ```bash
 [Service]
 ExecStart=
-ExecStart=/usr/bin/dockerd -H tcp://127.0.0.1:2376 -H unix:///var/run/docker.sock
+ExecStart=/usr/bin/dockerd -H tcp://127.0.0.1:52376 -H unix:///var/run/docker.sock
 ```
 
 Restart Docker:
