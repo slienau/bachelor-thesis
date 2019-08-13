@@ -10,6 +10,7 @@ import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 import de.tuberlin.aot.thesis.slienau.scheduler.interfaces.Scheduler;
 import de.tuberlin.aot.thesis.slienau.scheduler.strategy.AppDeployment;
 import de.tuberlin.aot.thesis.slienau.scheduler.strategy.SchedulerStrategy;
+import de.tuberlin.aot.thesis.slienau.utils.NumberUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,10 +24,12 @@ public class NodeRedOrchestrator {
     private static final NodeRedFlowDatabase flowDatabase = NodeRedFlowDatabase.getInstance();
     private final Infrastructure infrastructure;
     private final Queue<Heartbeat> heartbeatQueue;
+    private final Scheduler scheduler;
 
     public NodeRedOrchestrator() {
         infrastructure = new Infrastructure();
         heartbeatQueue = new ConcurrentLinkedQueue<>();
+        scheduler = new SchedulerStrategy(createSensorNetworkApplication(), infrastructure);
     }
 
     public static void main(String[] args) throws Exception {
@@ -37,46 +40,9 @@ public class NodeRedOrchestrator {
         Thread heartbeatMonitorThread = new Thread(new HeartbeatMonitor("tcp://localhost:1883", "/devices/#", orchestrator.heartbeatQueue));
         heartbeatMonitorThread.start();
 
-        Thread heartbeatProcessorThread = new Thread(new HeartbeatProcessor(orchestrator.infrastructure, orchestrator.heartbeatQueue));
+        Thread heartbeatProcessorThread = new Thread(new HeartbeatProcessor(orchestrator, orchestrator.heartbeatQueue));
         heartbeatProcessorThread.start();
 
-        Infrastructure i = orchestrator.infrastructure;
-        Application a = createSensorNetworkApplication();
-
-        Thread.sleep(6 * 1000);
-
-        Scheduler s = new SchedulerStrategy(a, i);
-        AppDeployment d = s.getFastestDeployment();
-        if (d == null)
-            System.out.println(String.format("No deployment found for application!"));
-        if (d != null) {
-            System.out.println(d.createDetailsString());
-
-            for (FogNode fn : i.getFogNodes()) {
-                NodeRedFogNode fogNode = (NodeRedFogNode) fn;
-                fogNode.getNodeRedController().deleteAllFlows();
-            }
-
-
-            d.getModuleToNodeMap().entrySet().stream().forEach(entry -> {
-                AppSoftwareModule module = entry.getKey();
-                NodeRedFogNode node = (NodeRedFogNode) entry.getValue();
-                String flowName = String.format("%s/%s", d.getApplication().getName(), module.getId());
-
-                List<String> destinationAddresses = d.getDestinationNodesForSourceModule(module.getId()).stream().map(destinationId -> {
-                    NodeRedFogNode nrfn = (NodeRedFogNode) i.getFogNode(destinationId);
-                    return nrfn.getAddress();
-                }).collect(Collectors.toList());
-
-                System.out.println(String.format("[NodeRedOrchestrator] Going to deploy '%s' on node '%s'; output goes to destination addresses: %s", module.getId(), node.getId(), destinationAddresses));
-                try {
-                    NodeRedFlow flowToDeploy = flowDatabase.getFlowByName(flowName).setDestinations(destinationAddresses);
-                    node.getNodeRedController().deployFlow(flowToDeploy);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
     }
 
     private static Application createSensorNetworkApplication() {
@@ -94,5 +60,68 @@ public class NodeRedOrchestrator {
 
         a.addLoop("sensorNetworkLoop1", 999999, Arrays.asList("data-reader", "data-processor", "data-viewer"));
         return a;
+    }
+
+    public Infrastructure getInfrastructure() {
+        return infrastructure;
+    }
+
+    public void addFogNode(NodeRedFogNode newNode) throws IOException {
+        // delete all flows on new node (in case they have "old" flows deployed which could disturb the current deployment strategy)
+        newNode.getNodeRedController().deleteAllFlows();
+
+        // add to infrastructure
+        infrastructure.addFogNode(newNode);
+
+        // add network uplinks to all other nodes
+        List<String> destinationNodeIds = infrastructure.getFogNodes().stream()
+                .filter(node -> !node.getId().equals(newNode.getId()))
+                .map(FogNode::getId)
+                .collect(Collectors.toList());
+        for (String destinationNodeId : destinationNodeIds) {
+            infrastructure.addNetworkLink(
+                    newNode.getId(),
+                    destinationNodeId,
+                    NumberUtils.getRandom(2, 200),
+                    NumberUtils.getRandom(10, 250),
+                    NumberUtils.getRandom(10, 250)
+            );
+        }
+
+        // deploy
+        this.deployFastestDeployment();
+    }
+
+    private void deployFastestDeployment() throws IOException {
+        AppDeployment d = this.scheduler.getFastestDeployment();
+        if (d == null)
+            System.out.println("No deployment found for application!");
+        if (d != null) {
+            System.out.println(d.createDetailsString());
+
+            for (FogNode fn : infrastructure.getFogNodes()) {
+                NodeRedFogNode fogNode = (NodeRedFogNode) fn;
+                fogNode.getNodeRedController().deleteAllFlows();
+            }
+
+            d.getModuleToNodeMap().entrySet().stream().forEach(entry -> {
+                AppSoftwareModule module = entry.getKey();
+                NodeRedFogNode node = (NodeRedFogNode) entry.getValue();
+                String flowName = String.format("%s/%s", d.getApplication().getName(), module.getId());
+
+                List<String> destinationAddresses = d.getDestinationNodesForSourceModule(module.getId()).stream().map(destinationId -> {
+                    NodeRedFogNode nrfn = (NodeRedFogNode) infrastructure.getFogNode(destinationId);
+                    return nrfn.getAddress();
+                }).collect(Collectors.toList());
+
+                System.out.println(String.format("[NodeRedOrchestrator] Going to deploy '%s' on node '%s'; output goes to destination addresses: %s", module.getId(), node.getId(), destinationAddresses));
+                try {
+                    NodeRedFlow flowToDeploy = flowDatabase.getFlowByName(flowName).setDestinations(destinationAddresses);
+                    node.getNodeRedController().deployFlow(flowToDeploy);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 }

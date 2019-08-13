@@ -1,21 +1,22 @@
 package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
 
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedFogNode;
+import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedOrchestrator;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 import de.tuberlin.aot.thesis.slienau.utils.NumberUtils;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Queue;
-import java.util.stream.Collectors;
 
 public class HeartbeatProcessor implements Runnable {
+    private final NodeRedOrchestrator orchestrator;
     private final Infrastructure infrastructure;
     private final Queue<Heartbeat> heartbeatQueue;
 
-    public HeartbeatProcessor(Infrastructure infrastructure, Queue<Heartbeat> heartbeatQueue) {
-        this.infrastructure = infrastructure;
+    public HeartbeatProcessor(NodeRedOrchestrator orchestrator, Queue<Heartbeat> heartbeatQueue) {
+        this.infrastructure = orchestrator.getInfrastructure();
         this.heartbeatQueue = heartbeatQueue;
+        this.orchestrator = orchestrator;
     }
 
     @Override
@@ -48,27 +49,9 @@ public class HeartbeatProcessor implements Runnable {
                 );
 
                 try {
-                    // delete all flows on new node (in case they have "old" flows deployed which could disturb the current deployment strategy)
-                    newNode.getNodeRedController().deleteAllFlows();
+                    orchestrator.addFogNode(newNode);
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
-
-                infrastructure.addFogNode(newNode);
-
-                // add network uplinks to all other nodes
-                List<String> destinationNodeIds = infrastructure.getFogNodes().stream()
-                        .filter(node -> !node.getId().equals(newNode.getId()))
-                        .map(node -> node.getId())
-                        .collect(Collectors.toList());
-                for (String destinationNodeId : destinationNodeIds) {
-                    infrastructure.addNetworkLink(
-                            newNode.getId(),
-                            destinationNodeId,
-                            NumberUtils.getRandom(2, 200),
-                            NumberUtils.getRandom(10, 250),
-                            NumberUtils.getRandom(10, 250)
-                    );
                 }
             }
         }
