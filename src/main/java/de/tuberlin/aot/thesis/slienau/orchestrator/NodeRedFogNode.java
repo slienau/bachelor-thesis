@@ -6,6 +6,8 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.List;
 
 public class NodeRedFogNode extends FogNode {
@@ -42,6 +44,15 @@ public class NodeRedFogNode extends FogNode {
 
     public void setLatestHeartbeat(Heartbeat latestHeartbeat) {
         this.latestHeartbeat = latestHeartbeat;
+    }
+
+    public boolean isReachable() {
+        try {
+            return InetAddress.getByName(nodeRedController.getNodeRedAddress()).isReachable(3000);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override

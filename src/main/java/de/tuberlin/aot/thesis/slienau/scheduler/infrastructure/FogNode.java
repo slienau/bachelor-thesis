@@ -41,6 +41,11 @@ public class FogNode {
         return this.uplinks.get(destinationId);
     }
 
+    public boolean removeUplinkTo(String destinationId) {
+        System.out.println(String.format("[FogNode][%s] Removing uplink to %s", this.getId(), destinationId));
+        return this.uplinks.remove(destinationId) != null;
+    }
+
     public String getId() {
         return id;
     }

@@ -43,6 +43,8 @@ public class NodeRedOrchestrator {
         Thread heartbeatProcessorThread = new Thread(new HeartbeatProcessor(orchestrator));
         heartbeatProcessorThread.start();
 
+        Thread infrastructureMaintainerThread = new Thread(new InfrastructureMaintainer(orchestrator));
+        infrastructureMaintainerThread.start();
     }
 
     private static Application createSensorNetworkApplication() {
@@ -109,6 +111,18 @@ public class NodeRedOrchestrator {
         }
 
         // deploy
+        this.deployFastestDeployment();
+    }
+
+    public void removeFogNode(String fogNodeIdToRemove) throws IOException {
+        // remove all uplinks to this node
+        for (FogNode fn : infrastructure.getFogNodes()) {
+            fn.removeUplinkTo(fogNodeIdToRemove);
+        }
+
+        // remove node from infrastructure
+        infrastructure.removeFogNode(fogNodeIdToRemove);
+
         this.deployFastestDeployment();
     }
 
