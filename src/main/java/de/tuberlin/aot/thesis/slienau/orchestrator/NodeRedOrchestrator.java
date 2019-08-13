@@ -40,7 +40,7 @@ public class NodeRedOrchestrator {
         Thread heartbeatMonitorThread = new Thread(new HeartbeatMonitor("tcp://localhost:1883", "/devices/#", orchestrator.heartbeatQueue));
         heartbeatMonitorThread.start();
 
-        Thread heartbeatProcessorThread = new Thread(new HeartbeatProcessor(orchestrator, orchestrator.heartbeatQueue));
+        Thread heartbeatProcessorThread = new Thread(new HeartbeatProcessor(orchestrator));
         heartbeatProcessorThread.start();
 
     }
@@ -64,6 +64,26 @@ public class NodeRedOrchestrator {
 
     public Infrastructure getInfrastructure() {
         return infrastructure;
+    }
+
+    public void handleHeartbeat(Heartbeat hb) throws IOException {
+        NodeRedFogNode fogNode = (NodeRedFogNode) infrastructure.getFogNode(hb.getDeviceName());
+        if (fogNode == null) {
+            // new node --> add
+            NodeRedFogNode newNode = new NodeRedFogNode(
+                    hb.getDeviceName(),
+                    hb.getDeviceName(),
+                    hb.getTotalMem(),
+                    NumberUtils.getRandom(16, 100),
+                    hb.getCpuCount(),
+                    NumberUtils.getRandom(3000, 10000),
+                    null
+            );
+            newNode.setLatestHeartbeat(hb);
+            this.addFogNode(newNode);
+        } else {
+            fogNode.setLatestHeartbeat(hb);
+        }
     }
 
     public void addFogNode(NodeRedFogNode newNode) throws IOException {
@@ -90,6 +110,10 @@ public class NodeRedOrchestrator {
 
         // deploy
         this.deployFastestDeployment();
+    }
+
+    public Queue<Heartbeat> getHeartbeatQueue() {
+        return heartbeatQueue;
     }
 
     private void deployFastestDeployment() throws IOException {

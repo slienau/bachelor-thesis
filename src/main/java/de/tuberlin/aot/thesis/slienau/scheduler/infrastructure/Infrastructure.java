@@ -21,7 +21,7 @@ public class Infrastructure {
         }
     }
 
-    public FogNode getFogNode(String fogNodeId) throws NoSuchElementException {
+    public FogNode getFogNode(String fogNodeId) {
         return fogNodes.get(fogNodeId);
     }
 

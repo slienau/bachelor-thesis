@@ -3,6 +3,7 @@ package de.tuberlin.aot.thesis.slienau.orchestrator;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
+import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 
 import java.util.List;
@@ -11,6 +12,7 @@ public class NodeRedFogNode extends FogNode {
 
     private final NodeRedController nodeRedController;
     private final DockerClient dockerClient;
+    private Heartbeat latestHeartbeat;
 
     public NodeRedFogNode(String id, String address, float ramTotal, float storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
         super(id, ramTotal, storageTotal, cpuCores, cpuInstructionsPerSecond, connectedHardware);
@@ -32,6 +34,14 @@ public class NodeRedFogNode extends FogNode {
 
     public DockerClient getDockerClient() {
         return dockerClient;
+    }
+
+    public Heartbeat getLatestHeartbeat() {
+        return latestHeartbeat;
+    }
+
+    public void setLatestHeartbeat(Heartbeat latestHeartbeat) {
+        this.latestHeartbeat = latestHeartbeat;
     }
 
     @Override
