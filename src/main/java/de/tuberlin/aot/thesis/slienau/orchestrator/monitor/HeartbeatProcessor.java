@@ -2,9 +2,7 @@ package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
 
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedFogNode;
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedOrchestrator;
-import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
-import de.tuberlin.aot.thesis.slienau.utils.NumberUtils;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -107,17 +105,17 @@ public class HeartbeatProcessor implements Runnable {
                     infrastructure.addFogNode(newNode);
 
                     // add network uplinks to all other nodes
-                    List<String> destinationNodeIds = infrastructure.getFogNodes().stream()
+                    List<NodeRedFogNode> destinationNodes = infrastructure.getFogNodes().stream()
                             .filter(node -> !node.getId().equals(newNode.getId()))
-                            .map(FogNode::getId)
+                            .map(node -> (NodeRedFogNode) node)
                             .collect(Collectors.toList());
-                    for (String destinationNodeId : destinationNodeIds) {
+                    for (NodeRedFogNode destinationNode : destinationNodes) {
                         infrastructure.addNetworkLink(
                                 newNode.getId(),
-                                destinationNodeId,
-                                NumberUtils.getRandom(2, 200),
-                                NumberUtils.getRandom(10, 250),
-                                NumberUtils.getRandom(10, 250)
+                                destinationNode.getId(),
+                                newNode.getLatencyToDestination(destinationNode.getAddress()),
+                                newNode.getBandwidthTo(destinationNode.getAddress()),
+                                destinationNode.getBandwidthTo(newNode.getAddress())
                         );
                     }
 

@@ -7,13 +7,12 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.SystemInfo;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
+import de.tuberlin.aot.thesis.slienau.utils.NumberUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
-import java.util.Locale;
 
 public class NodeRedFogNode extends FogNode {
 
@@ -65,21 +64,45 @@ public class NodeRedFogNode extends FogNode {
         }
     }
 
+    public int getLatencyToDestination(String destinationAddress) {
+        String payload = destinationAddress + " | tail -1| awk '{print $4}' | cut -d '/' -f 2";
+        byte[] resultBytes = this.executeMqttCommand("ping", payload.getBytes());
+        try {
+            return (int) NumberUtils.stringToDouble(new String(resultBytes)) + 1; // +1 to "round up"
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Runs iperf3 from this node to destination node. Returns bandwidth in Mbit/s
+     *
+     * @param destinationAddress
+     * @return
+     */
+    public double getBandwidthTo(String destinationAddress) {
+        String payload = destinationAddress + " | grep 'receiver' | awk '{print $7}'";
+        byte[] bandwidthResult = this.executeMqttCommand("iperf3", payload.getBytes());
+        try {
+            return NumberUtils.stringToDouble(new String(bandwidthResult));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void setCpuScoreFromBenchmark() {
         byte[] benchmarkResultBytes = this.executeMqttCommand("benchmark_cpu");
         String benchmarkResultString = new String(benchmarkResultBytes)
                 .replace("s", "")
                 .replace("\n", "")
-                .replace("\r", "")
-                .replace(".", ",");
-        NumberFormat format = NumberFormat.getInstance(Locale.GERMAN);
+                .replace("\r", "");
         try {
-            Number number = format.parse(benchmarkResultString);
-            int cpuScore = (int) (50000 / number.doubleValue());
+            double time = NumberUtils.stringToDouble(benchmarkResultString);
+            int cpuScore = (int) (50000 / time);
             System.out.println(String.format("[NodeRedFogNode][%s] Benchmark result CPU score: %s", this.getId(), cpuScore));
             super.setCpuInstructionsPerSecond(cpuScore);
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
