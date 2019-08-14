@@ -17,3 +17,16 @@ The `build_all.sh` script inside the `scripts/` folder builds four docker images
 ### Run containers
 
 First of all, `cd` into the folder `scripts/`. Set environment variables in `env.sh`, then run the desired script, e.g. `./docker_run.sh` for the initial creation of a container based on the .
+
+## MQTT commands
+
+Can be send to `/devices/{deviceName}/commands/in/{COMMAND}`
+
+| Command | Explanation | Message Content | Example payload |
+|--- |--- |--- |---|
+| `ping` | Pings destination host | ping destination address | `raspi-02` |
+| `benchmark_cpu` | Runs benchmark on CPU (outputs execution time in seconds - the lower, the better) | anything | `benchmark` |
+| `iperf3` | Measures the bandwidth to/from destination | destination address | `raspi-02` |
+| `sysinfo` | Sends system information | anything | `raspi-02` |
+
+The output will be send to the MQTT topic `/devices/dsl-mbp.lan/commands/out/{COMMAND}`
