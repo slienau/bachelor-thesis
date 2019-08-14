@@ -9,6 +9,7 @@ import java.time.temporal.ChronoUnit;
 public class InfrastructureMaintainer implements Runnable {
     private static final int CHECKING_INTERVAL = 1; // in seconds
     private static final int HEARTBEAT_TIMEOUT = 3; // in seconds
+    private static final int HARD_TIMEOUT = 10;
 
     private final NodeRedOrchestrator orchestrator;
 
@@ -23,6 +24,11 @@ public class InfrastructureMaintainer implements Runnable {
                 for (FogNode fn : orchestrator.getInfrastructure().getFogNodes()) {
                     NodeRedFogNode fogNode = (NodeRedFogNode) fn;
                     long secondsBetween = ChronoUnit.SECONDS.between(fogNode.getLatestHeartbeat().getTimestamp(), LocalDateTime.now());
+
+                    if (HARD_TIMEOUT < secondsBetween) {
+                        System.out.println(String.format("[InfrastructureMaintainer][%s] Hard timeout of %s seconds exceeded (last heartbeat received %s seconds ago). Going to remove node from infrastructure.", fogNode.getId(), HARD_TIMEOUT, secondsBetween));
+                        orchestrator.removeFogNode(fogNode.getId());
+                    }
 
                     if (HEARTBEAT_TIMEOUT < secondsBetween) {
                         System.out.println(String.format("[InfrastructureMaintainer][%s] Timeout of %s seconds exceeded (last heartbeat received %s seconds ago). Going to check if node is reachable.", fogNode.getId(), HEARTBEAT_TIMEOUT, secondsBetween));
