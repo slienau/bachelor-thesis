@@ -10,7 +10,6 @@ import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 import de.tuberlin.aot.thesis.slienau.scheduler.interfaces.Scheduler;
 import de.tuberlin.aot.thesis.slienau.scheduler.strategy.AppDeployment;
 import de.tuberlin.aot.thesis.slienau.scheduler.strategy.SchedulerStrategy;
-import de.tuberlin.aot.thesis.slienau.utils.NumberUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -69,32 +68,6 @@ public class NodeRedOrchestrator {
         return infrastructure;
     }
 
-    public void addFogNode(NodeRedFogNode newNode) throws IOException {
-        // delete all flows on new node (in case they have "old" flows deployed which could disturb the current deployment strategy)
-        newNode.getNodeRedController().deleteAllFlows();
-
-        // add to infrastructure
-        infrastructure.addFogNode(newNode);
-
-        // add network uplinks to all other nodes
-        List<String> destinationNodeIds = infrastructure.getFogNodes().stream()
-                .filter(node -> !node.getId().equals(newNode.getId()))
-                .map(FogNode::getId)
-                .collect(Collectors.toList());
-        for (String destinationNodeId : destinationNodeIds) {
-            infrastructure.addNetworkLink(
-                    newNode.getId(),
-                    destinationNodeId,
-                    NumberUtils.getRandom(2, 200),
-                    NumberUtils.getRandom(10, 250),
-                    NumberUtils.getRandom(10, 250)
-            );
-        }
-
-        // deploy
-        this.deployFastestDeployment();
-    }
-
     public void removeFogNode(String fogNodeIdToRemove) throws IOException {
         // remove all uplinks to this node
         for (FogNode fn : infrastructure.getFogNodes()) {
@@ -111,7 +84,7 @@ public class NodeRedOrchestrator {
         return heartbeatQueue;
     }
 
-    private void deployFastestDeployment() throws IOException {
+    public void deployFastestDeployment() throws IOException {
         AppDeployment d = this.scheduler.getFastestDeployment();
         if (d == null)
             System.out.println("No deployment found for application!");

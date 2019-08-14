@@ -2,11 +2,16 @@ package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
 
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedFogNode;
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedOrchestrator;
+import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
+import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
+import de.tuberlin.aot.thesis.slienau.utils.NumberUtils;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 public class HeartbeatProcessor implements Runnable {
     private final NodeRedOrchestrator orchestrator;
@@ -93,7 +98,30 @@ public class HeartbeatProcessor implements Runnable {
 
                     initialHeartbeat.setTimestamp(LocalDateTime.now());
                     newNode.setLatestHeartbeat(initialHeartbeat);
-                    orchestrator.addFogNode(newNode);
+
+                    // delete all flows on new node (in case they have "old" flows deployed which could disturb the current deployment strategy)
+                    newNode.getNodeRedController().deleteAllFlows();
+
+                    // add to infrastructure
+                    Infrastructure infrastructure = orchestrator.getInfrastructure();
+                    infrastructure.addFogNode(newNode);
+
+                    // add network uplinks to all other nodes
+                    List<String> destinationNodeIds = infrastructure.getFogNodes().stream()
+                            .filter(node -> !node.getId().equals(newNode.getId()))
+                            .map(FogNode::getId)
+                            .collect(Collectors.toList());
+                    for (String destinationNodeId : destinationNodeIds) {
+                        infrastructure.addNetworkLink(
+                                newNode.getId(),
+                                destinationNodeId,
+                                NumberUtils.getRandom(2, 200),
+                                NumberUtils.getRandom(10, 250),
+                                NumberUtils.getRandom(10, 250)
+                        );
+                    }
+
+                    orchestrator.deployFastestDeployment();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
