@@ -5,7 +5,7 @@ FROM ${BASE_NODE_IMAGE}:${NODE_VERSION}${BASE_IMAGE_SUFFIX}
 
 # install aditional software
 RUN apt-get update \
-&& apt-get install -y --no-install-recommends fswebcam \
+&& apt-get install -y --no-install-recommends iputils-ping iperf3 sysbench \
 # cleanup
 && rm -rf /var/lib/apt/lists/* \
 && apt-get -y autoremove
