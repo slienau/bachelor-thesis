@@ -16,9 +16,9 @@ public class HeartbeatMonitor implements Runnable {
     private final MqttConnectOptions connOpts;
     private final Queue<Heartbeat> heartbeatQueue;
 
-    public HeartbeatMonitor(String broker, String topic, Queue<Heartbeat> heartbeatQueue) {
+    public HeartbeatMonitor(String broker, Queue<Heartbeat> heartbeatQueue) {
         this.broker = broker;
-        this.topic = topic;
+        this.topic = "/heartbeats/#";
         this.persistence = new MemoryPersistence();
         this.heartbeatQueue = heartbeatQueue;
         connOpts = new MqttConnectOptions();
@@ -42,7 +42,7 @@ public class HeartbeatMonitor implements Runnable {
     class MonitorMqttCallback implements MqttCallback {
 
         public void connectionLost(Throwable throwable) {
-            System.out.println("Connection to MQTT broker lost!");
+            System.out.println("[HeartbeatMonitor] Connection to MQTT broker lost!");
         }
 
         public void messageArrived(String topic, MqttMessage mqttMessage) {
@@ -56,7 +56,7 @@ public class HeartbeatMonitor implements Runnable {
                 }
 
             } catch (IOException e) {
-                System.err.println(String.format("Error mapping incoming JSON string '%s' to Heartbeat object", jsonIn));
+                System.err.println(String.format("[HeartbeatMonitor] Error mapping incoming JSON string '%s' to Heartbeat object", jsonIn));
             }
         }
 

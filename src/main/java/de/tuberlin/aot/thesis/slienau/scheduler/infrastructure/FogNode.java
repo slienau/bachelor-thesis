@@ -8,13 +8,20 @@ import java.util.stream.Collectors;
 
 public class FogNode {
     private final String id;
-    private final float ramTotal;
-    private final float storageTotal;
-    private final int cpuCores;
-    private final int cpuInstructionsPerSecond;
-    private final Set<String> connectedHardware;
-    private final List<AppSoftwareModule> deployedModules;
-    private final Map<String, NetworkUplink> uplinks; // key: destination node
+    private final Set<String> connectedHardware = new HashSet<>();
+    private final List<AppSoftwareModule> deployedModules = new ArrayList<>();
+    private final Map<String, NetworkUplink> uplinks = new HashMap<>(); // key: destination node
+    private float ramTotal;
+    private float storageTotal;
+    private int cpuCores;
+    private int cpuInstructionsPerSecond;
+
+    public FogNode(String id, List<String> connectedHardware) {
+        this.id = id;
+        if (connectedHardware != null)
+            this.connectedHardware.addAll(connectedHardware);
+        this.addUplinkToSelf();
+    }
 
     public FogNode(String id, float ramTotal, float storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
         this.id = id;
@@ -22,12 +29,13 @@ public class FogNode {
         this.storageTotal = storageTotal;
         this.cpuCores = cpuCores;
         this.cpuInstructionsPerSecond = cpuInstructionsPerSecond;
-        this.connectedHardware = new HashSet<>();
         if (connectedHardware != null)
-            connectedHardware.forEach(hw -> this.connectedHardware.add(hw));
-        this.deployedModules = new ArrayList<>();
-        this.uplinks = new HashMap<>();
+            this.connectedHardware.addAll(connectedHardware);
         // add uplink to node itself with 0 latency and unlimited bandwidth
+        this.addUplinkToSelf();
+    }
+
+    private void addUplinkToSelf() {
         this.uplinks.put(this.getId(), new NetworkUplink(this, this, 0, Long.MAX_VALUE));
     }
 
@@ -124,6 +132,22 @@ public class FogNode {
 
     private double getStorageUsedPercent() {
         return SchedulerUtils.makePercent(this.getStorageUsed(), this.storageTotal);
+    }
+
+    public void setRamTotal(float ramTotal) {
+        this.ramTotal = ramTotal;
+    }
+
+    public void setStorageTotal(float storageTotal) {
+        this.storageTotal = storageTotal;
+    }
+
+    public void setCpuCores(int cpuCores) {
+        this.cpuCores = cpuCores;
+    }
+
+    public void setCpuInstructionsPerSecond(int cpuInstructionsPerSecond) {
+        this.cpuInstructionsPerSecond = cpuInstructionsPerSecond;
     }
 
     /**

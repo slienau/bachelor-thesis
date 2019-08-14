@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 public class NodeRedOrchestrator {
 
+    public static final String MQTT_BROKER = "tcp://localhost:1883";
     private static final NodeRedFlowDatabase flowDatabase = NodeRedFlowDatabase.getInstance();
     private final Infrastructure infrastructure;
     private final Queue<Heartbeat> heartbeatQueue;
@@ -38,7 +39,7 @@ public class NodeRedOrchestrator {
 
         NodeRedOrchestrator orchestrator = new NodeRedOrchestrator();
 
-        Thread heartbeatMonitorThread = new Thread(new HeartbeatMonitor("tcp://localhost:1883", "/heartbeats/#", orchestrator.heartbeatQueue));
+        Thread heartbeatMonitorThread = new Thread(new HeartbeatMonitor(MQTT_BROKER, orchestrator.heartbeatQueue));
         heartbeatMonitorThread.start();
 
         Thread heartbeatProcessorThread = new Thread(new HeartbeatProcessor(orchestrator));
@@ -76,12 +77,10 @@ public class NodeRedOrchestrator {
             NodeRedFogNode newNode = new NodeRedFogNode(
                     hb.getDeviceName(),
                     hb.getDeviceName(),
-                    NumberUtils.getRandom(1024, 16 * 1024),
-                    NumberUtils.getRandom(16, 100),
-                    NumberUtils.getRandom(4, 8),
-                    NumberUtils.getRandom(3000, 10000),
                     null
             );
+
+            hb.setTimestamp(LocalDateTime.now());
             newNode.setLatestHeartbeat(hb);
             this.addFogNode(newNode);
         } else {
