@@ -45,7 +45,7 @@ public class HeartbeatMonitor implements Runnable {
             System.out.println("Connection to MQTT broker lost!");
         }
 
-        public void messageArrived(String s, MqttMessage mqttMessage) {
+        public void messageArrived(String topic, MqttMessage mqttMessage) {
             String jsonIn = new String(mqttMessage.getPayload());
             ObjectMapper mapper = new ObjectMapper();
             try {

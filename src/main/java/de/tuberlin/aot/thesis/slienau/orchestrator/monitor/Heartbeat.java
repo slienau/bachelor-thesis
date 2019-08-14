@@ -13,35 +13,11 @@ public class Heartbeat {
     @JsonProperty
     private LocalDateTime timestamp;
 
-    @JsonProperty
-    private Float totalMem;
-
-    @JsonProperty
-    private Float freeMem;
-
-    @JsonProperty
-    private short cpuCount;
-
-    @JsonProperty
-    private Float loadAvg1;
-
-    @JsonProperty
-    private Float loadAvg5;
-
-    @JsonProperty
-    private Float loadAvg15;
-
     @Override
     public String toString() {
         return "Heartbeat{" +
                 "deviceName='" + deviceName + '\'' +
                 ", timestamp='" + timestamp + '\'' +
-                ", totalMem=" + totalMem +
-                ", freeMem=" + freeMem +
-                ", cpuCount=" + cpuCount +
-                ", loadAvg1=" + loadAvg1 +
-                ", loadAvg5=" + loadAvg5 +
-                ", loadAvg15=" + loadAvg15 +
                 '}';
     }
 
@@ -66,51 +42,8 @@ public class Heartbeat {
                 );
     }
 
-    public Float getTotalMem() {
-        return totalMem;
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public void setTotalMem(Float totalMem) {
-        this.totalMem = totalMem;
-    }
-
-    public Float getFreeMem() {
-        return freeMem;
-    }
-
-    public void setFreeMem(Float freeMem) {
-        this.freeMem = freeMem;
-    }
-
-    public short getCpuCount() {
-        return cpuCount;
-    }
-
-    public void setCpuCount(short cpuCount) {
-        this.cpuCount = cpuCount;
-    }
-
-    public Float getLoadAvg1() {
-        return loadAvg1;
-    }
-
-    public void setLoadAvg1(Float loadAvg1) {
-        this.loadAvg1 = loadAvg1;
-    }
-
-    public Float getLoadAvg5() {
-        return loadAvg5;
-    }
-
-    public void setLoadAvg5(Float loadAvg5) {
-        this.loadAvg5 = loadAvg5;
-    }
-
-    public Float getLoadAvg15() {
-        return loadAvg15;
-    }
-
-    public void setLoadAvg15(Float loadAvg15) {
-        this.loadAvg15 = loadAvg15;
-    }
 }

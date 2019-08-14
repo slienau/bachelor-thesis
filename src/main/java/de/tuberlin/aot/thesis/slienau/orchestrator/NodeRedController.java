@@ -103,7 +103,7 @@ public class NodeRedController {
     }
 
     public void deleteAllFlows() throws IOException {
-        List<String> protectedFlows = Arrays.asList("Heartbeat");
+        List<String> protectedFlows = Arrays.asList("Monitoring");
         System.out.println(String.format(logPrefix + "Going to delete all flows except %s", protectedFlows));
         for (String flowName : this.getAllFlowNames()) {
             if (protectedFlows.contains(flowName))

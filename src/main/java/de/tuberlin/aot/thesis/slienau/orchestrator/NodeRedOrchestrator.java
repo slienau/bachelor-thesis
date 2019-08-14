@@ -13,6 +13,7 @@ import de.tuberlin.aot.thesis.slienau.scheduler.strategy.SchedulerStrategy;
 import de.tuberlin.aot.thesis.slienau.utils.NumberUtils;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
@@ -37,7 +38,7 @@ public class NodeRedOrchestrator {
 
         NodeRedOrchestrator orchestrator = new NodeRedOrchestrator();
 
-        Thread heartbeatMonitorThread = new Thread(new HeartbeatMonitor("tcp://localhost:1883", "/devices/#", orchestrator.heartbeatQueue));
+        Thread heartbeatMonitorThread = new Thread(new HeartbeatMonitor("tcp://localhost:1883", "/heartbeats/#", orchestrator.heartbeatQueue));
         heartbeatMonitorThread.start();
 
         Thread heartbeatProcessorThread = new Thread(new HeartbeatProcessor(orchestrator));
@@ -75,15 +76,16 @@ public class NodeRedOrchestrator {
             NodeRedFogNode newNode = new NodeRedFogNode(
                     hb.getDeviceName(),
                     hb.getDeviceName(),
-                    hb.getTotalMem(),
+                    NumberUtils.getRandom(1024, 16 * 1024),
                     NumberUtils.getRandom(16, 100),
-                    hb.getCpuCount(),
+                    NumberUtils.getRandom(4, 8),
                     NumberUtils.getRandom(3000, 10000),
                     null
             );
             newNode.setLatestHeartbeat(hb);
             this.addFogNode(newNode);
         } else {
+            hb.setTimestamp(LocalDateTime.now());
             fogNode.setLatestHeartbeat(hb);
         }
     }
