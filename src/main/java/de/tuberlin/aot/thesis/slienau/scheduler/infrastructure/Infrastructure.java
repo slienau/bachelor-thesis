@@ -34,6 +34,10 @@ public class Infrastructure {
         return wasRemoved;
     }
 
+    public boolean checkIfFogNodeExists(String fogNodeId) {
+        return fogNodes.get(fogNodeId) != null;
+    }
+
     public List<FogNode> getFogNodes() {
         return new ArrayList<>(fogNodes.values());
     }

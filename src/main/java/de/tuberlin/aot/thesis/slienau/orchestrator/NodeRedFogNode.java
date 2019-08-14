@@ -10,7 +10,10 @@ import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.List;
+import java.util.Locale;
 
 public class NodeRedFogNode extends FogNode {
 
@@ -63,7 +66,21 @@ public class NodeRedFogNode extends FogNode {
     }
 
     private void setCpuScoreFromBenchmark() {
-        super.setCpuInstructionsPerSecond(10000);
+        byte[] benchmarkResultBytes = this.executeMqttCommand("benchmark_cpu");
+        String benchmarkResultString = new String(benchmarkResultBytes)
+                .replace("s", "")
+                .replace("\n", "")
+                .replace("\r", "")
+                .replace(".", ",");
+        NumberFormat format = NumberFormat.getInstance(Locale.GERMAN);
+        try {
+            Number number = format.parse(benchmarkResultString);
+            int cpuScore = (int) (50000 / number.doubleValue());
+            System.out.println(String.format("[NodeRedFogNode][%s] Benchmark result CPU score: %s", this.getId(), cpuScore));
+            super.setCpuInstructionsPerSecond(cpuScore);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isReachable() {

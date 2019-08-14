@@ -13,7 +13,6 @@ import de.tuberlin.aot.thesis.slienau.scheduler.strategy.SchedulerStrategy;
 import de.tuberlin.aot.thesis.slienau.utils.NumberUtils;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
@@ -68,25 +67,6 @@ public class NodeRedOrchestrator {
 
     public Infrastructure getInfrastructure() {
         return infrastructure;
-    }
-
-    public void handleHeartbeat(Heartbeat hb) throws IOException {
-        NodeRedFogNode fogNode = (NodeRedFogNode) infrastructure.getFogNode(hb.getDeviceName());
-        if (fogNode == null) {
-            // new node --> add
-            NodeRedFogNode newNode = new NodeRedFogNode(
-                    hb.getDeviceName(),
-                    hb.getDeviceName(),
-                    null
-            );
-
-            hb.setTimestamp(LocalDateTime.now());
-            newNode.setLatestHeartbeat(hb);
-            this.addFogNode(newNode);
-        } else {
-            hb.setTimestamp(LocalDateTime.now());
-            fogNode.setLatestHeartbeat(hb);
-        }
     }
 
     public void addFogNode(NodeRedFogNode newNode) throws IOException {
