@@ -57,6 +57,9 @@ public class SchedulerStrategy implements Scheduler {
         List<AppSoftwareModule> modules = a.getRequiredSoftwareModules();
         List<FogNode> fogNodes = i.getFogNodes();
 
+        if (fogNodes.size() <= 0 || modules.size() <= 0)
+            return new ArrayList<>();
+
         List<List<FogNode>> deploymentsWithoutModule = Generator
                 .permutation(fogNodes)
                 .withRepetitions(modules.size())
