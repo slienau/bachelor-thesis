@@ -120,7 +120,7 @@ public class HeartbeatProcessor implements Runnable {
                         );
                     }
 
-                    orchestrator.deployFastestDeployment();
+                    orchestrator.checkForNewOptimalDeployment();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

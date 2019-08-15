@@ -79,14 +79,14 @@ public class NodeRedOrchestrator {
         // remove node from infrastructure
         infrastructure.removeFogNode(fogNodeIdToRemove);
 
-        this.deployFastestDeployment();
+        this.checkForNewOptimalDeployment();
     }
 
     public Queue<Heartbeat> getHeartbeatQueue() {
         return heartbeatQueue;
     }
 
-    public void deployFastestDeployment() throws IOException {
+    public void checkForNewOptimalDeployment() throws IOException {
         AppDeployment d = this.scheduler.getFastestDeployment();
         if (d == null) {
             System.out.println("[NodeRedOrchestrator] No deployment found for application!");
@@ -102,12 +102,18 @@ public class NodeRedOrchestrator {
         optimalDeployment = d;
         System.out.println(optimalDeployment.createDetailsString());
 
+        this.deployOptimalDeployment();
+
+    }
+
+    private void deployOptimalDeployment() throws IOException {
+        System.out.println(String.format("[NodeRedOrchestrator] Going to deploy new optimal deployment strategy %s", optimalDeployment));
         for (FogNode fn : infrastructure.getFogNodes()) {
             NodeRedFogNode fogNode = (NodeRedFogNode) fn;
             fogNode.getNodeRedController().deleteAllFlows();
         }
 
-        d.getModuleToNodeMap().entrySet().stream().forEach(entry -> {
+        optimalDeployment.getModuleToNodeMap().entrySet().stream().forEach(entry -> {
             AppSoftwareModule module = entry.getKey();
             NodeRedFogNode node = (NodeRedFogNode) entry.getValue();
             String flowName = String.format("%s/%s", optimalDeployment.getApplication().getName(), module.getId());
