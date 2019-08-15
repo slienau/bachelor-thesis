@@ -2,6 +2,7 @@ package de.tuberlin.aot.thesis.slienau.models;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,6 +38,18 @@ public class NodeRedFlow {
             }
         } catch (IOException e) {
             throw new IllegalStateException("Failed to set destinations");
+        }
+        return this;
+    }
+
+    public NodeRedFlow replaceMqttBrokerNodes(String mqttBrokerNodeId) {
+        if (mqttBrokerNodeId == null)
+            mqttBrokerNodeId = "9d2b2e9.fa765d"; // mqtt broker id from monitoring flow
+        for (JsonNode node : flow.path("nodes")) {
+            String nodeType = node.path("type").textValue();
+            if (nodeType.equals("mqtt out")) {
+                ((ObjectNode) node).put("broker", mqttBrokerNodeId);
+            }
         }
         return this;
     }

@@ -142,6 +142,7 @@ public class NodeRedOrchestrator {
 //            System.out.println(String.format("[NodeRedOrchestrator] Going to deploy '%s' on node '%s'; output goes to destination addresses: %s", module.getId(), node.getId(), destinationAddresses));
             try {
                 NodeRedFlow flowToDeploy = flowDatabase.getFlowByName(flowName).setDestinations(destinationAddresses);
+                flowToDeploy = flowToDeploy.replaceMqttBrokerNodes(null);
                 node.getNodeRedController().deployFlow(flowToDeploy);
             } catch (IOException e) {
                 e.printStackTrace();
