@@ -1,6 +1,6 @@
 package de.tuberlin.aot.thesis.slienau.scheduler.infrastructure;
 
-import de.tuberlin.aot.thesis.slienau.scheduler.SchedulerUtils;
+import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
 import java.util.*;
 

@@ -1,8 +1,8 @@
 package de.tuberlin.aot.thesis.slienau.scheduler.application;
 
-import de.tuberlin.aot.thesis.slienau.scheduler.SchedulerUtils;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.NetworkUplink;
+import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
 public class AppMessage {
     private final String contentType;

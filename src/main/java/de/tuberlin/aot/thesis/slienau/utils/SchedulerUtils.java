@@ -1,4 +1,4 @@
-package de.tuberlin.aot.thesis.slienau.scheduler;
+package de.tuberlin.aot.thesis.slienau.utils;
 
 public class SchedulerUtils {
     public static double makePercent(double used, double total) {
