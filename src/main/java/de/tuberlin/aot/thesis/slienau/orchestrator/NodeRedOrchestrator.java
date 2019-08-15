@@ -25,6 +25,7 @@ public class NodeRedOrchestrator {
     private final Infrastructure infrastructure;
     private final Queue<Heartbeat> heartbeatQueue;
     private final Scheduler scheduler;
+    private AppDeployment optimalDeployment;
 
     public NodeRedOrchestrator() {
         infrastructure = new Infrastructure();
@@ -86,34 +87,42 @@ public class NodeRedOrchestrator {
 
     public void deployFastestDeployment() throws IOException {
         AppDeployment d = this.scheduler.getFastestDeployment();
-        if (d == null)
-            System.out.println("No deployment found for application!");
-        if (d != null) {
-            System.out.println(d.createDetailsString());
-
-            for (FogNode fn : infrastructure.getFogNodes()) {
-                NodeRedFogNode fogNode = (NodeRedFogNode) fn;
-                fogNode.getNodeRedController().deleteAllFlows();
-            }
-
-            d.getModuleToNodeMap().entrySet().stream().forEach(entry -> {
-                AppSoftwareModule module = entry.getKey();
-                NodeRedFogNode node = (NodeRedFogNode) entry.getValue();
-                String flowName = String.format("%s/%s", d.getApplication().getName(), module.getId());
-
-                List<String> destinationAddresses = d.getDestinationNodesForSourceModule(module.getId()).stream().map(destinationId -> {
-                    NodeRedFogNode nrfn = (NodeRedFogNode) infrastructure.getFogNode(destinationId);
-                    return nrfn.getAddress();
-                }).collect(Collectors.toList());
-
-                System.out.println(String.format("[NodeRedOrchestrator] Going to deploy '%s' on node '%s'; output goes to destination addresses: %s", module.getId(), node.getId(), destinationAddresses));
-                try {
-                    NodeRedFlow flowToDeploy = flowDatabase.getFlowByName(flowName).setDestinations(destinationAddresses);
-                    node.getNodeRedController().deployFlow(flowToDeploy);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+        if (d == null) {
+            System.out.println("[NodeRedOrchestrator] No deployment found for application!");
+            optimalDeployment = null;
+            return;
         }
+        if (d.equals(this.optimalDeployment)) {
+            System.out.println("[NodeRedOrchestrator] No new optimal deployment found!");
+            return;
+        }
+
+        System.out.println("[NodeRedOrchestrator] Found new optimal deployment!");
+        optimalDeployment = d;
+        System.out.println(optimalDeployment.createDetailsString());
+
+        for (FogNode fn : infrastructure.getFogNodes()) {
+            NodeRedFogNode fogNode = (NodeRedFogNode) fn;
+            fogNode.getNodeRedController().deleteAllFlows();
+        }
+
+        d.getModuleToNodeMap().entrySet().stream().forEach(entry -> {
+            AppSoftwareModule module = entry.getKey();
+            NodeRedFogNode node = (NodeRedFogNode) entry.getValue();
+            String flowName = String.format("%s/%s", optimalDeployment.getApplication().getName(), module.getId());
+
+            List<String> destinationAddresses = optimalDeployment.getDestinationNodesForSourceModule(module.getId()).stream().map(destinationId -> {
+                NodeRedFogNode nrfn = (NodeRedFogNode) infrastructure.getFogNode(destinationId);
+                return nrfn.getAddress();
+            }).collect(Collectors.toList());
+
+            System.out.println(String.format("[NodeRedOrchestrator] Going to deploy '%s' on node '%s'; output goes to destination addresses: %s", module.getId(), node.getId(), destinationAddresses));
+            try {
+                NodeRedFlow flowToDeploy = flowDatabase.getFlowByName(flowName).setDestinations(destinationAddresses);
+                node.getNodeRedController().deployFlow(flowToDeploy);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
