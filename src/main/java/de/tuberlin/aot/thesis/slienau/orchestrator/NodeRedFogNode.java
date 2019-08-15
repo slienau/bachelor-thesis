@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
-import de.tuberlin.aot.thesis.slienau.orchestrator.jsontypes.Heartbeat;
-import de.tuberlin.aot.thesis.slienau.orchestrator.jsontypes.SystemInfo;
+import de.tuberlin.aot.thesis.slienau.models.Heartbeat;
+import de.tuberlin.aot.thesis.slienau.models.SystemInfo;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 import de.tuberlin.aot.thesis.slienau.utils.NumberUtils;
 
