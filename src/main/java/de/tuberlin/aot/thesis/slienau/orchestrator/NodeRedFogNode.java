@@ -24,6 +24,12 @@ public class NodeRedFogNode extends FogNode {
     public NodeRedFogNode(String id, String address, List<String> connectedHardware) {
         super(id, connectedHardware);
         nodeRedController = new NodeRedController(id, address);
+        try {
+            // delete all flows on new node (in case they have "old" flows deployed which could disturb the current deployment strategy)
+            nodeRedController.deleteAllFlows();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         DefaultDockerClientConfig config
                 = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(String.format("tcp://%s:52376", address)).build();

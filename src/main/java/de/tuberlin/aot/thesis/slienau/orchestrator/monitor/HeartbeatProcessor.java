@@ -98,9 +98,6 @@ public class HeartbeatProcessor implements Runnable {
                     initialHeartbeat.setTimestamp(LocalDateTime.now());
                     newNode.setLatestHeartbeat(initialHeartbeat);
 
-                    // delete all flows on new node (in case they have "old" flows deployed which could disturb the current deployment strategy)
-                    newNode.getNodeRedController().deleteAllFlows();
-
                     // add to infrastructure
                     Infrastructure infrastructure = orchestrator.getInfrastructure();
                     infrastructure.addFogNode(newNode);
