@@ -59,6 +59,7 @@ public class NodeRedFogNode extends FogNode {
             super.setCpuCores(systemInfo.getCpuCount());
             super.setRamTotal(systemInfo.getFreeMem());
             super.setStorageTotal(16.0f); // TODO: set storage from SystemInfo
+            super.addConnectedHardware(systemInfo.getConnectedHardware());
         } catch (IOException e) {
             e.printStackTrace();
         }

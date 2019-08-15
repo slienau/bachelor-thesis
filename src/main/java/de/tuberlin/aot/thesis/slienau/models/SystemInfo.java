@@ -3,6 +3,7 @@ package de.tuberlin.aot.thesis.slienau.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class SystemInfo {
     @JsonProperty
@@ -29,6 +30,9 @@ public class SystemInfo {
     @JsonProperty
     private Float loadAvg15;
 
+    @JsonProperty
+    private List<String> connectedHardware;
+
     @Override
     public String toString() {
         return "SystemInfo{" +
@@ -40,6 +44,7 @@ public class SystemInfo {
                 ", loadAvg1=" + loadAvg1 +
                 ", loadAvg5=" + loadAvg5 +
                 ", loadAvg15=" + loadAvg15 +
+                ", connectedHardware=" + connectedHardware +
                 '}';
     }
 
@@ -105,5 +110,13 @@ public class SystemInfo {
 
     public void setLoadAvg15(Float loadAvg15) {
         this.loadAvg15 = loadAvg15;
+    }
+
+    public List<String> getConnectedHardware() {
+        return connectedHardware;
+    }
+
+    public void setConnectedHardware(List<String> connectedHardware) {
+        this.connectedHardware = connectedHardware;
     }
 }

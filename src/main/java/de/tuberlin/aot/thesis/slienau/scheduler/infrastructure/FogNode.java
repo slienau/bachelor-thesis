@@ -81,6 +81,10 @@ public class FogNode {
         return this.connectedHardware;
     }
 
+    public void addConnectedHardware(List<String> newHardware) {
+        this.connectedHardware.addAll(newHardware);
+    }
+
     public boolean deployModules(List<AppSoftwareModule> modules) {
         boolean result = true;
         for (AppSoftwareModule module : modules) {
