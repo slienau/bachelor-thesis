@@ -3,6 +3,8 @@ export DOCKER_IMAGE=node-red
 export DOCKER_VOLUME_NAME=nodered-data
 export DOCKER_REGISTRY=dsl-mbp
 export MQTT_SERVER=192.168.7.13
+export CONNECTED_HARDWARE="[]"
+# export CONNECTED_HARDWARE="[\"CAMERA\",\"TEMPERATURE\"]"
 
 IS_ARM=FALSE
 if [[ "$(uname -m)" == "arm"* ]]; then
