@@ -13,6 +13,7 @@ import static de.tuberlin.aot.thesis.slienau.utils.HttpUtils.*;
 
 public class NodeRedController {
 
+    private static final List<String> protectedFlows = Arrays.asList("Monitoring");
     private final String id;
     private final String logPrefix;
     private String nodeRedAddress;
@@ -91,6 +92,9 @@ public class NodeRedController {
     }
 
     public boolean deleteFlowByName(String flowName) {
+        if (protectedFlows.contains(flowName)) {
+            return false;
+        }
         try {
             String flowId = this.getFlowIdByName(flowName);
             String endpoint = getHttpEndpointForPath("flow/" + flowId);
@@ -104,13 +108,7 @@ public class NodeRedController {
     }
 
     public void deleteAllFlows() throws IOException {
-        List<String> protectedFlows = Arrays.asList("Monitoring");
-        System.out.println(String.format(logPrefix + "Going to delete all flows except %s", protectedFlows));
-        for (String flowName : this.getAllFlowNames()) {
-            if (protectedFlows.contains(flowName))
-                continue;
-            this.deleteFlowByName(flowName);
-        }
+        this.getDeployedFlowNames().forEach(flowName -> this.deleteFlowByName(flowName));
     }
 
 
@@ -161,7 +159,7 @@ public class NodeRedController {
         return filteredMap.keySet().stream().findFirst().get();
     }
 
-    public List<String> getAllFlowNames() throws IOException {
+    public List<String> getDeployedFlowNames() throws IOException {
         return new ArrayList<>(this.getFlowIds().values());
     }
 

@@ -54,9 +54,9 @@ public class NodeRedOrchestrator {
 
 //        a.addHardwareModule("CAMERA", "RAW_SENSOR_DATA");
 //        a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 50, 0.5, 500, Arrays.asList("CAMERA"));
-        a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 50, 0.5, 500, null);
-        a.addSoftwareModule("data-processor", "SENSOR_DATA", "SENSOR_DATA_PROCESSED", 100, 0.5, 5000, null);
-        a.addSoftwareModule("data-viewer", "SENSOR_DATA_PROCESSED", null, 100, 0.5, 500, null);
+        a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 1, 0.5, 500, null);
+        a.addSoftwareModule("data-processor", "SENSOR_DATA", "SENSOR_DATA_PROCESSED", 10, 0.5, 5000, null);
+        a.addSoftwareModule("data-viewer", "SENSOR_DATA_PROCESSED", null, 1, 0.5, 500, null);
 
         a.addMessage("RAW_SENSOR_DATA", 10);
         a.addMessage("SENSOR_DATA", 10);
@@ -110,7 +110,22 @@ public class NodeRedOrchestrator {
         System.out.println(String.format("[NodeRedOrchestrator] Going to deploy new optimal deployment strategy %s", optimalDeployment));
         for (FogNode fn : infrastructure.getFogNodes()) {
             NodeRedFogNode fogNode = (NodeRedFogNode) fn;
-            fogNode.getNodeRedController().deleteAllFlows();
+            List<String> deployedFlows = fogNode.getNodeRedController().getDeployedFlowNames();
+
+            if (!optimalDeployment.getAllInvolvedFogNodes().contains(fogNode)) {
+                // Deployment does not contain fog node --> delete all flows
+                fogNode.getNodeRedController().deleteAllFlows();
+                continue;
+            }
+
+            List<String> modulesToDeployOnNode = optimalDeployment.getNodeToModulesMap().get(fogNode).stream().map(swModule -> optimalDeployment.getApplication().getName() + "/" + swModule.getId()).collect(Collectors.toList());
+
+            deployedFlows.forEach(deployedFlow -> {
+                // delete existing flows on node which are not part of the new optimal deployment
+                if (!modulesToDeployOnNode.contains(deployedFlow)) {
+                    fogNode.getNodeRedController().deleteFlowByName(deployedFlow);
+                }
+            });
         }
 
         optimalDeployment.getModuleToNodeMap().entrySet().stream().forEach(entry -> {

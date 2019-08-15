@@ -163,7 +163,7 @@ public class AppDeployment {
         return sb.toString();
     }
 
-    private Map<FogNode, List<AppSoftwareModule>> getNodeToModulesMap() {
+    public Map<FogNode, List<AppSoftwareModule>> getNodeToModulesMap() {
         Map<FogNode, List<AppSoftwareModule>> result = new HashMap<>();
         // initialize Map with keys and empty list
         this.getAllInvolvedFogNodes().forEach(fogNode -> result.put(fogNode, new ArrayList<>()));
@@ -172,7 +172,7 @@ public class AppDeployment {
         return result;
     }
 
-    private Set<FogNode> getAllInvolvedFogNodes() {
+    public Set<FogNode> getAllInvolvedFogNodes() {
         return new HashSet<>(this.moduleToNodeMap.values());
     }
 
