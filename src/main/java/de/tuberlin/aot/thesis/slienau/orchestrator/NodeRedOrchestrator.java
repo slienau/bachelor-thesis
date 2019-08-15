@@ -116,7 +116,7 @@ public class NodeRedOrchestrator {
                 return nrfn.getAddress();
             }).collect(Collectors.toList());
 
-            System.out.println(String.format("[NodeRedOrchestrator] Going to deploy '%s' on node '%s'; output goes to destination addresses: %s", module.getId(), node.getId(), destinationAddresses));
+//            System.out.println(String.format("[NodeRedOrchestrator] Going to deploy '%s' on node '%s'; output goes to destination addresses: %s", module.getId(), node.getId(), destinationAddresses));
             try {
                 NodeRedFlow flowToDeploy = flowDatabase.getFlowByName(flowName).setDestinations(destinationAddresses);
                 node.getNodeRedController().deployFlow(flowToDeploy);

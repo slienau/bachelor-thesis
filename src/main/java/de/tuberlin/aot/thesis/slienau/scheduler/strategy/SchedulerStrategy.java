@@ -40,7 +40,7 @@ public class SchedulerStrategy implements Scheduler {
         List<AppDeployment> validDeployments = new ArrayList<>();
         for (AppDeployment dep : this.getAppLoopDeploymentsUnchecked()) {
             if (dep.isValid()) {
-                System.out.println(String.format("[SchedulerStrategy] Found valid %s", dep));
+//                System.out.println(String.format("[SchedulerStrategy] Found valid %s", dep));
                 validDeployments.add(dep);
             }
         }

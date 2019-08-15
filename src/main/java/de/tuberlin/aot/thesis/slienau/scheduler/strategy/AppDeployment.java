@@ -122,28 +122,29 @@ public class AppDeployment {
 
     public String createDetailsString() {
         StringBuilder sb = new StringBuilder()
-                .append("**************************************************************\n")
-                .append("****** Details for " + this + "\n")
-                .append("**************************************************************\n");
+                .append("[AppDeployment] ----------------------------------------\n")
+                .append(String.format("[AppDeployment] Details for application '%s'", this.application.getName())).append("\n")
+                .append("[AppDeployment] ----------------------------------------\n");
 
         for (AppLoop loop : application.getLoops()) {
             sb.append(loop.createDetailString(this));
         }
         sb
                 .append(createSoftwareModuleInfoString())
-                .append(createFogNodeUsageString());
+                .append(createFogNodeUsageString())
+                .append("[AppDeployment] ----------------------------------------\n");
         return sb.toString();
     }
 
     private String createSoftwareModuleInfoString() {
         StringBuilder sb = new StringBuilder()
-                .append("----------------------\n")
-                .append("Module deployment info\n")
-                .append("----------------------\n");
+                .append("[AppDeployment] ----------------------\n")
+                .append("[AppDeployment] Module deployment info\n")
+                .append("[AppDeployment] ----------------------\n");
         for (AppSoftwareModule module : application.getRequiredSoftwareModules()) {
             String fogNodeId = this.getNodeForSoftwareModule(module).getId();
 
-            sb.append(String.format("Module '%s' should be deployed on node '%s'. Output message destination nodes: %s",
+            sb.append(String.format("[AppDeployment] Module '%s' should be deployed on node '%s'. Output message destination nodes: %s",
                     module.getId(), fogNodeId, getDestinationNodesForSourceModule(module.getId())))
                     .append("\n");
         }
@@ -153,11 +154,11 @@ public class AppDeployment {
 
     private String createFogNodeUsageString() {
         StringBuilder sb = new StringBuilder()
-                .append("----------------\n")
-                .append("Fog node usage\n")
-                .append("----------------\n");
+                .append("[AppDeployment] ----------------\n")
+                .append("[AppDeployment] Fog node usage\n")
+                .append("[AppDeployment] ----------------\n");
         this.getNodeToModulesMap().forEach(FogNode::deployModules);
-        this.getAllInvolvedFogNodes().forEach(node -> sb.append(node).append("\n"));
+        this.getAllInvolvedFogNodes().forEach(node -> sb.append("[AppDeployment] ").append(node).append("\n"));
         this.undeployAllModulesFromNodes();
         return sb.toString();
     }

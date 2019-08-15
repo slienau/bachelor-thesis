@@ -87,7 +87,7 @@ public class HeartbeatProcessor implements Runnable {
                     // continue if node was added in the meantime
                     continue;
                 }
-                System.out.println(String.format("[InitialHeartbeatHandler] Handling %s", initialHeartbeat));
+                System.out.println(String.format("[InitialHeartbeatHandler] Handling initial %s", initialHeartbeat));
                 try {
                     NodeRedFogNode newNode = new NodeRedFogNode(
                             initialHeartbeat.getDeviceName(),
