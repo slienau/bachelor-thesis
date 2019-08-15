@@ -1,4 +1,4 @@
-package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
+package de.tuberlin.aot.thesis.slienau.orchestrator.jsontypes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

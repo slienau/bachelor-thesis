@@ -2,6 +2,7 @@ package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
 
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedFogNode;
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedOrchestrator;
+import de.tuberlin.aot.thesis.slienau.orchestrator.jsontypes.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 
 import java.io.IOException;

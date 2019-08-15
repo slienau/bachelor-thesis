@@ -1,6 +1,7 @@
 package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.tuberlin.aot.thesis.slienau.orchestrator.jsontypes.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.utils.MqttUtils;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;

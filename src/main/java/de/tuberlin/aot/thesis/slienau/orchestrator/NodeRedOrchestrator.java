@@ -1,6 +1,6 @@
 package de.tuberlin.aot.thesis.slienau.orchestrator;
 
-import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.Heartbeat;
+import de.tuberlin.aot.thesis.slienau.orchestrator.jsontypes.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.HeartbeatMonitor;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.HeartbeatProcessor;
 import de.tuberlin.aot.thesis.slienau.scheduler.application.AppSoftwareModule;
