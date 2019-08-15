@@ -26,7 +26,8 @@ Can be send to `/devices/{deviceName}/commands/in/{COMMAND}`
 |--- |--- |--- |---|
 | `ping` | Pings destination host | ping destination address | `raspi-02` |
 | `benchmark_cpu` | Runs benchmark on CPU (outputs execution time in seconds - the lower, the better) | anything | `benchmark` |
-| `iperf3` | Measures the bandwidth to/from destination | destination address | `raspi-02` |
+| `iperf3` | Measures the link bandwidth from device to destination via TCP | destination address | `raspi-02` |
 | `sysinfo` | Sends system information | anything | `raspi-02` |
+| `bandwidth` | Measures the link bandwidth from device to destination via HTTP | destination address | `raspi-02` |
 
 The output will be send to the MQTT topic `/devices/dsl-mbp.lan/commands/out/{COMMAND}`
