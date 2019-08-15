@@ -45,6 +45,10 @@ public class Application {
         System.out.println(String.format("[Application][%s] Added %s", this.getName(), newModule));
     }
 
+    /**
+     * @param contentType    Message content (input/output type of an AppModule)
+     * @param dataPerMessage in KByte
+     */
     public void addMessage(String contentType, double dataPerMessage) {
         AppMessage message = new AppMessage(contentType, dataPerMessage);
         if (this.messages.putIfAbsent(contentType, message) != null) {

@@ -98,7 +98,7 @@ public class NodeRedFogNode extends FogNode {
                 .replace("\r", "");
         try {
             double time = NumberUtils.stringToDouble(benchmarkResultString);
-            int cpuScore = (int) (50000 / time);
+            int cpuScore = (int) (10000 / time);
             System.out.println(String.format("[NodeRedFogNode][%s] Benchmark result CPU score: %s", this.getId(), cpuScore));
             super.setCpuInstructionsPerSecond(cpuScore);
         } catch (ParseException e) {

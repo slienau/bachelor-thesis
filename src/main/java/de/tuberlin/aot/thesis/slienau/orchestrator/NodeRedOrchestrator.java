@@ -11,6 +11,7 @@ import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 import de.tuberlin.aot.thesis.slienau.scheduler.interfaces.Scheduler;
 import de.tuberlin.aot.thesis.slienau.scheduler.strategy.AppDeployment;
 import de.tuberlin.aot.thesis.slienau.scheduler.strategy.SchedulerStrategy;
+import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -54,12 +55,12 @@ public class NodeRedOrchestrator {
 
 //        a.addHardwareModule("CAMERA", "RAW_SENSOR_DATA");
 //        a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 50, 0.5, 500, Arrays.asList("CAMERA"));
-        a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 1, 0.5, 500, null);
-        a.addSoftwareModule("data-processor", "SENSOR_DATA", "SENSOR_DATA_PROCESSED", 10, 0.5, 5000, null);
-        a.addSoftwareModule("data-viewer", "SENSOR_DATA_PROCESSED", null, 1, 0.5, 500, null);
+        a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 1, 0.5, 1, null);
+        a.addSoftwareModule("data-processor", "SENSOR_DATA", "SENSOR_DATA_PROCESSED", 10, 0.5, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_MBP_2018, 10), null);
+        a.addSoftwareModule("data-viewer", "SENSOR_DATA_PROCESSED", null, 1, 0.5, 1, null);
 
-        a.addMessage("RAW_SENSOR_DATA", 10);
-        a.addMessage("SENSOR_DATA", 10);
+        a.addMessage("RAW_SENSOR_DATA", 1024);
+        a.addMessage("SENSOR_DATA", 1024);
         a.addMessage("SENSOR_DATA_PROCESSED", 10);
 
         a.addLoop("sensorNetworkLoop1", 999999, Arrays.asList("data-reader", "data-processor", "data-viewer"));

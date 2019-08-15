@@ -1,6 +1,10 @@
 package de.tuberlin.aot.thesis.slienau.utils;
 
 public class SchedulerUtils {
+
+    public static int CPU_SCORE_RASPI_3 = 650;
+    public static int CPU_SCORE_MBP_2018 = 10000;
+
     public static double makePercent(double used, double total) {
         return round((used / total) * 100);
     }
@@ -29,5 +33,14 @@ public class SchedulerUtils {
      */
     public static long mbitToBit(double mbit) {
         return (long) (mbit * Math.pow(10, 6));
+    }
+
+    /**
+     * @param cpuScore cpu benchmark score of executing cpu
+     * @param time     time needed on executing cpu in milliseconds
+     * @return
+     */
+    public static int calculateRequiredInstructionsForAppModule(int cpuScore, int time) {
+        return (cpuScore * time) / 1000;
     }
 }
