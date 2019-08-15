@@ -7,6 +7,11 @@ public class AppHardwareModule extends AppModule {
     }
 
     @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
     public String toString() {
         return "AppHardwareModule{" +
                 "id='" + super.getId() + '\'' +

@@ -196,6 +196,21 @@ public class AppDeployment {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AppDeployment that = (AppDeployment) o;
+        return valid == that.valid &&
+                application.equals(that.application) &&
+                moduleToNodeMap.equals(that.moduleToNodeMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(application, moduleToNodeMap, valid);
+    }
+
+    @Override
     public String toString() {
         String moduleDeployments = this.moduleToNodeMap.entrySet().stream().map(mapping -> {
             String moduleId = mapping.getKey().getId();
