@@ -112,8 +112,8 @@ public class HeartbeatProcessor implements Runnable {
                                 newNode.getId(),
                                 destinationNode.getId(),
                                 newNode.getLatencyToDestination(destinationNode.getAddress()),
-                                newNode.getBandwidthTo(destinationNode.getAddress()),
-                                destinationNode.getBandwidthTo(newNode.getAddress())
+                                newNode.measureBandwidthTo(destinationNode.getAddress()),
+                                destinationNode.measureBandwidthTo(newNode.getAddress())
                         );
                     }
 

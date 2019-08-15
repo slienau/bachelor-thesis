@@ -12,7 +12,7 @@ public class NetworkUplink {
      * @param latency      in milliseconds
      * @param bitPerSecond bandwidth in bit per second
      */
-    NetworkUplink(FogNode source, FogNode destination, int latency, long bitPerSecond) {
+    public NetworkUplink(FogNode source, FogNode destination, int latency, long bitPerSecond) {
         this.source = source;
         this.destination = destination;
         this.latency = latency;

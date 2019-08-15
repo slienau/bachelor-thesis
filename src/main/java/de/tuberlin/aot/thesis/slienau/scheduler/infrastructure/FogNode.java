@@ -39,7 +39,7 @@ public class FogNode {
         this.uplinks.put(this.getId(), new NetworkUplink(this, this, 0, Long.MAX_VALUE));
     }
 
-    void addUplink(NetworkUplink uplink) {
+    public void addUplink(NetworkUplink uplink) {
         if (this.uplinks.putIfAbsent(uplink.getDestination().getId(), uplink) != null)
             throw new IllegalArgumentException(String.format("Unable to add %s because it already exists.", uplink));
         System.out.println(String.format("[FogNode][%10s] Added %s", this.getId(), uplink));

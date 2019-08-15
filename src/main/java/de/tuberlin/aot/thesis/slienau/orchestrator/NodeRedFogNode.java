@@ -1,5 +1,6 @@
 package de.tuberlin.aot.thesis.slienau.orchestrator;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -7,7 +8,9 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import de.tuberlin.aot.thesis.slienau.models.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.models.SystemInfo;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
+import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.NetworkUplink;
 import de.tuberlin.aot.thesis.slienau.utils.NumberUtils;
+import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -35,6 +38,12 @@ public class NodeRedFogNode extends FogNode {
                 .withDockerHost(String.format("tcp://%s:52376", address)).build();
         dockerClient = DockerClientBuilder.getInstance(config).build();
         this.setSystemInfoFromNodeRed();
+
+        // remove "unlimited" uplink and measure bandwidth to self
+        super.removeUplinkTo(this.getId());
+        double mbitsToSelf = this.measureBandwidthTo(this.getAddress());
+        super.addUplink(new NetworkUplink(this, this, 0, SchedulerUtils.mbitToBit(mbitsToSelf)));
+
         this.setCpuScoreFromBenchmark();
         System.out.println(String.format("[NodeRedFogNode] Created new instance %s", this));
     }
@@ -81,20 +90,37 @@ public class NodeRedFogNode extends FogNode {
         }
     }
 
+//    /**
+//     * Runs iperf3 from this node to destination node. Returns bandwidth in Mbit/s
+//     *
+//     * @param destinationAddress
+//     * @return
+//     */
+//    public double getBandwidthTo(String destinationAddress) {
+//        String payload = destinationAddress + " | grep 'receiver' | awk '{print $7}'";
+//        byte[] bandwidthResult = this.executeMqttCommand("iperf3", payload.getBytes());
+//        try {
+//            return NumberUtils.stringToDouble(new String(bandwidthResult));
+//        } catch (ParseException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+
     /**
-     * Runs iperf3 from this node to destination node. Returns bandwidth in Mbit/s
+     * Measures bandwidth to destination node via HTTP
      *
-     * @param destinationAddress
-     * @return
+     * @param destinationAddress ip or hostname of destination node
+     * @return bandwidth from this node to destination node in Mbit/s
      */
-    public double getBandwidthTo(String destinationAddress) {
-        String payload = destinationAddress + " | grep 'receiver' | awk '{print $7}'";
-        byte[] bandwidthResult = this.executeMqttCommand("iperf3", payload.getBytes());
+    public double measureBandwidthTo(String destinationAddress) {
+        byte[] bandwidthResultByte = this.executeMqttCommand("bandwidth", destinationAddress.getBytes());
         try {
-            return NumberUtils.stringToDouble(new String(bandwidthResult));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+            JsonNode bandwidthResult = OBJECT_MAPPER.readTree(bandwidthResultByte);
+            return bandwidthResult.path("mbitPerSecond").doubleValue();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return Double.MAX_VALUE;
     }
 
     private void setCpuScoreFromBenchmark() {
