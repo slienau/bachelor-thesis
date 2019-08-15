@@ -124,7 +124,7 @@ public class NodeRedFogNode extends FogNode {
         Thread executorThread = new Thread(executor);
         executorThread.start();
         try {
-            executorThread.join();
+            executorThread.join(60 * 1000); // timeout of 60s
             return executor.getResult();
         } catch (InterruptedException e) {
             e.printStackTrace();
