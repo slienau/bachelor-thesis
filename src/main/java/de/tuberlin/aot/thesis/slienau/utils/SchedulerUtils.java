@@ -36,6 +36,16 @@ public class SchedulerUtils {
     }
 
     /**
+     * Converts Bit to Mbit
+     *
+     * @param bit
+     * @return
+     */
+    public static double bitToMbit(double bit) {
+        return bit / Math.pow(10, 6);
+    }
+
+    /**
      * @param cpuScore cpu benchmark score of executing cpu
      * @param time     time needed on executing cpu in milliseconds
      * @return

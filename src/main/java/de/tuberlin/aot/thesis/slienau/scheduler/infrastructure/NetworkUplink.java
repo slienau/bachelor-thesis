@@ -1,5 +1,7 @@
 package de.tuberlin.aot.thesis.slienau.scheduler.infrastructure;
 
+import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
+
 public class NetworkUplink {
     private final FogNode source;
     private final FogNode destination;
@@ -19,11 +21,11 @@ public class NetworkUplink {
         this.bitPerSecond = bitPerSecond;
     }
 
-    FogNode getSource() {
+    public FogNode getSource() {
         return source;
     }
 
-    FogNode getDestination() {
+    public FogNode getDestination() {
         return destination;
     }
 
@@ -33,6 +35,14 @@ public class NetworkUplink {
 
     public long getBitPerSecond() {
         return bitPerSecond;
+    }
+
+    public void setBitPerSecond(long bitPerSecond) {
+        this.bitPerSecond = bitPerSecond;
+    }
+
+    public void setMbitPerSecond(double mbitPerSecond) {
+        this.bitPerSecond = SchedulerUtils.mbitToBit(mbitPerSecond);
     }
 
     public long getMBitPerSecond() {

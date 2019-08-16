@@ -62,8 +62,4 @@ public class Infrastructure {
         }
     }
 
-    public void updateUplinks(String nodeA, String nodeB, int latency, double bandwidthAtoB, double bandwidthBtoA) {
-        System.err.println("TODO: updateUplinks(FogNode nodeA, FogNode nodeB, int latency, double bandwidthAtoB, double bandwidthBtoA)");
-        throw new RuntimeException("TODO: Implement method.");
-    }
 }
