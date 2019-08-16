@@ -24,12 +24,13 @@ public class NodeRedOrchestrator {
 
     public static final String MQTT_BROKER = "tcp://localhost:1883";
     private static final NodeRedFlowDatabase flowDatabase = NodeRedFlowDatabase.getInstance();
+    private static NodeRedOrchestrator instance;
     private final Infrastructure infrastructure;
     private final Queue<Heartbeat> heartbeatQueue;
     private final Scheduler scheduler;
     private AppDeployment optimalDeployment;
 
-    public NodeRedOrchestrator() {
+    private NodeRedOrchestrator() {
         infrastructure = new Infrastructure();
         heartbeatQueue = new ConcurrentLinkedQueue<>();
         scheduler = new SchedulerStrategy(createSensorNetworkApplication(), infrastructure);
@@ -38,7 +39,7 @@ public class NodeRedOrchestrator {
     public static void main(String[] args) throws Exception {
         System.out.println("[NodeRedOrchestrator] Starting...");
 
-        NodeRedOrchestrator orchestrator = new NodeRedOrchestrator();
+        NodeRedOrchestrator orchestrator = NodeRedOrchestrator.getInstance();
 
         Thread heartbeatMonitorThread = new Thread(new HeartbeatMonitor(MQTT_BROKER, orchestrator.heartbeatQueue));
         heartbeatMonitorThread.start();
@@ -65,6 +66,12 @@ public class NodeRedOrchestrator {
 
         a.addLoop("sensorNetworkLoop1", 999999, Arrays.asList("data-reader", "data-processor", "data-viewer"));
         return a;
+    }
+
+    public static NodeRedOrchestrator getInstance() {
+        if (NodeRedOrchestrator.instance == null)
+            NodeRedOrchestrator.instance = new NodeRedOrchestrator();
+        return NodeRedOrchestrator.instance;
     }
 
     public Infrastructure getInfrastructure() {
