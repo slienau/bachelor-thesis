@@ -268,7 +268,7 @@
         "type": "function",
         "z": "5af3cb51.dbf004",
         "name": "get load",
-        "func": "osUtils = global.get('osUtils')\n\npayload = {\n    timestamp: new Date(),\n    deviceName: 'raspi-01',\n    totalMem: osUtils.totalmem(),\n    freeMem: osUtils.freemem(),\n    cpuCount: osUtils.cpuCount(),\n    loadAvg1: osUtils.loadavg(1),\n    loadAvg5: osUtils.loadavg(5),\n    loadAvg15: osUtils.loadavg(15),\n    connectedHardware: JSON.parse(env.get('CONNECTED_HARDWARE'))\n}\n\nreturn {payload} ;",
+        "func": "osUtils = global.get('osUtils')\n\npayload = {\n    timestamp: new Date(),\n    deviceName: env.get('HOSTNAME'),\n    totalMem: osUtils.totalmem(),\n    freeMem: osUtils.freemem(),\n    cpuCount: osUtils.cpuCount(),\n    loadAvg1: osUtils.loadavg(1),\n    loadAvg5: osUtils.loadavg(5),\n    loadAvg15: osUtils.loadavg(15),\n    connectedHardware: JSON.parse(env.get('CONNECTED_HARDWARE'))\n}\n\nreturn {payload} ;",
         "outputs": 1,
         "noerr": 0,
         "x": 500,
