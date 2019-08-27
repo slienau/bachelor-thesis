@@ -44,7 +44,7 @@ public class SchedulerExample {
         objectDetectionApp.addLoop("object-detection", 1000, Arrays.asList("CAMERA", "camera-controller", "object-detector", "image-viewer"));
 
         Scheduler scheduler = new QosScheduler(objectDetectionApp, infrastructure);
-        AppDeployment fastestDeployment = scheduler.getFastestDeployment();
+        AppDeployment fastestDeployment = scheduler.getOptimalDeployment();
         System.out.println(String.format("Fastest deployment is %s", fastestDeployment));
         System.out.println(fastestDeployment.createDetailsString());
 

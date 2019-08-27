@@ -32,11 +32,11 @@ public class QosScheduler implements Scheduler {
         return fastestDeployment;
     }
 
-    public AppDeployment getFastestDeployment() {
-        return QosScheduler.getFastestDeployment(this.getValidAppDeployments());
+    public AppDeployment getOptimalDeployment() {
+        return QosScheduler.getFastestDeployment(this.getValidDeployments());
     }
 
-    public List<AppDeployment> getValidAppDeployments() {
+    public List<AppDeployment> getValidDeployments() {
         List<AppDeployment> validDeployments = new ArrayList<>();
         for (AppDeployment dep : this.getAppLoopDeploymentsUnchecked()) {
             if (dep.isValid()) {

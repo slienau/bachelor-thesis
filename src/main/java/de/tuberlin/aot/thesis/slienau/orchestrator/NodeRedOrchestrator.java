@@ -98,7 +98,7 @@ public class NodeRedOrchestrator {
     }
 
     public void checkForNewOptimalDeployment() throws IOException {
-        AppDeployment d = this.scheduler.getFastestDeployment();
+        AppDeployment d = this.scheduler.getOptimalDeployment();
         if (d == null) {
             System.out.println("[NodeRedOrchestrator] No deployment found for application!");
             optimalDeployment = null;

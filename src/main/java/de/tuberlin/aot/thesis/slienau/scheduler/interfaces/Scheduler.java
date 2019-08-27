@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface Scheduler {
 
-    AppDeployment getFastestDeployment();
+    AppDeployment getOptimalDeployment();
 
-    List<AppDeployment> getValidAppDeployments();
+    List<AppDeployment> getValidDeployments();
 }
