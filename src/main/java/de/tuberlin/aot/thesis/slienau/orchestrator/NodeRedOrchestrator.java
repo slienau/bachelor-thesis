@@ -11,7 +11,7 @@ import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 import de.tuberlin.aot.thesis.slienau.scheduler.interfaces.Scheduler;
 import de.tuberlin.aot.thesis.slienau.scheduler.strategy.AppDeployment;
-import de.tuberlin.aot.thesis.slienau.scheduler.strategy.SchedulerStrategy;
+import de.tuberlin.aot.thesis.slienau.scheduler.strategy.QosScheduler;
 import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class NodeRedOrchestrator {
     private NodeRedOrchestrator() {
         infrastructure = new Infrastructure();
         heartbeatQueue = new ConcurrentLinkedQueue<>();
-        scheduler = new SchedulerStrategy(createSensorNetworkApplication(), infrastructure);
+        scheduler = new QosScheduler(createSensorNetworkApplication(), infrastructure);
     }
 
     public static void main(String[] args) throws Exception {

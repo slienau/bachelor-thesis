@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class SchedulerStrategy implements Scheduler {
+public class QosScheduler implements Scheduler {
     private final Application a;
     private final Infrastructure i;
 
-    public SchedulerStrategy(Application a, Infrastructure i) {
+    public QosScheduler(Application a, Infrastructure i) {
         this.a = a;
         this.i = i;
     }
@@ -33,14 +33,14 @@ public class SchedulerStrategy implements Scheduler {
     }
 
     public AppDeployment getFastestDeployment() {
-        return SchedulerStrategy.getFastestDeployment(this.getValidAppDeployments());
+        return QosScheduler.getFastestDeployment(this.getValidAppDeployments());
     }
 
     public List<AppDeployment> getValidAppDeployments() {
         List<AppDeployment> validDeployments = new ArrayList<>();
         for (AppDeployment dep : this.getAppLoopDeploymentsUnchecked()) {
             if (dep.isValid()) {
-//                System.out.println(String.format("[SchedulerStrategy] Found valid %s", dep));
+//                System.out.println(String.format("[QosScheduler] Found valid %s", dep));
                 validDeployments.add(dep);
             }
         }

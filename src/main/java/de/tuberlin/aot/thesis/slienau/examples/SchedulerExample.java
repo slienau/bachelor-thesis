@@ -4,7 +4,7 @@ import de.tuberlin.aot.thesis.slienau.scheduler.application.Application;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 import de.tuberlin.aot.thesis.slienau.scheduler.interfaces.Scheduler;
 import de.tuberlin.aot.thesis.slienau.scheduler.strategy.AppDeployment;
-import de.tuberlin.aot.thesis.slienau.scheduler.strategy.SchedulerStrategy;
+import de.tuberlin.aot.thesis.slienau.scheduler.strategy.QosScheduler;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,7 +43,7 @@ public class SchedulerExample {
         // add loop
         objectDetectionApp.addLoop("object-detection", 1000, Arrays.asList("CAMERA", "camera-controller", "object-detector", "image-viewer"));
 
-        Scheduler scheduler = new SchedulerStrategy(objectDetectionApp, infrastructure);
+        Scheduler scheduler = new QosScheduler(objectDetectionApp, infrastructure);
         AppDeployment fastestDeployment = scheduler.getFastestDeployment();
         System.out.println(String.format("Fastest deployment is %s", fastestDeployment));
         System.out.println(fastestDeployment.createDetailsString());
