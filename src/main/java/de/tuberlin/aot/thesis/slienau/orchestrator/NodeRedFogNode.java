@@ -45,7 +45,7 @@ public class NodeRedFogNode extends FogNode {
         double mbitsToSelf = this.measureBandwidthTo(this.getAddress());
         super.addUplink(new NetworkUplink(this, this, 0, SchedulerUtils.mbitToBit(mbitsToSelf)));
 
-        this.setCpuScoreFromBenchmark();
+        this.benchmarkCpu();
         System.out.println(String.format("[NodeRedFogNode] Created new instance %s", this));
     }
 
@@ -136,7 +136,7 @@ public class NodeRedFogNode extends FogNode {
         }
     }
 
-    private void setCpuScoreFromBenchmark() {
+    private void benchmarkCpu() {
         byte[] benchmarkResultBytes = this.executeMqttCommand("benchmark_cpu");
         String benchmarkResultString = new String(benchmarkResultBytes)
                 .replace("s", "")
