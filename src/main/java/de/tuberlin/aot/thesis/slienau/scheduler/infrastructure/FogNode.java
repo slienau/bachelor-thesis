@@ -1,37 +1,45 @@
 package de.tuberlin.aot.thesis.slienau.scheduler.infrastructure;
 
-import de.tuberlin.aot.thesis.slienau.scheduler.SchedulerUtils;
 import de.tuberlin.aot.thesis.slienau.scheduler.application.AppSoftwareModule;
+import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class FogNode {
     private final String id;
-    private final int ramTotal;
-    private final double storageTotal;
-    private final int cpuCores;
-    private final int cpuInstructionsPerSecond;
-    private final Set<String> connectedHardware;
-    private final List<AppSoftwareModule> deployedModules;
-    private final Map<String, NetworkUplink> uplinks; // key: destination node
+    private final Set<String> connectedHardware = new HashSet<>();
+    private final List<AppSoftwareModule> deployedModules = new ArrayList<>();
+    private final Map<String, NetworkUplink> uplinks = new HashMap<>(); // key: destination node
+    private float ramTotal;
+    private float storageTotal;
+    private int cpuCores;
+    private int cpuInstructionsPerSecond;
 
-    FogNode(String id, int ramTotal, int storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
+    public FogNode(String id, List<String> connectedHardware) {
+        this.id = id;
+        if (connectedHardware != null)
+            this.connectedHardware.addAll(connectedHardware);
+        this.addUplinkToSelf();
+    }
+
+    public FogNode(String id, float ramTotal, float storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
         this.id = id;
         this.ramTotal = ramTotal;
         this.storageTotal = storageTotal;
         this.cpuCores = cpuCores;
         this.cpuInstructionsPerSecond = cpuInstructionsPerSecond;
-        this.connectedHardware = new HashSet<>();
         if (connectedHardware != null)
-            connectedHardware.forEach(hw -> this.connectedHardware.add(hw));
-        this.deployedModules = new ArrayList<>();
-        this.uplinks = new HashMap<>();
+            this.connectedHardware.addAll(connectedHardware);
         // add uplink to node itself with 0 latency and unlimited bandwidth
+        this.addUplinkToSelf();
+    }
+
+    private void addUplinkToSelf() {
         this.uplinks.put(this.getId(), new NetworkUplink(this, this, 0, Long.MAX_VALUE));
     }
 
-    void addUplink(NetworkUplink uplink) {
+    public void addUplink(NetworkUplink uplink) {
         if (this.uplinks.putIfAbsent(uplink.getDestination().getId(), uplink) != null)
             throw new IllegalArgumentException(String.format("Unable to add %s because it already exists.", uplink));
         System.out.println(String.format("[FogNode][%10s] Added %s", this.getId(), uplink));
@@ -39,6 +47,11 @@ public class FogNode {
 
     public NetworkUplink getUplinkTo(String destinationId) {
         return this.uplinks.get(destinationId);
+    }
+
+    public boolean removeUplinkTo(String destinationId) {
+        System.out.println(String.format("[FogNode][%s] Removing uplink to %s", this.getId(), destinationId));
+        return this.uplinks.remove(destinationId) != null;
     }
 
     public String getId() {
@@ -68,6 +81,10 @@ public class FogNode {
         return this.connectedHardware;
     }
 
+    public void addConnectedHardware(List<String> newHardware) {
+        this.connectedHardware.addAll(newHardware);
+    }
+
     public boolean deployModules(List<AppSoftwareModule> modules) {
         boolean result = true;
         for (AppSoftwareModule module : modules) {
@@ -89,15 +106,15 @@ public class FogNode {
         this.deployedModules.clear();
     }
 
-    private int getRamFree() {
-        int ramFree = this.ramTotal;
+    private float getRamFree() {
+        float ramFree = this.ramTotal;
         for (AppSoftwareModule module : this.deployedModules) {
             ramFree -= module.getRequiredRam();
         }
         return ramFree;
     }
 
-    private int getRamUsed() {
+    private float getRamUsed() {
         return this.ramTotal - this.getRamFree();
     }
 
@@ -121,6 +138,22 @@ public class FogNode {
         return SchedulerUtils.makePercent(this.getStorageUsed(), this.storageTotal);
     }
 
+    public void setRamTotal(float ramTotal) {
+        this.ramTotal = ramTotal;
+    }
+
+    public void setStorageTotal(float storageTotal) {
+        this.storageTotal = storageTotal;
+    }
+
+    public void setCpuCores(int cpuCores) {
+        this.cpuCores = cpuCores;
+    }
+
+    public void setCpuInstructionsPerSecond(int cpuInstructionsPerSecond) {
+        this.cpuInstructionsPerSecond = cpuInstructionsPerSecond;
+    }
+
     /**
      * @param module The AppSoftwareModule to execute on this node
      * @return Processing time for module on this node in milliseconds
@@ -135,6 +168,19 @@ public class FogNode {
         String processingStringTemplate = "%6sms Processing time for module '%s' on '%s'.";
         double processingTime = this.calculateProcessingTimeForModule(module);
         return String.format(processingStringTemplate, processingTime, module.getId(), this.getId());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FogNode fogNode = (FogNode) o;
+        return id.equals(fogNode.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     @Override

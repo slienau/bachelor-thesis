@@ -1,12 +1,11 @@
-package de.tuberlin.aot.thesis.slienau.orchestrator.models;
+package de.tuberlin.aot.thesis.slienau.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.TimeZone;
+import java.util.List;
 
-public class Heartbeat {
+public class SystemInfo {
     @JsonProperty
     private String deviceName;
 
@@ -31,9 +30,12 @@ public class Heartbeat {
     @JsonProperty
     private Float loadAvg15;
 
+    @JsonProperty
+    private List<String> connectedHardware;
+
     @Override
     public String toString() {
-        return "Heartbeat{" +
+        return "SystemInfo{" +
                 "deviceName='" + deviceName + '\'' +
                 ", timestamp='" + timestamp + '\'' +
                 ", totalMem=" + totalMem +
@@ -42,6 +44,7 @@ public class Heartbeat {
                 ", loadAvg1=" + loadAvg1 +
                 ", loadAvg5=" + loadAvg5 +
                 ", loadAvg15=" + loadAvg15 +
+                ", connectedHardware=" + connectedHardware +
                 '}';
     }
 
@@ -58,12 +61,7 @@ public class Heartbeat {
     }
 
     public void setTimestamp(String timestamp) {
-        long longTimestamp = Long.valueOf(timestamp);
-        this.timestamp =
-                LocalDateTime.ofInstant(
-                        Instant.ofEpochMilli(longTimestamp),
-                        TimeZone.getDefault().toZoneId()
-                );
+        // not implemented
     }
 
     public Float getTotalMem() {
@@ -112,5 +110,13 @@ public class Heartbeat {
 
     public void setLoadAvg15(Float loadAvg15) {
         this.loadAvg15 = loadAvg15;
+    }
+
+    public List<String> getConnectedHardware() {
+        return connectedHardware;
+    }
+
+    public void setConnectedHardware(List<String> connectedHardware) {
+        this.connectedHardware = connectedHardware;
     }
 }

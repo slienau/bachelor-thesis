@@ -31,7 +31,11 @@ public class AppDeployment {
      */
     public List<String> getDestinationNodesForSourceModule(String sourceModuleId) {
         List<String> destinations = new ArrayList<>();
-        application.getLoops().forEach(loop -> destinations.add(loop.getDestinationNodeForSourceModule(sourceModuleId, this)));
+        application.getLoops().forEach(loop -> {
+            String destinationNodeId = loop.getDestinationNodeForSourceModule(sourceModuleId, this);
+            if (destinationNodeId != null)
+                destinations.add(destinationNodeId);
+        });
         return destinations;
     }
 
@@ -94,7 +98,7 @@ public class AppDeployment {
     private double getMaxLoopProcessingTime() {
         double result = 0.0;
         for (AppLoop loop : this.application.getLoops()) {
-            double loopProcessingTime = loop.getTotalProcessingTime(this);
+            double loopProcessingTime = loop.calculateTotalProcessingTime(this);
             if (result < loopProcessingTime)
                 result = loopProcessingTime;
         }
@@ -109,7 +113,7 @@ public class AppDeployment {
     private double getMaxLoopTransferTime() {
         double result = 0.0;
         for (AppLoop loop : this.application.getLoops()) {
-            double loopTransferTime = loop.getTotalTransferTime(this);
+            double loopTransferTime = loop.calculateTotalTransferTime(this);
             if (result < loopTransferTime)
                 result = loopTransferTime;
         }
@@ -118,28 +122,29 @@ public class AppDeployment {
 
     public String createDetailsString() {
         StringBuilder sb = new StringBuilder()
-                .append("**************************************************************\n")
-                .append("****** Details for " + this + "\n")
-                .append("**************************************************************\n");
+                .append("[AppDeployment] ----------------------------------------\n")
+                .append(String.format("[AppDeployment] Details for application '%s'", this.application.getName())).append("\n")
+                .append("[AppDeployment] ----------------------------------------\n");
 
         for (AppLoop loop : application.getLoops()) {
-            sb.append(loop.getDetailString(this));
+            sb.append(loop.createDetailString(this));
         }
         sb
                 .append(createSoftwareModuleInfoString())
-                .append(createFogNodeUsageString());
+                .append(createFogNodeUsageString())
+                .append("[AppDeployment] ----------------------------------------\n");
         return sb.toString();
     }
 
     private String createSoftwareModuleInfoString() {
         StringBuilder sb = new StringBuilder()
-                .append("----------------------\n")
-                .append("Module deployment info\n")
-                .append("----------------------\n");
+                .append("[AppDeployment] ----------------------\n")
+                .append("[AppDeployment] Module deployment info\n")
+                .append("[AppDeployment] ----------------------\n");
         for (AppSoftwareModule module : application.getRequiredSoftwareModules()) {
             String fogNodeId = this.getNodeForSoftwareModule(module).getId();
 
-            sb.append(String.format("Module '%s' deployed on node '%s'. Output message destination node: %s",
+            sb.append(String.format("[AppDeployment] Module '%s' should be deployed on node '%s'. Output message destination nodes: %s",
                     module.getId(), fogNodeId, getDestinationNodesForSourceModule(module.getId())))
                     .append("\n");
         }
@@ -149,16 +154,16 @@ public class AppDeployment {
 
     private String createFogNodeUsageString() {
         StringBuilder sb = new StringBuilder()
-                .append("----------------\n")
-                .append("Fog node usage\n")
-                .append("----------------\n");
+                .append("[AppDeployment] ----------------\n")
+                .append("[AppDeployment] Fog node usage\n")
+                .append("[AppDeployment] ----------------\n");
         this.getNodeToModulesMap().forEach(FogNode::deployModules);
-        this.getAllInvolvedFogNodes().forEach(node -> sb.append(node).append("\n"));
+        this.getAllInvolvedFogNodes().forEach(node -> sb.append("[AppDeployment] ").append(node).append("\n"));
         this.undeployAllModulesFromNodes();
         return sb.toString();
     }
 
-    private Map<FogNode, List<AppSoftwareModule>> getNodeToModulesMap() {
+    public Map<FogNode, List<AppSoftwareModule>> getNodeToModulesMap() {
         Map<FogNode, List<AppSoftwareModule>> result = new HashMap<>();
         // initialize Map with keys and empty list
         this.getAllInvolvedFogNodes().forEach(fogNode -> result.put(fogNode, new ArrayList<>()));
@@ -167,7 +172,7 @@ public class AppDeployment {
         return result;
     }
 
-    private Set<FogNode> getAllInvolvedFogNodes() {
+    public Set<FogNode> getAllInvolvedFogNodes() {
         return new HashSet<>(this.moduleToNodeMap.values());
     }
 
@@ -189,6 +194,21 @@ public class AppDeployment {
 
     public FogNode getNodeForSoftwareModule(AppSoftwareModule softwareModule) {
         return this.moduleToNodeMap.get(softwareModule);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AppDeployment that = (AppDeployment) o;
+        return valid == that.valid &&
+                application.equals(that.application) &&
+                moduleToNodeMap.equals(that.moduleToNodeMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(application, moduleToNodeMap, valid);
     }
 
     @Override

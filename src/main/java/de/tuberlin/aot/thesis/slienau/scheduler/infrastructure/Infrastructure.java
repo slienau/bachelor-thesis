@@ -1,6 +1,6 @@
 package de.tuberlin.aot.thesis.slienau.scheduler.infrastructure;
 
-import de.tuberlin.aot.thesis.slienau.scheduler.SchedulerUtils;
+import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
 import java.util.*;
 
@@ -11,21 +11,18 @@ public class Infrastructure {
         this.addFogNode(new FogNode(id, ramTotal, storageTotal, cpuCores, cpuScoreSingleCore, connectedHardware));
     }
 
-    private void addFogNode(FogNode newFogNode) throws IllegalArgumentException {
+    public void addFogNode(FogNode newFogNode) throws IllegalArgumentException {
         if (fogNodes.putIfAbsent(newFogNode.getId(), newFogNode) == null) {
             // fognode added
-            System.out.println(String.format("[Infrastructure] Added %s", newFogNode));
+            System.out.println(String.format("[Infrastructure] Added node '%s'", newFogNode.getId()));
         } else {
             // not added because exists already
             throw new IllegalArgumentException(String.format("Can not add %s to infrastructure because it already exists", newFogNode.getId()));
         }
     }
 
-    public FogNode getFogNode(String fogNodeId) throws NoSuchElementException {
-        FogNode result = fogNodes.get(fogNodeId);
-        if (result != null)
-            return result;
-        throw new NoSuchElementException(String.format("Unable to find fog node with id '%s'", fogNodeId));
+    public FogNode getFogNode(String fogNodeId) {
+        return fogNodes.get(fogNodeId);
     }
 
     public boolean removeFogNode(String nodeIdToDelete) {
@@ -35,6 +32,10 @@ public class Infrastructure {
         else
             System.err.println(String.format("[Infrastructure] %s not removed from infrastructure because it doesn't exist.", nodeIdToDelete));
         return wasRemoved;
+    }
+
+    public boolean checkIfFogNodeExists(String fogNodeId) {
+        return fogNodes.get(fogNodeId) != null;
     }
 
     public List<FogNode> getFogNodes() {
@@ -61,8 +62,4 @@ public class Infrastructure {
         }
     }
 
-    public void updateUplinks(String nodeA, String nodeB, int latency, double bandwidthAtoB, double bandwidthBtoA) {
-        System.err.println("TODO: updateUplinks(FogNode nodeA, FogNode nodeB, int latency, double bandwidthAtoB, double bandwidthBtoA)");
-        throw new RuntimeException("TODO: Implement method.");
-    }
 }

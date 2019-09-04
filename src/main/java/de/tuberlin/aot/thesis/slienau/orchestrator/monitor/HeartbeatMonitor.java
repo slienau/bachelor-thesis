@@ -1,27 +1,27 @@
-package de.tuberlin.aot.thesis.slienau.orchestrator;
+package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.tuberlin.aot.thesis.slienau.orchestrator.models.Heartbeat;
+import de.tuberlin.aot.thesis.slienau.models.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.utils.MqttUtils;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Queue;
 
-public class Monitor implements Runnable {
+public class HeartbeatMonitor implements Runnable {
 
-    final String broker;
-    final String topic;
-    final MemoryPersistence persistence;
-    final MqttConnectOptions connOpts;
-    final HashMap<String, Heartbeat> nodes;
+    private final String broker;
+    private final String topic;
+    private final MemoryPersistence persistence;
+    private final MqttConnectOptions connOpts;
+    private final Queue<Heartbeat> heartbeatQueue;
 
-    public Monitor(String broker, String topic, HashMap<String, Heartbeat> nodes) {
+    public HeartbeatMonitor(String broker, Queue<Heartbeat> heartbeatQueue) {
         this.broker = broker;
-        this.topic = topic;
+        this.topic = "/heartbeats/#";
         this.persistence = new MemoryPersistence();
-        this.nodes = nodes;
+        this.heartbeatQueue = heartbeatQueue;
         connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
     }
@@ -30,11 +30,11 @@ public class Monitor implements Runnable {
         try {
             MqttClient client = new MqttClient(broker, MqttClient.generateClientId(), persistence);
             client.setCallback(new MonitorMqttCallback());
-            System.out.println("Connecting to broker: " + broker);
+            System.out.println("[HeartbeatMonitor] Connecting to MQTT broker: " + broker);
             client.connect(connOpts);
-            System.out.println("Connected");
+            System.out.println("[HeartbeatMonitor] Connected");
             client.subscribe(topic);
-            System.out.println("Subscribed to " + topic);
+            System.out.println("[HeartbeatMonitor] Subscribed to topic " + topic);
         } catch (MqttException me) {
             MqttUtils.printMqttException(me);
         }
@@ -43,18 +43,21 @@ public class Monitor implements Runnable {
     class MonitorMqttCallback implements MqttCallback {
 
         public void connectionLost(Throwable throwable) {
-            System.out.println("Connection to MQTT broker lost!");
+            System.out.println("[HeartbeatMonitor] Connection to MQTT broker lost!");
         }
 
-        public void messageArrived(String s, MqttMessage mqttMessage) {
+        public void messageArrived(String topic, MqttMessage mqttMessage) {
             String jsonIn = new String(mqttMessage.getPayload());
             ObjectMapper mapper = new ObjectMapper();
             try {
                 Heartbeat incomingHeartbeat = mapper.readValue(jsonIn, Heartbeat.class);
-                nodes.put(incomingHeartbeat.getDeviceName(), incomingHeartbeat);
-                System.out.println("Incoming Heartbeat:\t" + incomingHeartbeat);
+                synchronized (heartbeatQueue) {
+                    heartbeatQueue.add(incomingHeartbeat);
+                    heartbeatQueue.notifyAll();
+                }
+
             } catch (IOException e) {
-                System.err.println(String.format("Error mapping incoming JSON string '%s' to Heartbeat object", jsonIn));
+                System.err.println(String.format("[HeartbeatMonitor] Error mapping incoming JSON string '%s' to Heartbeat object", jsonIn));
             }
         }
 
