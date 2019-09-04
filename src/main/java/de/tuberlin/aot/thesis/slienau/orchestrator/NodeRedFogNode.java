@@ -38,14 +38,14 @@ public class NodeRedFogNode extends FogNode {
                 = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(String.format("tcp://%s:52376", address)).build();
         dockerClient = DockerClientBuilder.getInstance(config).build();
-        this.setSystemInfoFromNodeRed();
+        this.getAndSetSysinfo();
 
         // remove "unlimited" uplink and measure bandwidth to self
         super.removeUplinkTo(this.getId());
         double mbitsToSelf = this.measureBandwidthTo(this.getAddress());
         super.addUplink(new NetworkUplink(this, this, 0, SchedulerUtils.mbitToBit(mbitsToSelf)));
 
-        this.benchmarkCpu();
+        this.getAndSetCpuBenchmark();
         System.out.println(String.format("[NodeRedFogNode] Created new instance %s", this));
     }
 
@@ -69,7 +69,7 @@ public class NodeRedFogNode extends FogNode {
         this.latestHeartbeat = latestHeartbeat;
     }
 
-    private void setSystemInfoFromNodeRed() {
+    private void getAndSetSysinfo() {
         try {
             SystemInfo systemInfo = OBJECT_MAPPER.readValue(executeMqttCommand("sysinfo"), SystemInfo.class);
             super.setCpuCores(systemInfo.getCpuCount());
@@ -136,7 +136,7 @@ public class NodeRedFogNode extends FogNode {
         }
     }
 
-    private void benchmarkCpu() {
+    private void getAndSetCpuBenchmark() {
         byte[] benchmarkResultBytes = this.executeMqttCommand("benchmark_cpu");
         String benchmarkResultString = new String(benchmarkResultBytes)
                 .replace("s", "")
