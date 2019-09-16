@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class NodeRedOrchestrator {
 
-    public static final String MQTT_BROKER = "tcp://localhost:1883";
+    public static final String MQTT_BROKER = "tcp://dslbabroker.westeurope.azurecontainer.io:1883";
     private static final NodeRedFlowDatabase flowDatabase = NodeRedFlowDatabase.getInstance();
     private static NodeRedOrchestrator instance;
     private final Infrastructure infrastructure;
