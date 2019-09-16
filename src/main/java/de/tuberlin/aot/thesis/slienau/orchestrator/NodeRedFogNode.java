@@ -25,9 +25,9 @@ public class NodeRedFogNode extends FogNode {
     private final DockerClient dockerClient;
     private Heartbeat latestHeartbeat;
 
-    public NodeRedFogNode(String id, String address, List<String> connectedHardware) {
+    public NodeRedFogNode(String id, String ip, int port, List<String> connectedHardware) {
         super(id, connectedHardware);
-        nodeRedController = new NodeRedController(id, address);
+        nodeRedController = new NodeRedController(id, ip, port);
         try {
             // delete all flows on new node (in case they have "old" flows deployed which could disturb the current deployment strategy)
             nodeRedController.deleteAllFlows();
@@ -36,7 +36,7 @@ public class NodeRedFogNode extends FogNode {
         }
         DefaultDockerClientConfig config
                 = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost(String.format("tcp://%s:52376", address)).build();
+                .withDockerHost(String.format("tcp://%s:52376", ip)).build();
         dockerClient = DockerClientBuilder.getInstance(config).build();
         this.getAndSetSysinfo();
 
@@ -116,7 +116,8 @@ public class NodeRedFogNode extends FogNode {
     public double measureBandwidthTo(String destinationAddress) {
         ObjectNode cmdPayload = OBJECT_MAPPER.createObjectNode();
         cmdPayload.put("destination", destinationAddress);
-        final double TIME_LIMIT = 1500;
+        boolean remeasuring = false; // will eventually be set to true so that max. one remeasuring is performed
+        final double TIME_LIMIT = 1500; // max. 1.5 seconds for one measurement
         int size = 2 * 1024; // start with 2MB size
         while (true) {
             try {
@@ -124,11 +125,10 @@ public class NodeRedFogNode extends FogNode {
                 byte[] bandwidthResultByte = this.executeMqttCommand("bandwidth", OBJECT_MAPPER.writeValueAsString(cmdPayload).getBytes());
                 JsonNode bandwidthResult = OBJECT_MAPPER.readTree(bandwidthResultByte);
                 double time = bandwidthResult.path("time").doubleValue();
-                if (time >= TIME_LIMIT)
+                if (time >= TIME_LIMIT || remeasuring)
                     return bandwidthResult.path("mbitPerSecond").doubleValue();
-                if (time < 0.2 * TIME_LIMIT)
-                    time = time * 0.8;
                 size = (int) (TIME_LIMIT * (size / (time * 0.7))); // increase size if execution took less than TIME_LIMIT
+                remeasuring = true;
             } catch (IOException e) {
                 e.printStackTrace();
                 return Double.MAX_VALUE;

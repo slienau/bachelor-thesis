@@ -13,11 +13,19 @@ public class Heartbeat {
     @JsonProperty
     private LocalDateTime timestamp;
 
+    @JsonProperty
+    private String publicFqdn;
+
+    @JsonProperty
+    private int publicPort;
+
     @Override
     public String toString() {
         return "Heartbeat{" +
                 "deviceName='" + deviceName + '\'' +
                 ", timestamp='" + timestamp + '\'' +
+                ", publicFqdn='" + publicFqdn + '\'' +
+                ", publicPort='" + publicPort + '\'' +
                 '}';
     }
 
@@ -46,4 +54,19 @@ public class Heartbeat {
         this.timestamp = timestamp;
     }
 
+    public String getPublicFqdn() {
+        return publicFqdn;
+    }
+
+    public void setPublicFqdn(String publicFqdn) {
+        this.publicFqdn = publicFqdn;
+    }
+
+    public int getPublicPort() {
+        return publicPort;
+    }
+
+    public void setPublicPort(int publicPort) {
+        this.publicPort = publicPort;
+    }
 }

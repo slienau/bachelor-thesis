@@ -91,7 +91,8 @@ public class HeartbeatProcessor implements Runnable {
                 try {
                     NodeRedFogNode newNode = new NodeRedFogNode(
                             initialHeartbeat.getDeviceName(),
-                            initialHeartbeat.getDeviceName(),
+                            initialHeartbeat.getPublicFqdn(),
+                            initialHeartbeat.getPublicPort(),
                             null
                     );
 
