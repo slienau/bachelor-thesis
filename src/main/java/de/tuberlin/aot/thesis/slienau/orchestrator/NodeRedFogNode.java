@@ -54,7 +54,7 @@ public class NodeRedFogNode extends FogNode {
     }
 
     public String getAddress() {
-        return nodeRedController.getNodeRedAddress();
+        return String.format("%s:%s", nodeRedController.getIp(), nodeRedController.getPort());
     }
 
     public DockerClient getDockerClient() {
@@ -81,8 +81,8 @@ public class NodeRedFogNode extends FogNode {
         }
     }
 
-    public int getLatencyToDestination(String destinationAddress) {
-        String payload = destinationAddress + " | tail -1| awk '{print $4}' | cut -d '/' -f 2";
+    public int getLatencyToDestination(String destinationIp) {
+        String payload = destinationIp + " | tail -1| awk '{print $4}' | cut -d '/' -f 2";
         byte[] resultBytes = this.executeMqttCommand("ping", payload.getBytes());
         try {
             return (int) NumberUtils.stringToDouble(new String(resultBytes)) + 1; // +1 to "round up"
@@ -154,7 +154,7 @@ public class NodeRedFogNode extends FogNode {
 
     public boolean isReachable() {
         try {
-            return InetAddress.getByName(nodeRedController.getNodeRedAddress()).isReachable(3000);
+            return InetAddress.getByName(nodeRedController.getIp()).isReachable(3000);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -16,19 +16,19 @@ public class NodeRedController {
     private static final List<String> protectedFlows = Arrays.asList("Monitoring");
     private final String id;
     private final String logPrefix;
-    private String nodeRedAddress;
-    private int nodeRedPort;
+    private String ip;
+    private int port;
 
     // Constructors
-    public NodeRedController(String id, String nodeRedAddress) {
-        this(id, nodeRedAddress, 1880);
+    public NodeRedController(String id, String ip) {
+        this(id, ip, 1880);
     }
 
 
-    public NodeRedController(String id, String nodeRedAddress, int nodeRedPort) {
+    public NodeRedController(String id, String ip, int port) {
         this.id = id;
-        this.nodeRedAddress = nodeRedAddress;
-        this.nodeRedPort = nodeRedPort;
+        this.ip = ip;
+        this.port = port;
         this.logPrefix = String.format("[NodeRedController][%s] ", this.getId());
 //        System.out.println(String.format("[NodeRedController] Created new instance %s", this));
     }
@@ -254,35 +254,35 @@ public class NodeRedController {
     private String getHttpEndpointForPath(String path) {
         if (path.startsWith("/"))
             path = path.substring(1);
-        return String.format("http://%s:%s/%s", this.nodeRedAddress, this.nodeRedPort, path);
+        return String.format("http://%s:%s/%s", this.ip, this.port, path);
     }
 
     public String getId() {
         return id;
     }
 
-    public String getNodeRedAddress() {
-        return nodeRedAddress;
+    public String getIp() {
+        return ip;
     }
 
-    public void setNodeRedAddress(String nodeRedAddress) {
-        this.nodeRedAddress = nodeRedAddress;
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
-    public int getNodeRedPort() {
-        return nodeRedPort;
+    public int getPort() {
+        return port;
     }
 
-    public void setNodeRedPort(int nodeRedPort) {
-        this.nodeRedPort = nodeRedPort;
+    public void setPort(int port) {
+        this.port = port;
     }
 
     @Override
     public String toString() {
         return "NodeRedController{" +
                 "id='" + id + '\'' +
-                ", nodeRedAddress='" + nodeRedAddress + '\'' +
-                ", nodeRedPort=" + nodeRedPort +
+                ", ip='" + ip + '\'' +
+                ", port=" + port +
                 '}';
     }
 }
