@@ -26,5 +26,5 @@ elif [ "$1" == "stop" ]
 then
     docker stop od-server
 else
-    docker run --name od-server -it --rm -p 6001:6001 object-detection-server:$DOCKER_IMAGE_TAG
+    docker run --name od-server -it --restart=unless-stopped -p 6001:6001 object-detection-server:$DOCKER_IMAGE_TAG
 fi
