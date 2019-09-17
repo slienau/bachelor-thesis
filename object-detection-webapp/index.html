@@ -1,0 +1,49 @@
+<html>
+
+<head>
+    <title>Object Detection Web Application</title>
+</head>
+
+<body>
+    <h1>Object Detection Web Application</h1>
+    <div>
+        <h2>Upload</h2>
+        <input id="image-file" type="file" />
+        <button onclick="onButtonClick()">Upload</button>
+    </div>
+
+    <div>
+        <h2>Result</h2>
+        <div id="result">Please upload an image for object detection</div>
+    </div>
+</body>
+
+<script>
+    const onButtonClick = () => {
+        const url = 'http://dsl89.ddns.net:1882/od/detector'
+        const imageData = document.getElementById("image-file").files[0];
+        console.log(`Going to upload image to ${url} for detection`, imageData)
+
+        const params = {
+            headers: {
+                "content-type": "image/jpeg"
+            },
+            body: imageData,
+            method: "POST",
+            responseType: 'blob'
+        }
+        fetch(url, params)
+            .then(data => data.blob())
+            .then(res => {
+                console.log("Response", res)
+                var img = document.createElement('img');
+                img.src = window.URL.createObjectURL(res);
+                img.id = "result"
+                const resultElement = document.getElementById('result')
+                resultElement.parentNode.replaceChild(img, resultElement)
+            })
+            .catch(error => console.error(error))
+    }
+</script>
+
+</html>
