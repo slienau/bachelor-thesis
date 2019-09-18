@@ -31,7 +31,7 @@ public class MqttCommandExecutor implements Runnable {
 
     @Override
     public void run() {
-        System.out.println(String.format("[MqttCommandExecutor][%s] Going to execute command '%s'", deviceName, command));
+//        System.out.println(String.format("[MqttCommandExecutor][%s] Going to execute command '%s'", deviceName, command));
         try {
             MqttClient mqttClient = new MqttClient(broker, MqttClient.generateClientId(), new MemoryPersistence());
             mqttClient.setCallback(new CommandResultCallback(this));
