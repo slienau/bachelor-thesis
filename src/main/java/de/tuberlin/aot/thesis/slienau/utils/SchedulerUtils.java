@@ -3,7 +3,10 @@ package de.tuberlin.aot.thesis.slienau.utils;
 public class SchedulerUtils {
 
     public static int CPU_SCORE_RASPI_3 = 650;
+    public static int CPU_SCORE_RASPI_4 = 971;
     public static int CPU_SCORE_MBP_2018 = 10000;
+    public static int CPU_SCORE_DEBIAN_VM = 11825;
+    public static int CPU_SCORE_AZURE_NODE = 10743;
 
     public static double makePercent(double used, double total) {
         return round((used / total) * 100);
