@@ -172,16 +172,16 @@ public class NodeRedFogNode extends FogNode {
     }
 
     private byte[] executeMqttCommand(String command, byte[] payload) {
+        int timeout = 30; // timeout of 30 seconds
         MqttCommandExecutor executor = new MqttCommandExecutor(NodeRedOrchestrator.MQTT_BROKER, this.getId(), command, payload);
         Thread executorThread = new Thread(executor);
         executorThread.start();
         try {
-            executorThread.join(60 * 1000); // timeout of 60s
+            executorThread.join(timeout * 1000);
             return executor.getResult();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new NullPointerException(String.format("[NodeRedFogNode] MQTT Command '%s' not executed within %s seconds", command, timeout));
         }
-        return null;
     }
 
     @Override
