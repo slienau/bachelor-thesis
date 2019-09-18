@@ -34,7 +34,9 @@ public class NodeRedOrchestrator {
     private NodeRedOrchestrator() {
         infrastructure = new Infrastructure();
         heartbeatQueue = new ConcurrentLinkedQueue<>();
-        scheduler = new QosScheduler(createSensorNetworkApplication(), infrastructure);
+//        Application sensorNetworkApplication = createSensorNetworkApplication();
+        Application objectDetectionApplication = createObjectDetectionApplication();
+        scheduler = new QosScheduler(objectDetectionApplication, infrastructure);
     }
 
     public static void main(String[] args) throws Exception {
@@ -60,7 +62,7 @@ public class NodeRedOrchestrator {
         a.addHardwareModule("CAMERA", "RAW_SENSOR_DATA");
         a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 1, 0.5, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_RASPI_3, 54), Arrays.asList("CAMERA"));
 //        a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 1, 0.5, 1, null);
-        a.addSoftwareModule("data-processor", "SENSOR_DATA", "SENSOR_DATA_PROCESSED", 10, 0.5, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_MBP_2018, 10), null);
+        a.addSoftwareModule("data-processor", "SENSOR_DATA", "SENSOR_DATA_PROCESSED", 10, 0.5, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_MBP_2018, 1000), null);
         a.addSoftwareModule("data-viewer", "SENSOR_DATA_PROCESSED", null, 1, 0.5, 1, null);
 
         a.addMessage("RAW_SENSOR_DATA", 1024);
@@ -68,6 +70,19 @@ public class NodeRedOrchestrator {
         a.addMessage("SENSOR_DATA_PROCESSED", 10);
 
         a.addLoop("sensorNetworkLoop1", 999999, Arrays.asList("data-reader", "data-processor", "data-viewer"));
+        return a;
+    }
+
+    private static Application createObjectDetectionApplication() {
+        Application a = new Application("od");
+        a.addHardwareModule("OD-DOCKER-CONTAINER", "IMAGE_DETECTED");
+        a.addSoftwareModule("webapp", null, "IMAGE_UNDETECTED", 0, 0, 0, Arrays.asList("CAMERA"));
+        a.addSoftwareModule("detector", "IMAGE_UNDETECTED", "IMAGE_DETECTED", 0, 0, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_RASPI_4, 4500), Arrays.asList("OD-DOCKER-CONTAINER"));
+
+        a.addMessage("IMAGE_UNDETECTED", 500);
+        a.addMessage("IMAGE_DETECTED", 500);
+        a.addLoop("objectDetectionLoop1", 999999, Arrays.asList("webapp", "detector"));
+
         return a;
     }
 
