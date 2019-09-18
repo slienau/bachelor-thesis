@@ -5,7 +5,6 @@ import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedFogNode;
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedOrchestrator;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Queue;
@@ -119,7 +118,7 @@ public class HeartbeatProcessor implements Runnable {
                     }
 
                     orchestrator.checkForNewOptimalDeployment();
-                } catch (IOException e) {
+                } catch (Throwable e) {
                     e.printStackTrace();
                 }
             }
