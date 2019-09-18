@@ -40,11 +40,12 @@ public class NodeRedFogNode extends FogNode {
         dockerClient = DockerClientBuilder.getInstance(config).build();
         this.getAndSetSysinfo();
 
-        // remove "unlimited" uplink and measure bandwidth to self
+        // remove "unlimited" uplink (used in algorithm) and measure bandwidth to self instead
         super.removeUplinkTo(this.getId());
         double mbitsToSelf = this.measureBandwidthTo(this.getAddress());
         super.addUplink(new NetworkUplink(this, this, 0, SchedulerUtils.mbitToBit(mbitsToSelf)));
 
+        // measure benchmark
         this.getAndSetCpuBenchmark();
         System.out.println(String.format("[NodeRedFogNode] Created new instance %s", this));
     }
@@ -82,7 +83,7 @@ public class NodeRedFogNode extends FogNode {
     }
 
     public int getLatencyToDestination(String destinationIp) {
-        String payload = destinationIp + " | tail -1| awk '{print $4}' | cut -d '/' -f 2";
+        String payload = destinationIp + " | tail -1| awk '{print $4}' | cut -d '/' -f 2"; // will execute "ping 1.2.3.4 | tail -1|..." on remote shell so that a number is returned only (e.g. 33.12)
         byte[] resultBytes = this.executeMqttCommand("ping", payload.getBytes());
         try {
             return (int) NumberUtils.stringToDouble(new String(resultBytes)) + 1; // +1 to "round up"

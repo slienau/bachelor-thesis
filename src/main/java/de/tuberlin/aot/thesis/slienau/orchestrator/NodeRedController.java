@@ -13,7 +13,7 @@ import static de.tuberlin.aot.thesis.slienau.utils.HttpUtils.*;
 
 public class NodeRedController {
 
-    private static final List<String> protectedFlows = Arrays.asList("Monitoring");
+    private static final List<String> protectedFlows = Arrays.asList("Monitoring"); // Protected flows are never deleted by the deleteFlowByName function
     private final String id;
     private final String logPrefix;
     private String ip;
@@ -34,7 +34,7 @@ public class NodeRedController {
     }
 
     public void changeHeartbeatFrequency(String newFrequency) throws IOException {
-        String flowName = "Heartbeat";
+        String flowName = "Monitoring";
 
         // get flow
         JsonNode heartbeatFlow = this.getFlowByName(flowName);

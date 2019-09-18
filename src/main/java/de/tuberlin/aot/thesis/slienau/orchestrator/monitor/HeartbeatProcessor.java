@@ -48,6 +48,7 @@ public class HeartbeatProcessor implements Runnable {
                     initialHeartbeatsQueue.notifyAll();
                 }
             } else {
+                // update timestamp of heartbeat to current time so that InfrastructureMaintainer can check missing timestamps
                 hb.setTimestamp(LocalDateTime.now());
                 fogNode.setLatestHeartbeat(hb);
             }
