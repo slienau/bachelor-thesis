@@ -6,7 +6,8 @@ export PUBLIC_FQDN=dsl89.ddns.net
 export PUBLIC_PORT=1880
 export MQTT_SERVER=dslbabroker.westeurope.azurecontainer.io
 export CONNECTED_HARDWARE="[]"
-# export CONNECTED_HARDWARE="[\"CAMERA\",\"TEMPERATURE\"]"
+#export CONNECTED_HARDWARE="[\"OD-DOCKER-CONTAINER\”]"
+#export CONNECTED_HARDWARE="[\"CAMERA\",\"TEMPERATURE\"]"
 
 IS_ARM=FALSE
 if [[ "$(uname -m)" == "arm"* ]]; then
