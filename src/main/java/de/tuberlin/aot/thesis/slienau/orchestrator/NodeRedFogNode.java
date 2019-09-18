@@ -114,21 +114,27 @@ public class NodeRedFogNode extends FogNode {
      * @return bandwidth from this node to destination node in Mbit/s
      */
     public double measureBandwidthTo(String destinationAddress) {
+        final double TIME_LIMIT = 1000; // max. 1 seconds for one measurement
+        final int MAX_MEASUREMENTS = 2; // max. amount of measurements
         ObjectNode cmdPayload = OBJECT_MAPPER.createObjectNode();
         cmdPayload.put("destination", destinationAddress);
-        boolean remeasuring = false; // will eventually be set to true so that max. one remeasuring is performed
-        final double TIME_LIMIT = 1500; // max. 1.5 seconds for one measurement
-        int size = 2 * 1024; // start with 2MB size
+        int size = 4 * 1024; // start with 4MB size
+        int measurement = 1;
         while (true) {
             try {
                 cmdPayload.put("size", size);
                 byte[] bandwidthResultByte = this.executeMqttCommand("bandwidth", OBJECT_MAPPER.writeValueAsString(cmdPayload).getBytes());
                 JsonNode bandwidthResult = OBJECT_MAPPER.readTree(bandwidthResultByte);
                 double time = bandwidthResult.path("time").doubleValue();
-                if (time >= TIME_LIMIT || remeasuring)
-                    return bandwidthResult.path("mbitPerSecond").doubleValue();
-                size = (int) (TIME_LIMIT * (size / (time * 0.7))); // increase size if execution took less than TIME_LIMIT
-                remeasuring = true;
+                double mbits = bandwidthResult.path("mbitPerSecond").doubleValue();
+                // System.out.println(String.format("[NodeRedFogNode][%s] Bandwidth to %s is %sMbit/s (test size: %sKB; time: %sms)", this.getId(), destinationAddress, mbits, size, time));
+                if (time >= TIME_LIMIT || measurement++ >= MAX_MEASUREMENTS)
+                    return mbits;
+                // increase size if execution took less than TIME_LIMIT to get a more accurate result
+                if (time < TIME_LIMIT * 0.33)
+                    size = size * 4;
+                else
+                    size = size * 2;
             } catch (IOException e) {
                 e.printStackTrace();
                 return Double.MAX_VALUE;
