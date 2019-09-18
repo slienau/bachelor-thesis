@@ -143,6 +143,18 @@ public class NodeRedFogNode extends FogNode {
     }
 
     private void getAndSetCpuBenchmark() {
+        // Skip MQTT command execution for known (slow) devices to save time
+        if (this.getId().equals("raspi-01")) {
+            // device id "raspi-01" is a raspberry pi 3 in the test setup
+            super.setCpuInstructionsPerSecond(SchedulerUtils.CPU_SCORE_RASPI_3);
+            return;
+        }
+        if (this.getId().equals("raspi-02")) {
+            // device id "raspi-02" is a raspberry pi 4 in the test setup
+            super.setCpuInstructionsPerSecond(SchedulerUtils.CPU_SCORE_RASPI_4);
+            return;
+        }
+
         byte[] benchmarkResultBytes = this.executeMqttCommand("benchmark_cpu");
         String benchmarkResultString = new String(benchmarkResultBytes)
                 .replace("s", "")
