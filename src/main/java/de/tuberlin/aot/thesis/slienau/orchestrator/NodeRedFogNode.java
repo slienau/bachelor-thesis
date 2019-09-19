@@ -115,12 +115,17 @@ public class NodeRedFogNode extends FogNode {
      * @return bandwidth from this node to destination node in Mbit/s
      */
     public double measureBandwidthTo(String destinationAddress) {
-        final double TIME_LIMIT = 1000; // max. 1 seconds for one measurement
-        final int MAX_MEASUREMENTS = 2; // max. amount of measurements
+        final double MIN_TIME = 1000; // If a measurement takes less than this, a new measurement will be executed to get a more accurate result
+        final int MAX_MEASUREMENTS = 2; // max. amount of measurements, regardless of MIN_TIME
+        int measurement = 1; // measurements counter
+
+        // prepare payload
         ObjectNode cmdPayload = OBJECT_MAPPER.createObjectNode();
         cmdPayload.put("destination", destinationAddress);
-        int size = 4 * 1024; // start with 4MB size
-        int measurement = 1;
+        int size = 2 * 1024; // start with 2 MB size
+        if (this.getAddress().equals(destinationAddress))
+            size = 10 * 1024; // start with 10 MB size if measurement if from this node to this node
+
         while (true) {
             try {
                 cmdPayload.put("size", size);
@@ -129,10 +134,10 @@ public class NodeRedFogNode extends FogNode {
                 double time = bandwidthResult.path("time").doubleValue();
                 double mbits = bandwidthResult.path("mbitPerSecond").doubleValue();
                 // System.out.println(String.format("[NodeRedFogNode][%s] Bandwidth to %s is %sMbit/s (test size: %sKB; time: %sms)", this.getId(), destinationAddress, mbits, size, time));
-                if (time >= TIME_LIMIT || measurement++ >= MAX_MEASUREMENTS)
+                if (time >= MIN_TIME || measurement++ >= MAX_MEASUREMENTS)
                     return mbits;
-                // increase size if execution took less than TIME_LIMIT to get a more accurate result
-                if (time < TIME_LIMIT * 0.33)
+                // increase size if execution took less than MIN_TIME to get a more accurate result
+                if (time < MIN_TIME * 0.33)
                     size = size * 4;
                 else
                     size = size * 2;
