@@ -119,7 +119,7 @@
         "qos": "",
         "retain": "",
         "broker": "9d2b2e9.fa765d",
-        "x": 860,
+        "x": 1080,
         "y": 180,
         "wires": []
     },
@@ -149,7 +149,7 @@
         "type": "function",
         "z": "5af3cb51.dbf004",
         "name": "calculate cpu score",
-        "func": "const time = msg.payload\nconst cpuScore = (10000 / time).toFixed(0)\nmsg.payload = cpuScore\nreturn msg;",
+        "func": "const time = msg.payload\nconst cpuScore = (10000 / time)\nmsg.payload = {cpuScore}\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "x": 750,
@@ -164,18 +164,18 @@
         "id": "a0487ab.703ea88",
         "type": "exec",
         "z": "5af3cb51.dbf004",
-        "command": "ping -c 4 ",
+        "command": "",
         "addpay": true,
         "append": "",
         "useSpawn": "false",
         "timer": "10",
         "oldrc": false,
         "name": "ping",
-        "x": 530,
+        "x": 650,
         "y": 260,
         "wires": [
             [
-                "587370ef.2ff82"
+                "29349429.37d27c"
             ],
             [],
             []
@@ -190,7 +190,7 @@
         "qos": "",
         "retain": "",
         "broker": "9d2b2e9.fa765d",
-        "x": 780,
+        "x": 1040,
         "y": 260,
         "wires": []
     },
@@ -207,7 +207,7 @@
         "y": 260,
         "wires": [
             [
-                "a0487ab.703ea88"
+                "9fb76913.3579c8"
             ]
         ]
     },
@@ -224,7 +224,7 @@
         "y": 360,
         "wires": [
             [
-                "1c4cf2aa.f757cd"
+                "e2c57019.c727"
             ]
         ]
     },
@@ -232,18 +232,18 @@
         "id": "1c4cf2aa.f757cd",
         "type": "exec",
         "z": "5af3cb51.dbf004",
-        "command": "iperf3 -t 2 -c ",
+        "command": "",
         "addpay": true,
         "append": "",
         "useSpawn": "false",
         "timer": "10",
         "oldrc": false,
         "name": "iperf3",
-        "x": 530,
+        "x": 650,
         "y": 360,
         "wires": [
             [
-                "cee0b41c.4b8f98"
+                "31e9f7a5.69a628"
             ],
             [],
             []
@@ -258,7 +258,7 @@
         "qos": "",
         "retain": "",
         "broker": "9d2b2e9.fa765d",
-        "x": 790,
+        "x": 1070,
         "y": 360,
         "wires": []
     },
@@ -449,5 +449,69 @@
         "x": 1200,
         "y": 560,
         "wires": []
+    },
+    {
+        "id": "9fb76913.3579c8",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "set command",
+        "func": "const destination = msg.payload\n// will execute \"ping {destination}\" and parse the result so that a number is returned only (e.g. 33.12)\nconst command = `ping -c 4 ${destination} | tail -1 | awk '{print $4}' | cut -d '/' -f 2`\nmsg.payload = command\nmsg.pingDestination = destination\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 260,
+        "wires": [
+            [
+                "a0487ab.703ea88"
+            ]
+        ]
+    },
+    {
+        "id": "29349429.37d27c",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "set result",
+        "func": "const result = {\n    source: env.get('HOSTNAME'),\n    destination: msg.pingDestination,\n    time: msg.payload.replace('\\n', '')\n}\nmsg.payload = result\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 790,
+        "y": 260,
+        "wires": [
+            [
+                "587370ef.2ff82"
+            ]
+        ]
+    },
+    {
+        "id": "e2c57019.c727",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "set command",
+        "func": "const destination = msg.payload\nconst command = `iperf3 -t 2 -c ${destination} | grep 'receiver' | awk '{print $7}'`\nmsg.payload = command\nmsg.iperfDestination = destination\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 360,
+        "wires": [
+            [
+                "1c4cf2aa.f757cd"
+            ]
+        ]
+    },
+    {
+        "id": "31e9f7a5.69a628",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "set result",
+        "func": "const result = {\n    source: env.get('HOSTNAME'),\n    destination: msg.iperfDestination,\n    mbits: msg.payload.replace('\\n', '')\n}\nmsg.payload = result\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 800,
+        "y": 360,
+        "wires": [
+            [
+                "cee0b41c.4b8f98"
+            ]
+        ]
     }
 ]
