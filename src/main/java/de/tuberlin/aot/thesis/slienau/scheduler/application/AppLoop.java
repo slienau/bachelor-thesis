@@ -66,7 +66,7 @@ public class AppLoop {
             AppModule nextModule = null;
             if (i < this.modules.size() - 1)
                 nextModule = application.getModuleById(this.modules.get(i + 1));
-            if (!inputEqualsOutputType(thisModule, nextModule))
+            if (nextModule != null && !inputEqualsOutputType(thisModule, nextModule))
                 return String.format("[AppLoop][%s] Output type of module '%s' (type '%s') not equal to input type of module '%s' (type '%s')", this.getLoopName(), thisModule.getId(), thisModule.getOutputType(), nextModule.getId(), nextModule.getInputType());
         }
         return null;
