@@ -8,12 +8,12 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import de.tuberlin.aot.thesis.slienau.models.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.models.SystemInfo;
+import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.FogNodeMaintainer;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.NetworkUplink;
 import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.List;
 
 public class NodeRedFogNode extends FogNode {
@@ -46,6 +46,8 @@ public class NodeRedFogNode extends FogNode {
         // measure benchmark
         this.getAndSetCpuBenchmark();
         System.out.println(String.format("[NodeRedFogNode] Created new instance %s", this));
+
+        new Thread(new FogNodeMaintainer(this)).start();
     }
 
     public NodeRedController getNodeRedController() {
@@ -81,8 +83,7 @@ public class NodeRedFogNode extends FogNode {
     }
 
     public int getLatencyToDestination(String destinationIp) {
-        String payload = destinationIp;
-        byte[] resultBytes = this.executeMqttCommand("ping", payload.getBytes());
+        byte[] resultBytes = this.executeMqttCommand("ping", destinationIp.getBytes());
         try {
             return (int) OBJECT_MAPPER.readTree(resultBytes).path("time").doubleValue() + 1; // +1 to "round up"
         } catch (IOException e) {
@@ -153,12 +154,12 @@ public class NodeRedFogNode extends FogNode {
         // Skip MQTT command execution for known (slow) devices to save time
         if (this.getId().equals("raspi-01")) {
             // device id "raspi-01" is a raspberry pi 3 in the test setup
-            super.setCpuInstructionsPerSecond(SchedulerUtils.CPU_SCORE_RASPI_3);
+            this.setCpuInstructionsPerSecond(SchedulerUtils.CPU_SCORE_RASPI_3);
             return;
         }
         if (this.getId().equals("raspi-02")) {
             // device id "raspi-02" is a raspberry pi 4 in the test setup
-            super.setCpuInstructionsPerSecond(SchedulerUtils.CPU_SCORE_RASPI_4);
+            this.setCpuInstructionsPerSecond(SchedulerUtils.CPU_SCORE_RASPI_4);
             return;
         }
 
@@ -166,19 +167,10 @@ public class NodeRedFogNode extends FogNode {
         try {
             int cpuScore = OBJECT_MAPPER.readTree(benchmarkResultBytes).path("cpuScore").intValue();
             System.out.println(String.format("[NodeRedFogNode][%s] Benchmark result CPU score: %s", this.getId(), cpuScore));
-            super.setCpuInstructionsPerSecond(cpuScore);
+            this.setCpuInstructionsPerSecond(cpuScore);
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public boolean isReachable() {
-        try {
-            return InetAddress.getByName(nodeRedController.getIp()).isReachable(3000);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
     private byte[] executeMqttCommand(String command) {

@@ -46,7 +46,6 @@ public class NodeRedOrchestrator {
 
         new Thread(new HeartbeatMonitor()).start();
         new Thread(new HeartbeatProcessor()).start();
-        new Thread(new InfrastructureMaintainer()).start();
         new Thread(new ResultsMonitor()).start();
     }
 
