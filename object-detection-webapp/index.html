@@ -8,7 +8,7 @@
             height: auto;
         }
 
-        button, label {
+        .button {
             background-color: #4CAF50; /* Green */
             border: none;
             color: white;
@@ -31,43 +31,63 @@
         li {
             padding-bottom: 10px;
         }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 50% 50%;
+        }
     </style>
 </head>
 
 <body>
 <h1>Object Detection Web Application</h1>
-<div>
-    <h2>Upload</h2>
-    <label for="image-file">Choose file</label>
-    <input id="image-file" type="file" style="display: none"/>
-    <button onclick="onButtonClick()">Detect image</button>
-</div>
-<hr>
-<div>
-    <div id="image-original-container" style="display: block">
-        <button onclick="onToggleClick()">Show detected image</button>
-        <h3>Original Image</h3>
-        <img id="image-original"/>
+<div class="grid-container">
+    <div>
+        <div>
+            <h2>Upload</h2>
+            <label for="image-file" class="button">Choose file</label>
+            <input id="image-file" type="file" style="display: none"/>
+            <button onclick="onButtonClick()" class="button">Detect image</button>
+        </div>
+        <hr>
+        <div>
+            <div id="image-original-container" style="display: block">
+                <button onclick="onToggleImageClick()" class="button">Show detected image</button>
+                <h3>Original Image</h3>
+                <img id="image-original"/>
+            </div>
+            <div id="image-detected-container" style="display: none">
+                <button onclick="onToggleImageClick()" class="button">Show original image</button>
+                <h3>Detected Image</h3>
+                <img id="image-detected"/>
+            </div>
+        </div>
     </div>
-    <div id="image-detected-container" style="display: none">
-        <button onclick="onToggleClick()">Show original image</button>
-        <h3>Detected Image</h3>
-        <img id="image-detected"/>
-    </div>
-</div>
 
-<div id="stats-container">
-    <h3>Statistics</h3>
-    <ul id="stats-list"></ul>
+    <div id="stats-container">
+        <h3>Statistics</h3>
+        <button onclick="onToggleStatsClick()">Toggle Details</button>
+        <ul id="stats-list"></ul>
+    </div>
+
 </div>
 
 <script>
-  const onToggleClick = () => {
-    toggleDisplay('image-original-container')
-    toggleDisplay('image-detected-container')
+  const onToggleStatsClick = () => {
+    const statsDetailElements = document.getElementsByClassName('stats-details')
+    Array.from(statsDetailElements).forEach((element) => {
+      toggleElementDisplay(element)
+    })
   }
-  const toggleDisplay = (id) => {
+  const onToggleImageClick = () => {
+    toggleDisplayById('image-original-container')
+    toggleDisplayById('image-detected-container')
+  }
+  const toggleDisplayById = (id) => {
     const element = document.getElementById(id)
+    toggleElementDisplay(element)
+  }
+  const toggleElementDisplay = (element) => {
     if (element.style.display === 'none') {
       element.style.display = 'block'
     } else {
@@ -77,12 +97,12 @@
   const showDetectedImage = () => {
     const element = document.getElementById('image-detected-container')
     if (element.style.display === 'none')
-      onToggleClick()
+      onToggleImageClick()
   }
   const showOriginalImage = () => {
     const element = document.getElementById('image-original-container')
     if (element.style.display === 'none')
-      onToggleClick()
+      onToggleImageClick()
   }
   const replaceImageData = (elementId, imageData) => {
     const element = document.getElementById(elementId)
@@ -124,7 +144,6 @@
   }
 
   const handleStats = stats => {
-    // console.log('Stats', stats)
     const newItem = document.createElement('li')
     const itemHeader = document.createElement('div')
     itemHeader.style.marginBottom = '10px'
@@ -132,8 +151,17 @@
     itemHeader.innerHTML = `Total latency of <b>${stats.totalTime} ms</b> for Object Detection on ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}.${date.getMilliseconds()}<br>`
     newItem.appendChild(itemHeader)
 
+    const statsDetails = document.createElement('div')
+    itemHeader.onclick = () => toggleElementDisplay(statsDetails)
+    statsDetails.className = 'stats-details'
+    let statDetailsVisible = false
+    if (document.getElementsByClassName('stats-details')[0] !== undefined) {
+      statDetailsVisible = document.getElementsByClassName('stats-details')[0].style.display !== 'none' || false
+    }
+    statsDetails.style.display = statDetailsVisible ? 'block' : 'none'
+
     // create transfer table
-    newItem.innerHTML += '<b>Transfers</b>'
+    statsDetails.innerHTML += '<b>Transfers</b>'
     const transferTable = document.createElement('table')
     transferTable.style.marginBottom = '10px'
     transferTable.innerHTML = '<thead><tr><th>Source</th><th>Destination</th><th>Content</th><th>Size</th><th>Time</th><th>Speed</th></tr></thead>'
@@ -143,17 +171,18 @@
       transferTable.innerHTML += `<tr><td>${transfer.sourceNode}</td><td>${transfer.destinationNode}</td><td>${transfer.messageType}</td><td>${(transfer.size / 1024).toFixed(2)} KB</td><td>${transfer.time} ms</td><td>${mbits.toFixed(2)} Mbit/s</td></tr>`
     })
     transferTable.innerHTML += `<tr><td></td><td></td><td></td><td></td><td>${stats.totalTransferTime} ms</td><th></th></tr>`
-    newItem.appendChild(transferTable)
+    statsDetails.appendChild(transferTable)
 
     // create task executions table
-    newItem.innerHTML += '<b>Task Executions</b>'
+    statsDetails.innerHTML += '<b>Task Executions</b>'
     const processesTable = document.createElement('table')
     processesTable.innerHTML = '<thead><tr><th>Task</th><th>Node</th><th>Time</th></tr></thead>'
     stats.processes.forEach(task => {
       processesTable.innerHTML += `<tr><td>${task.process}</td><td>${task.node}</td><td>${task.time} ms</td></tr>`
     })
     processesTable.innerHTML += `<tr><td></td><td></td><td>${stats.totalProcessingTime} ms</td></tr>`
-    newItem.appendChild(processesTable)
+    statsDetails.appendChild(processesTable)
+    newItem.appendChild(statsDetails)
 
     // append new list item to stats list
     const statsList = document.getElementById('stats-list')
