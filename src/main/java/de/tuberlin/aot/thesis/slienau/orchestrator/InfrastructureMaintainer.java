@@ -11,14 +11,9 @@ public class InfrastructureMaintainer implements Runnable {
     private static final int HEARTBEAT_TIMEOUT = 3; // in seconds
     private static final int HARD_TIMEOUT = 10;
 
-    private final NodeRedOrchestrator orchestrator;
-
-    public InfrastructureMaintainer(NodeRedOrchestrator orchestrator) {
-        this.orchestrator = orchestrator;
-    }
-
     @Override
     public void run() {
+        NodeRedOrchestrator orchestrator = NodeRedOrchestrator.getInstance();
         while (true) {
             try {
                 for (FogNode fn : orchestrator.getInfrastructure().getFogNodes()) {
@@ -31,6 +26,7 @@ public class InfrastructureMaintainer implements Runnable {
                     }
 
                     if (HEARTBEAT_TIMEOUT < secondsBetween) {
+                        // TODO: do this in a new thread
                         System.out.println(String.format("[InfrastructureMaintainer][%s] Timeout of %s seconds exceeded (last heartbeat received %s seconds ago). Going to check if node is reachable.", fogNode.getId(), HEARTBEAT_TIMEOUT, secondsBetween));
                         boolean isReachable = fogNode.isReachable();
                         if (isReachable) {

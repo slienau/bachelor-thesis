@@ -12,20 +12,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 public class HeartbeatProcessor implements Runnable {
-    private final NodeRedOrchestrator orchestrator;
-    private final Queue<Heartbeat> heartbeatQueue;
-    private final Queue<Heartbeat> initialHeartbeatsQueue;
-
-    public HeartbeatProcessor(NodeRedOrchestrator orchestrator) {
-        this.heartbeatQueue = orchestrator.getHeartbeatQueue();
-        this.orchestrator = orchestrator;
-        this.initialHeartbeatsQueue = new ConcurrentLinkedQueue<>();
-    }
 
     @Override
     public void run() {
         System.out.println("[HeartbeatProcessor] Started...");
-        new InitialHeartbeatHandler(orchestrator, initialHeartbeatsQueue).start();
+        NodeRedOrchestrator orchestrator = NodeRedOrchestrator.getInstance();
+        final Queue<Heartbeat> heartbeatQueue = orchestrator.getHeartbeatQueue();
+        final Queue<Heartbeat> initialHeartbeatsQueue = new ConcurrentLinkedQueue<>();
+        new InitialHeartbeatHandler(initialHeartbeatsQueue).start();
         while (true) {
             Heartbeat hb;
             synchronized (heartbeatQueue) {
@@ -58,17 +52,16 @@ public class HeartbeatProcessor implements Runnable {
 
     class InitialHeartbeatHandler extends Thread {
 
-        private final NodeRedOrchestrator orchestrator;
         private final Queue<Heartbeat> initialHeartbeatsQueue;
 
-        public InitialHeartbeatHandler(NodeRedOrchestrator orchestrator, Queue<Heartbeat> initialHeartbeatsQueue) {
-            this.orchestrator = orchestrator;
+        public InitialHeartbeatHandler(Queue<Heartbeat> initialHeartbeatsQueue) {
             this.initialHeartbeatsQueue = initialHeartbeatsQueue;
         }
 
         @Override
         public void run() {
             System.out.println(String.format("[InitialHeartbeatHandler] Started"));
+            NodeRedOrchestrator orchestrator = NodeRedOrchestrator.getInstance();
             while (true) {
                 Heartbeat initialHeartbeat;
                 synchronized (initialHeartbeatsQueue) {
@@ -87,7 +80,7 @@ public class HeartbeatProcessor implements Runnable {
                     // continue if node was added in the meantime
                     continue;
                 }
-                System.out.println(String.format("[InitialHeartbeatHandler] Handling initial %s", initialHeartbeat));
+                System.out.println(String.format("[InitialHeartbeatHandler] Handling initial heartbeat from %s", initialHeartbeat.getDeviceName()));
                 try {
                     NodeRedFogNode newNode = new NodeRedFogNode(
                             initialHeartbeat.getDeviceName(),

@@ -40,21 +40,14 @@ public class NodeRedOrchestrator {
         scheduler = new QosScheduler(objectDetectionApplication, infrastructure);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         System.out.println("[NodeRedOrchestrator] Starting...");
+        NodeRedOrchestrator.getInstance();
 
-        NodeRedOrchestrator orchestrator = NodeRedOrchestrator.getInstance();
-
-        Thread heartbeatMonitorThread = new Thread(new HeartbeatMonitor(MQTT_BROKER, orchestrator.heartbeatQueue));
-        heartbeatMonitorThread.start();
-
-        Thread heartbeatProcessorThread = new Thread(new HeartbeatProcessor(orchestrator));
-        heartbeatProcessorThread.start();
-
-        Thread infrastructureMaintainerThread = new Thread(new InfrastructureMaintainer(orchestrator));
-        infrastructureMaintainerThread.start();
-
-        new ResultsMonitor(MQTT_BROKER).start();
+        new Thread(new HeartbeatMonitor()).start();
+        new Thread(new HeartbeatProcessor()).start();
+        new Thread(new InfrastructureMaintainer()).start();
+        new Thread(new ResultsMonitor()).start();
     }
 
     private static Application createSensorNetworkApplication() {

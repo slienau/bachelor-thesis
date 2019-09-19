@@ -2,6 +2,7 @@ package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.tuberlin.aot.thesis.slienau.models.Heartbeat;
+import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedOrchestrator;
 import de.tuberlin.aot.thesis.slienau.utils.MqttUtils;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
@@ -15,13 +16,11 @@ public class HeartbeatMonitor implements Runnable {
     private final String topic;
     private final MemoryPersistence persistence;
     private final MqttConnectOptions connOpts;
-    private final Queue<Heartbeat> heartbeatQueue;
 
-    public HeartbeatMonitor(String broker, Queue<Heartbeat> heartbeatQueue) {
-        this.broker = broker;
+    public HeartbeatMonitor() {
+        this.broker = NodeRedOrchestrator.MQTT_BROKER;
         this.topic = "/heartbeats/#";
         this.persistence = new MemoryPersistence();
-        this.heartbeatQueue = heartbeatQueue;
         connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
     }
@@ -40,7 +39,8 @@ public class HeartbeatMonitor implements Runnable {
         }
     }
 
-    class MonitorMqttCallback implements MqttCallback {
+    static class MonitorMqttCallback implements MqttCallback {
+        final Queue<Heartbeat> heartbeatQueue = NodeRedOrchestrator.getInstance().getHeartbeatQueue();
 
         public void connectionLost(Throwable throwable) {
             System.out.println("[HeartbeatMonitor] Connection to MQTT broker lost!");

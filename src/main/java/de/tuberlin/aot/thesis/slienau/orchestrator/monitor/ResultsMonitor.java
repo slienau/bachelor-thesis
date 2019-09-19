@@ -9,20 +9,15 @@ import de.tuberlin.aot.thesis.slienau.utils.MqttUtils;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-public class ResultsMonitor extends Thread {
+public class ResultsMonitor implements Runnable {
 
     private final static ObjectMapper MAPPER = new ObjectMapper();
     private final static String topic = "/results/#";
-    private final String broker;
-
-    public ResultsMonitor(String broker) {
-        this.broker = broker;
-    }
 
     @Override
     public void run() {
         try {
-            MqttClient client = new MqttClient(broker, MqttClient.generateClientId(), new MemoryPersistence());
+            MqttClient client = new MqttClient(NodeRedOrchestrator.MQTT_BROKER, MqttClient.generateClientId(), new MemoryPersistence());
             client.setCallback(new ResultMqttCallback());
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
