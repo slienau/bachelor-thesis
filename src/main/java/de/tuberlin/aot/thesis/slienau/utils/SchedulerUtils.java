@@ -2,11 +2,11 @@ package de.tuberlin.aot.thesis.slienau.utils;
 
 public class SchedulerUtils {
 
-    public static int CPU_SCORE_RASPI_3 = 650;
-    public static int CPU_SCORE_RASPI_4 = 971;
-    public static int CPU_SCORE_MBP_2018 = 10000;
-    public static int CPU_SCORE_DEBIAN_VM = 11825;
-    public static int CPU_SCORE_AZURE_NODE = 10743;
+    public static int CPU_SCORE_RASPI_3 = 662; // 4 arm cores
+    public static int CPU_SCORE_RASPI_4 = 1052; // 4 arm cores
+    public static int CPU_SCORE_MBP_2018 = 20462; // 8 cores
+    public static int CPU_SCORE_DEBIAN_01 = 6709; // 2 vCPUs
+    public static int CPU_SCORE_DEBIAN_02 = 12223; // 4 vCPUs
 
     public static double makePercent(double used, double total) {
         return round((used / total) * 100);
