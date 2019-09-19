@@ -16,15 +16,60 @@ public class AppLoop {
     private final LinkedList<String> modules = new LinkedList<>();
     private final Application application;
 
-    public AppLoop(String loopName, int maxLatency, List<String> modules, Application application) {
+    /**
+     * @param loopName
+     * @param maxLatency        Max. allowed latency for this loop
+     * @param modules           List containing all modules (IDs) in this loop. The order of the list is the order of the modules in the loop
+     * @param application       The Application this loop belongs to
+     * @param allowTypeMismatch Set to true if module input/output type mismatches are allowed (e.g. if one module handles multiple message types which is not supported in our model yet)
+     */
+    public AppLoop(String loopName, int maxLatency, List<String> modules, Application application, boolean allowTypeMismatch) {
         this.loopName = loopName;
         this.maxLatency = maxLatency;
         this.modules.addAll(modules);
         this.application = application;
+        if (!hasMatchingInputTypes() && !allowTypeMismatch) {
+            throw new IllegalArgumentException(getInputTypeMismatchMessage());
+        }
     }
 
+    /**
+     * Checks if the output type of 'sourceModule' matches the input type of 'destinationModule'
+     *
+     * @param sourceModule
+     * @param destinationModule
+     * @return
+     */
     private static boolean inputEqualsOutputType(AppModule sourceModule, AppModule destinationModule) {
         return sourceModule.getOutputType().equals(destinationModule.getInputType());
+    }
+
+    /**
+     * Checks if every output type matches the input type of the next module in this loop
+     *
+     * @return true if they all match, false if there is at least one mismatch
+     */
+    private boolean hasMatchingInputTypes() {
+        if (getInputTypeMismatchMessage() == null)
+            return true;
+        return false;
+    }
+
+    /**
+     * Returns mismatching module input/output types or null is there is no mismatch
+     *
+     * @return
+     */
+    private String getInputTypeMismatchMessage() {
+        for (int i = 0; i < this.modules.size(); i++) {
+            AppModule thisModule = application.getModuleById(this.modules.get(i));
+            AppModule nextModule = null;
+            if (i < this.modules.size() - 1)
+                nextModule = application.getModuleById(this.modules.get(i + 1));
+            if (!inputEqualsOutputType(thisModule, nextModule))
+                return String.format("[AppLoop][%s] Output type of module '%s' (type '%s') not equal to input type of module '%s' (type '%s')", this.getLoopName(), thisModule.getId(), thisModule.getOutputType(), nextModule.getId(), nextModule.getInputType());
+        }
+        return null;
     }
 
     public String getLoopName() {
@@ -59,9 +104,6 @@ public class AppLoop {
                 // thisModule is the final one --> loop end
                 return transferTime;
             }
-
-            if (!inputEqualsOutputType(thisModule, nextModule))
-                throw new IllegalStateException(String.format("[AppLoop][%s] Output type of module '%s' (type '%s') not equal to input type of module '%s' (type '%s')", this.getLoopName(), thisModule.getId(), thisModule.getOutputType(), nextModule.getId(), nextModule.getInputType()));
 
             if (thisModule instanceof AppSoftwareModule && nextModule instanceof AppSoftwareModule) {
                 FogNode sourceNode = appDeployment.getNodeForSoftwareModule((AppSoftwareModule) thisModule);
@@ -135,8 +177,8 @@ public class AppLoop {
                 AppSoftwareModule thisModuleSw = (AppSoftwareModule) thisModule;
                 FogNode processingNode = appDeployment.getNodeForSoftwareModule(thisModuleSw);
 
-                sb.append(prefix).append(String.format("[%7sms] SoftwareModule '%s' processes incoming message '%s' on node '%s' and outputs message '%s'",
-                        processingNode.calculateProcessingTimeForModule(thisModuleSw), thisModule.getId(), thisModule.getInputType(), processingNode.getId(), thisModule.getOutputType())).append("\n");
+                sb.append(prefix).append(String.format("[%7sms] Task execution of module '%s' on node '%s'",
+                        processingNode.calculateProcessingTimeForModule(thisModuleSw), thisModule.getId(), processingNode.getId())).append("\n");
 
                 if (nextModule == null) {
                     // thisModule is final module --> end of AppLoop

@@ -13,10 +13,14 @@ public class Application {
         this.name = name;
     }
 
-    public void addLoop(String loopName, int maxLatency, List<String> modules) {
-        AppLoop newLoop = new AppLoop(loopName, maxLatency, modules, this);
+    public void addLoop(String loopName, int maxLatency, List<String> modules, boolean allowTypeMismatch) {
+        AppLoop newLoop = new AppLoop(loopName, maxLatency, modules, this, allowTypeMismatch);
         this.loops.add(newLoop);
         System.out.println(String.format("[Application][%s] Added %s", this.getName(), newLoop));
+    }
+
+    public void addLoop(String loopName, int maxLatency, List<String> modules) {
+        addLoop(loopName, maxLatency, modules, false);
     }
 
     public List<AppLoop> getLoops() {
