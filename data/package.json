@@ -6,6 +6,6 @@
     "dependencies": {
         "os": "^0.1.1",
         "os-utils": "0.0.14",
-        "diskusage": "^1.1.3"
+        "check-disk-space": "2.1.0"
     }
 }

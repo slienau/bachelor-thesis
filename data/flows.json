@@ -268,7 +268,7 @@
         "type": "function",
         "z": "5af3cb51.dbf004",
         "name": "get load",
-        "func": "osUtils = global.get('osUtils')\n\npayload = {\n    timestamp: new Date(),\n    deviceName: env.get('HOSTNAME'),\n    totalMem: osUtils.totalmem(),\n    freeMem: osUtils.freemem(),\n    cpuCount: osUtils.cpuCount(),\n    loadAvg1: osUtils.loadavg(1),\n    loadAvg5: osUtils.loadavg(5),\n    loadAvg15: osUtils.loadavg(15),\n    connectedHardware: JSON.parse(env.get('CONNECTED_HARDWARE'))\n}\n\nreturn {payload} ;",
+        "func": "osUtils = global.get('osUtils')\nos = global.get('os')\ncheckDiskSpace = global.get('checkDiskSpace')\n\nlet payload = {\n    timestamp: new Date(),\n    deviceName: env.get('HOSTNAME'),\n    arch: os.arch(),\n    totalMem: osUtils.totalmem(),\n    freeMem: osUtils.freemem(),\n    cpuCount: osUtils.cpuCount(),\n    loadAvg1: osUtils.loadavg(1),\n    loadAvg5: osUtils.loadavg(5),\n    loadAvg15: osUtils.loadavg(15),\n    connectedHardware: JSON.parse(env.get('CONNECTED_HARDWARE'))\n}\n\ncheckDiskSpace('/').then((diskSpace) => {\n    console.log(diskSpace)\n    payload = {\n        ...payload,\n        totalDisk: (diskSpace.size / (1024*1024*1024)),\n        freeDisk: (diskSpace.free / (1024*1024*1024))\n    }\n    node.send({payload})\n    //msg.payload['diskspace'] = diskSpace\n    // {\n    //     free: 12345678,\n    //     size: 98756432\n    // }\n}).catch(err => {\n    node.error(err)\n    node.send({payload: err})\n})\n\nreturn;",
         "outputs": 1,
         "noerr": 0,
         "x": 500,
