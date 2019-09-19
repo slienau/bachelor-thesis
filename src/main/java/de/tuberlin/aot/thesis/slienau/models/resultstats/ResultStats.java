@@ -11,6 +11,15 @@ public class ResultStats {
     @JsonProperty
     private List<ProcessStats> processes;
 
+    @JsonProperty
+    private int totalTransferTime;
+
+    @JsonProperty
+    private int totalProcessingTime;
+
+    @JsonProperty
+    private int totalTime;
+
     public List<TransferStat> getTransfers() {
         return transfers;
     }
@@ -27,11 +36,38 @@ public class ResultStats {
         this.processes = processes;
     }
 
+    public int getTotalTransferTime() {
+        return totalTransferTime;
+    }
+
+    public void setTotalTransferTime(int totalTransferTime) {
+        this.totalTransferTime = totalTransferTime;
+    }
+
+    public int getTotalProcessingTime() {
+        return totalProcessingTime;
+    }
+
+    public void setTotalProcessingTime(int totalProcessingTime) {
+        this.totalProcessingTime = totalProcessingTime;
+    }
+
+    public int getTotalTime() {
+        return totalTime;
+    }
+
+    public void setTotalTime(int totalTime) {
+        this.totalTime = totalTime;
+    }
+
     @Override
     public String toString() {
         return "ResultStats{" +
                 "transfers=" + transfers +
                 ", processes=" + processes +
+                ", totalTransferTime=" + totalTransferTime +
+                ", totalProcessingTime=" + totalProcessingTime +
+                ", totalTime=" + totalTime +
                 '}';
     }
 }
