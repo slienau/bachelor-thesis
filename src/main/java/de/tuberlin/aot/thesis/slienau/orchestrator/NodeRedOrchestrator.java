@@ -77,11 +77,11 @@ public class NodeRedOrchestrator {
         Application a = new Application("od");
         a.addHardwareModule("OD-DOCKER-CONTAINER", "IMAGE_DETECTED");
         a.addSoftwareModule("webapp", null, "IMAGE_UNDETECTED", 0, 0, 0, Arrays.asList("CAMERA"));
-        a.addSoftwareModule("detector", "IMAGE_UNDETECTED", "IMAGE_DETECTED", 0, 0, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_RASPI_4, 4500), Arrays.asList("OD-DOCKER-CONTAINER"));
+        a.addSoftwareModule("detector", "IMAGE_UNDETECTED", "IMAGE_DETECTED", 0, 0, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_DEBIAN_VM, 1000), Arrays.asList("OD-DOCKER-CONTAINER"));
 
-        a.addMessage("IMAGE_UNDETECTED", 500);
-        a.addMessage("IMAGE_DETECTED", 500);
-        a.addLoop("objectDetectionLoop1", 999999, Arrays.asList("webapp", "detector"));
+        a.addMessage("IMAGE_UNDETECTED", 1383);
+        a.addMessage("IMAGE_DETECTED", 142);
+        a.addLoop("objectDetectionLoop1", 999999, Arrays.asList("webapp", "detector", "webapp"), true);
 
         return a;
     }
