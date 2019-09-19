@@ -35,6 +35,7 @@ public class NodeRedOrchestrator {
         infrastructure = new Infrastructure();
         heartbeatQueue = new ConcurrentLinkedQueue<>();
 //        Application sensorNetworkApplication = createSensorNetworkApplication();
+//        scheduler = new QosScheduler(sensorNetworkApplication, infrastructure);
         Application objectDetectionApplication = createObjectDetectionApplication();
         scheduler = new QosScheduler(objectDetectionApplication, infrastructure);
     }
@@ -77,7 +78,7 @@ public class NodeRedOrchestrator {
         Application a = new Application("od");
         a.addHardwareModule("OD-DOCKER-CONTAINER", "IMAGE_DETECTED");
         a.addSoftwareModule("webapp", null, "IMAGE_UNDETECTED", 0, 0, 0, Arrays.asList("CAMERA"));
-        a.addSoftwareModule("detector", "IMAGE_UNDETECTED", "IMAGE_DETECTED", 0, 0, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_DEBIAN_VM, 1000), Arrays.asList("OD-DOCKER-CONTAINER"));
+        a.addSoftwareModule("detector", "IMAGE_UNDETECTED", "IMAGE_DETECTED", 0, 0, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_DEBIAN_02, 1000), Arrays.asList("OD-DOCKER-CONTAINER"));
 
         a.addMessage("IMAGE_UNDETECTED", 1383);
         a.addMessage("IMAGE_DETECTED", 142);
