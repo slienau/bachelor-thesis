@@ -210,6 +210,7 @@ module.exports = {
     functionGlobalContext: {
         os:require('os'),
         osUtils:require('os-utils'),
+        diskusage:require('diskusage'),
 	    // jfive:require("johnny-five"),
         // j5board:require("johnny-five").Board({repl:false})
     },
