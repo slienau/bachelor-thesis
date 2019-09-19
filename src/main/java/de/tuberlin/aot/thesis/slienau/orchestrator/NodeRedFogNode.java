@@ -177,7 +177,7 @@ public class NodeRedFogNode extends FogNode {
         return executeMqttCommand(command, null);
     }
 
-    private byte[] executeMqttCommand(String command, byte[] payload) {
+    private synchronized byte[] executeMqttCommand(String command, byte[] payload) {
         int timeout = 30; // timeout of 30 seconds
         MqttCommandExecutor executor = new MqttCommandExecutor(NodeRedOrchestrator.MQTT_BROKER, this.getId(), command, payload);
         Thread executorThread = new Thread(executor);
