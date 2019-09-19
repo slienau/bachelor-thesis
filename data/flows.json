@@ -127,7 +127,7 @@
         "id": "9b29ab34.1d0998",
         "type": "exec",
         "z": "5af3cb51.dbf004",
-        "command": "sysbench --test=cpu --cpu-max-prime=2000 run | grep 'total time:' | sed \"s/total time://g\" | sed -e 's/^[ \\t]*//'",
+        "command": "sysbench --num-threads=32 --cpu-max-prime=5000 --test=cpu run | grep 'total time:' | sed \"s/total time://g\" | sed -e 's/^[ \\t]*//'",
         "addpay": false,
         "append": "",
         "useSpawn": "false",
