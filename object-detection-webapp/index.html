@@ -18,6 +18,19 @@
             display: inline-block;
             font-size: 16px;
         }
+
+        table, th, td {
+            border: 1px dotted black;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 2px;
+        }
+
+        li {
+            padding-bottom: 10px;
+        }
     </style>
 </head>
 
@@ -42,6 +55,12 @@
         <img id="image-detected"/>
     </div>
 </div>
+
+<div id="stats-container">
+    <h3>Statistics</h3>
+    <ul id="stats-list"></ul>
+</div>
+
 <script>
   const onToggleClick = () => {
     toggleDisplay('image-original-container')
@@ -78,10 +97,10 @@
   const onButtonClick = () => {
     clearImage('image-detected')
     showOriginalImage()
-    const url = 'http://dsl89.ddns.net:1882/od/detector'
+    const url = 'http://dsl89.ddns.net:1881/od/forwarder'
     const originalImageData = document.getElementById('image-file').files[0]
     replaceImageData('image-original', originalImageData)
-    console.log(`Going to upload image to ${url} for detection`, originalImageData)
+    console.log(`Going to upload image '${originalImageData.name}' (size: ${originalImageData.size} byte) to ${url} for object detection`)
 
     const params = {
       headers: {
@@ -92,13 +111,53 @@
       responseType: 'blob'
     }
     fetch(url, params)
-      .then(data => data.blob())
-      .then(res => {
-        console.log('Response', res)
-        replaceImageData('image-detected', res)
-        showDetectedImage()
+      .then(response => {
+        const stats = JSON.parse(response.headers.get('X-Stats'))
+        handleStats(stats)
+        response.blob().then(data => {
+          console.log('Response data', data)
+          replaceImageData('image-detected', data)
+          showDetectedImage()
+        })
       })
       .catch(error => console.error(error))
+  }
+
+  const handleStats = stats => {
+    // console.log('Stats', stats)
+    const newItem = document.createElement('li')
+    const itemHeader = document.createElement('div')
+    itemHeader.style.marginBottom = '10px'
+    const date = new Date()
+    itemHeader.innerHTML = `Total latency of <b>${stats.totalTime} ms</b> for Object Detection on ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}.${date.getMilliseconds()}<br>`
+    newItem.appendChild(itemHeader)
+
+    // create transfer table
+    newItem.innerHTML += '<b>Transfers</b>'
+    const transferTable = document.createElement('table')
+    transferTable.style.marginBottom = '10px'
+    transferTable.innerHTML = '<thead><tr><th>Source</th><th>Destination</th><th>Content</th><th>Size</th><th>Time</th><th>Speed</th></tr></thead>'
+    stats.transfers.forEach(transfer => {
+      const mbit = (transfer.size * 8) / Math.pow(10, 6) // Byte to Bit --> Bit to Mbit
+      const mbits = mbit / (transfer.time / 1000) // Mbit per Second
+      transferTable.innerHTML += `<tr><td>${transfer.sourceNode}</td><td>${transfer.destinationNode}</td><td>${transfer.messageType}</td><td>${(transfer.size / 1024).toFixed(2)} KB</td><td>${transfer.time} ms</td><td>${mbits.toFixed(2)} Mbit/s</td></tr>`
+    })
+    transferTable.innerHTML += `<tr><td></td><td></td><td></td><td></td><td>${stats.totalTransferTime} ms</td><th></th></tr>`
+    newItem.appendChild(transferTable)
+
+    // create task executions table
+    newItem.innerHTML += '<b>Task Executions</b>'
+    const processesTable = document.createElement('table')
+    processesTable.innerHTML = '<thead><tr><th>Task</th><th>Node</th><th>Time</th></tr></thead>'
+    stats.processes.forEach(task => {
+      processesTable.innerHTML += `<tr><td>${task.process}</td><td>${task.node}</td><td>${task.time} ms</td></tr>`
+    })
+    processesTable.innerHTML += `<tr><td></td><td></td><td>${stats.totalProcessingTime} ms</td></tr>`
+    newItem.appendChild(processesTable)
+
+    // append new list item to stats list
+    const statsList = document.getElementById('stats-list')
+    statsList.insertBefore(newItem, statsList.childNodes[0])
   }
 </script>
 </body>
