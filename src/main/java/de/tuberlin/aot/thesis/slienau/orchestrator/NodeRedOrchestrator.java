@@ -161,7 +161,10 @@ public class NodeRedOrchestrator {
 
             List<String> destinationAddresses = optimalDeployment.getDestinationNodesForSourceModule(module.getId()).stream().map(destinationId -> {
                 NodeRedFogNode nrfn = (NodeRedFogNode) infrastructure.getFogNode(destinationId);
-                return nrfn.getAddress();
+                String destinationAddress = nrfn.getAddress();
+                if (destinationAddress.equals(node.getAddress()))
+                    destinationAddress = "127.0.0.1:1880";  // if destination is the same node (as source), then send it to localhost (traffic stays inside docker container)
+                return destinationAddress;
             }).collect(Collectors.toList());
 
 //            System.out.println(String.format("[NodeRedOrchestrator] Going to deploy '%s' on node '%s'; output goes to destination addresses: %s", module.getId(), node.getId(), destinationAddresses));

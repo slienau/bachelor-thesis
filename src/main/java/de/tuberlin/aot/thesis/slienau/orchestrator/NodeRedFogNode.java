@@ -10,12 +10,10 @@ import de.tuberlin.aot.thesis.slienau.models.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.models.SystemInfo;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.NetworkUplink;
-import de.tuberlin.aot.thesis.slienau.utils.NumberUtils;
 import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.text.ParseException;
 import java.util.List;
 
 public class NodeRedFogNode extends FogNode {
@@ -74,8 +72,8 @@ public class NodeRedFogNode extends FogNode {
         try {
             SystemInfo systemInfo = OBJECT_MAPPER.readValue(executeMqttCommand("sysinfo"), SystemInfo.class);
             super.setCpuCores(systemInfo.getCpuCount());
-            super.setRamTotal(systemInfo.getFreeMem());
-            super.setStorageTotal(16.0f); // TODO: set storage from SystemInfo
+            super.setRamTotal(systemInfo.getTotalMem());
+            super.setStorageTotal(systemInfo.getTotalDisk());
             super.addConnectedHardware(systemInfo.getConnectedHardware());
         } catch (IOException e) {
             e.printStackTrace();
@@ -83,11 +81,11 @@ public class NodeRedFogNode extends FogNode {
     }
 
     public int getLatencyToDestination(String destinationIp) {
-        String payload = destinationIp + " | tail -1| awk '{print $4}' | cut -d '/' -f 2"; // will execute "ping 1.2.3.4 | tail -1|..." on remote shell so that a number is returned only (e.g. 33.12)
+        String payload = destinationIp;
         byte[] resultBytes = this.executeMqttCommand("ping", payload.getBytes());
         try {
-            return (int) NumberUtils.stringToDouble(new String(resultBytes)) + 1; // +1 to "round up"
-        } catch (ParseException e) {
+            return (int) OBJECT_MAPPER.readTree(resultBytes).path("time").doubleValue() + 1; // +1 to "round up"
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -99,7 +97,7 @@ public class NodeRedFogNode extends FogNode {
 //     * @return
 //     */
 //    public double getBandwidthTo(String destinationAddress) {
-//        String payload = destinationAddress + " | grep 'receiver' | awk '{print $7}'";
+//        String payload = destinationAddress;
 //        byte[] bandwidthResult = this.executeMqttCommand("iperf3", payload.getBytes());
 //        try {
 //            return NumberUtils.stringToDouble(new String(bandwidthResult));
@@ -123,8 +121,11 @@ public class NodeRedFogNode extends FogNode {
         ObjectNode cmdPayload = OBJECT_MAPPER.createObjectNode();
         cmdPayload.put("destination", destinationAddress);
         int size = 2 * 1024; // start with 2 MB size
-        if (this.getAddress().equals(destinationAddress))
+        if (this.getAddress().equals(destinationAddress)) {
             size = 10 * 1024; // start with 10 MB size if measurement if from this node to this node
+            destinationAddress = "127.0.0.1:1880"; // send to 127.0.0.1 (stay inside docker container)
+        }
+        cmdPayload.put("destination", destinationAddress);
 
         while (true) {
             try {
@@ -162,17 +163,12 @@ public class NodeRedFogNode extends FogNode {
         }
 
         byte[] benchmarkResultBytes = this.executeMqttCommand("benchmark_cpu");
-        String benchmarkResultString = new String(benchmarkResultBytes)
-                .replace("s", "")
-                .replace("\n", "")
-                .replace("\r", "");
         try {
-            double time = NumberUtils.stringToDouble(benchmarkResultString);
-            int cpuScore = (int) (10000 / time);
+            int cpuScore = OBJECT_MAPPER.readTree(benchmarkResultBytes).path("cpuScore").intValue();
             System.out.println(String.format("[NodeRedFogNode][%s] Benchmark result CPU score: %s", this.getId(), cpuScore));
             super.setCpuInstructionsPerSecond(cpuScore);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

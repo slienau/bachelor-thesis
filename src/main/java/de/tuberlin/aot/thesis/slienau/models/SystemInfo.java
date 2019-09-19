@@ -13,10 +13,19 @@ public class SystemInfo {
     private LocalDateTime timestamp;
 
     @JsonProperty
+    private String arch;
+
+    @JsonProperty
     private Float totalMem;
 
     @JsonProperty
     private Float freeMem;
+
+    @JsonProperty
+    private Float totalDisk;
+
+    @JsonProperty
+    private Float freeDisk;
 
     @JsonProperty
     private short cpuCount;
@@ -33,21 +42,6 @@ public class SystemInfo {
     @JsonProperty
     private List<String> connectedHardware;
 
-    @Override
-    public String toString() {
-        return "SystemInfo{" +
-                "deviceName='" + deviceName + '\'' +
-                ", timestamp='" + timestamp + '\'' +
-                ", totalMem=" + totalMem +
-                ", freeMem=" + freeMem +
-                ", cpuCount=" + cpuCount +
-                ", loadAvg1=" + loadAvg1 +
-                ", loadAvg5=" + loadAvg5 +
-                ", loadAvg15=" + loadAvg15 +
-                ", connectedHardware=" + connectedHardware +
-                '}';
-    }
-
     public String getDeviceName() {
         return deviceName;
     }
@@ -62,6 +56,10 @@ public class SystemInfo {
 
     public void setTimestamp(String timestamp) {
         // not implemented
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 
     public Float getTotalMem() {
@@ -118,5 +116,47 @@ public class SystemInfo {
 
     public void setConnectedHardware(List<String> connectedHardware) {
         this.connectedHardware = connectedHardware;
+    }
+
+    public String getArch() {
+        return arch;
+    }
+
+    public void setArch(String arch) {
+        this.arch = arch;
+    }
+
+    public Float getTotalDisk() {
+        return totalDisk;
+    }
+
+    public void setTotalDisk(Float totalDisk) {
+        this.totalDisk = totalDisk;
+    }
+
+    public Float getFreeDisk() {
+        return freeDisk;
+    }
+
+    public void setFreeDisk(Float freeDisk) {
+        this.freeDisk = freeDisk;
+    }
+
+    @Override
+    public String toString() {
+        return "SystemInfo{" +
+                "deviceName='" + deviceName + '\'' +
+                ", timestamp=" + timestamp +
+                ", arch='" + arch + '\'' +
+                ", totalMem=" + totalMem +
+                ", freeMem=" + freeMem +
+                ", totalDisk=" + totalDisk +
+                ", freeDisk=" + freeDisk +
+                ", cpuCount=" + cpuCount +
+                ", loadAvg1=" + loadAvg1 +
+                ", loadAvg5=" + loadAvg5 +
+                ", loadAvg15=" + loadAvg15 +
+                ", connectedHardware=" + connectedHardware +
+                '}';
     }
 }
