@@ -82,7 +82,7 @@ public class NodeRedFogNode extends FogNode {
         }
     }
 
-    public int getLatencyToDestination(String destinationIp) {
+    public int measureLatencyTo(String destinationIp) {
         byte[] resultBytes = this.executeMqttCommand("ping", destinationIp.getBytes());
         try {
             return (int) OBJECT_MAPPER.readTree(resultBytes).path("time").doubleValue() + 1; // +1 to "round up"
@@ -163,6 +163,7 @@ public class NodeRedFogNode extends FogNode {
             return;
         }
 
+        // Execute benchmark command on node
         byte[] benchmarkResultBytes = this.executeMqttCommand("benchmark_cpu");
         try {
             int cpuScore = OBJECT_MAPPER.readTree(benchmarkResultBytes).path("cpuScore").intValue();

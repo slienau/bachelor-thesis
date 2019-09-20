@@ -105,7 +105,7 @@ public class HeartbeatProcessor implements Runnable {
                         infrastructure.addNetworkLink(
                                 newNode.getId(),
                                 destinationNode.getId(),
-                                newNode.getLatencyToDestination(destinationNode.getNodeRedController().getIp()),
+                                newNode.measureLatencyTo(destinationNode.getNodeRedController().getIp()),
                                 newNode.measureBandwidthTo(destinationNode.getAddress()),
                                 destinationNode.measureBandwidthTo(newNode.getAddress())
                         );
