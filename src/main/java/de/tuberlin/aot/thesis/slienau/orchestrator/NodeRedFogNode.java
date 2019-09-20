@@ -10,7 +10,6 @@ import de.tuberlin.aot.thesis.slienau.orchestrator.models.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.orchestrator.models.SystemInfo;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.FogNodeMaintainer;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
-import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.NetworkUplink;
 import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
 import java.io.IOException;
@@ -41,7 +40,7 @@ public class NodeRedFogNode extends FogNode {
         // remove "unlimited" uplink (used in algorithm) and measure bandwidth to self instead
         super.removeUplinkTo(this.getId());
         double mbitsToSelf = this.measureBandwidthTo(this.getAddress());
-        super.addUplink(new NetworkUplink(this, this, 0, SchedulerUtils.mbitToBit(mbitsToSelf)));
+        super.addUplink(new NodeRedNetworkUplink(this, this, 0, mbitsToSelf));
 
         // measure benchmark
         this.getAndSetCpuBenchmark();
@@ -197,5 +196,9 @@ public class NodeRedFogNode extends FogNode {
                 "fogNode=" + super.toString() +
                 ", nodeRedController=" + nodeRedController +
                 '}';
+    }
+
+    public String getIp() {
+        return nodeRedController.getIp();
     }
 }

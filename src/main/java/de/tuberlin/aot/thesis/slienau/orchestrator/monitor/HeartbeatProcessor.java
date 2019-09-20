@@ -1,6 +1,7 @@
 package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
 
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedFogNode;
+import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedNetworkUplink;
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedOrchestrator;
 import de.tuberlin.aot.thesis.slienau.orchestrator.models.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
@@ -92,25 +93,35 @@ public class HeartbeatProcessor implements Runnable {
                     initialHeartbeat.setTimestamp(LocalDateTime.now());
                     newNode.setLatestHeartbeat(initialHeartbeat);
 
-                    // add to infrastructure
+                    // add newNode to infrastructure
                     Infrastructure infrastructure = orchestrator.getInfrastructure();
                     infrastructure.addFogNode(newNode);
 
-                    // add network uplinks to all other nodes
+                    // Get a all nodes from infrastructure except newNode
                     List<NodeRedFogNode> destinationNodes = infrastructure.getFogNodes().stream()
                             .filter(node -> !node.getId().equals(newNode.getId()))
                             .map(node -> (NodeRedFogNode) node)
                             .collect(Collectors.toList());
+
+                    // add network uplinks from newNode to all other nodes and from other nodes to newNode
                     for (NodeRedFogNode destinationNode : destinationNodes) {
-                        infrastructure.addNetworkLink(
-                                newNode.getId(),
-                                destinationNode.getId(),
-                                newNode.measureLatencyTo(destinationNode.getNodeRedController().getIp()),
-                                newNode.measureBandwidthTo(destinationNode.getAddress()),
+                        // from newNode to other nodes
+                        newNode.addUplink(new NodeRedNetworkUplink(
+                                newNode,
+                                destinationNode,
+                                newNode.measureLatencyTo(destinationNode.getIp()),
+                                newNode.measureBandwidthTo(destinationNode.getAddress())
+                        ));
+                        // from other nodes to newNode
+                        destinationNode.addUplink(new NodeRedNetworkUplink(
+                                destinationNode,
+                                newNode,
+                                destinationNode.measureLatencyTo(newNode.getIp()),
                                 destinationNode.measureBandwidthTo(newNode.getAddress())
-                        );
+                        ));
                     }
 
+                    // check if there is a new optimal deployment after new node and all uplinks have been added
                     orchestrator.checkForNewOptimalDeployment();
                 } catch (Throwable e) {
                     e.printStackTrace();

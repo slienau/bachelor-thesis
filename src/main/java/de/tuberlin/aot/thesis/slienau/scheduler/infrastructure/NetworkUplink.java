@@ -33,6 +33,10 @@ public class NetworkUplink {
         return latency;
     }
 
+    public void setLatency(int latency) {
+        this.latency = latency;
+    }
+
     public long getBitPerSecond() {
         return bitPerSecond;
     }
@@ -42,7 +46,7 @@ public class NetworkUplink {
     }
 
     public void setMbitPerSecond(double mbitPerSecond) {
-        this.bitPerSecond = SchedulerUtils.mbitToBit(mbitPerSecond);
+        this.setBitPerSecond(SchedulerUtils.mbitToBit(mbitPerSecond));
     }
 
     public long getMBitPerSecond() {
