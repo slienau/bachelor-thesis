@@ -1,8 +1,8 @@
 package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.tuberlin.aot.thesis.slienau.models.resultstats.ResultStats;
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedOrchestrator;
+import de.tuberlin.aot.thesis.slienau.orchestrator.models.resultstats.ResultStats;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.NetworkUplink;
 import de.tuberlin.aot.thesis.slienau.utils.MqttUtils;

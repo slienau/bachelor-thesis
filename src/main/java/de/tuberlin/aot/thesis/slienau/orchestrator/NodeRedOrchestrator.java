@@ -1,7 +1,7 @@
 package de.tuberlin.aot.thesis.slienau.orchestrator;
 
-import de.tuberlin.aot.thesis.slienau.models.Heartbeat;
-import de.tuberlin.aot.thesis.slienau.models.NodeRedFlow;
+import de.tuberlin.aot.thesis.slienau.orchestrator.models.Heartbeat;
+import de.tuberlin.aot.thesis.slienau.orchestrator.models.NodeRedFlow;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.HeartbeatMonitor;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.HeartbeatProcessor;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.ResultsMonitor;

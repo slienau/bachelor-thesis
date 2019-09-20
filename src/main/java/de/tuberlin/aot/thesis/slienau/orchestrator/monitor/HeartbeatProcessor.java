@@ -1,8 +1,8 @@
 package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
 
-import de.tuberlin.aot.thesis.slienau.models.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedFogNode;
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedOrchestrator;
+import de.tuberlin.aot.thesis.slienau.orchestrator.models.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.Infrastructure;
 
 import java.time.LocalDateTime;

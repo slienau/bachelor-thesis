@@ -1,4 +1,4 @@
-package de.tuberlin.aot.thesis.slienau.models;
+package de.tuberlin.aot.thesis.slienau.orchestrator.models;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
