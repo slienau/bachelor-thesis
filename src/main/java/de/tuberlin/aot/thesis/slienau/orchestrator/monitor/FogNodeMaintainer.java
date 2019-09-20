@@ -1,7 +1,9 @@
 package de.tuberlin.aot.thesis.slienau.orchestrator.monitor;
 
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedFogNode;
+import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedNetworkUplink;
 import de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedOrchestrator;
+import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.NetworkUplink;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -9,9 +11,10 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 public class FogNodeMaintainer implements Runnable {
-    private static final int CHECKING_INTERVAL = 1; // in seconds
-    private static final int HEARTBEAT_TIMEOUT = 3; // in seconds
-    private static final int HARD_TIMEOUT = 10;
+    private static final int CHECKING_INTERVAL = 1; // FogNodeMaintainer will run every x seconds
+    private static final int HEARTBEAT_TIMEOUT = 3; // FogNodeMaintainer will check if node is still available if no new heartbeat was received within x seconds
+    private static final int HARD_TIMEOUT = 10; // FogNodeMaintainer will remove fogNode from infrastructure without checking if no heartbeat was received within x seconds
+    private static final int MAX_UPLINK_AGE = 30; // FogNodeMaintainer will remeasure uplinks if an uplink measurement is older than x seconds
     private final NodeRedFogNode fogNode;
 
     public FogNodeMaintainer(NodeRedFogNode fogNode) {
@@ -24,22 +27,24 @@ public class FogNodeMaintainer implements Runnable {
         System.out.println(String.format("[FogNodeMaintainer][%s] Thread started", fogNode.getId()));
         while (true) {
             try {
+                // CHECK IF NODE IS STILL AVAILABLE
                 if (fogNode.getLatestHeartbeat() == null) {
                     // initially the heartbeat is null, will be set later
                     Thread.sleep(10);
                     continue;
                 }
 
-                long secondsBetween = ChronoUnit.SECONDS.between(fogNode.getLatestHeartbeat().getTimestamp(), LocalDateTime.now());
+                // age of latest heartbeat in seconds
+                long heartbeatAge = ChronoUnit.SECONDS.between(fogNode.getLatestHeartbeat().getTimestamp(), LocalDateTime.now());
 
-                if (HARD_TIMEOUT < secondsBetween) {
-                    System.out.println(String.format("[FogNodeMaintainer][%s] Hard timeout of %s seconds exceeded (last heartbeat received %s seconds ago). Going to remove node from infrastructure.", fogNode.getId(), HARD_TIMEOUT, secondsBetween));
+                if (HARD_TIMEOUT < heartbeatAge) {
+                    System.out.println(String.format("[FogNodeMaintainer][%s] Hard timeout of %s seconds exceeded (last heartbeat received %s seconds ago). Going to remove node from infrastructure.", fogNode.getId(), HARD_TIMEOUT, heartbeatAge));
                     orchestrator.removeFogNode(fogNode.getId());
                     break;
                 }
 
-                if (HEARTBEAT_TIMEOUT < secondsBetween) {
-                    System.out.println(String.format("[FogNodeMaintainer][%s] Timeout of %s seconds exceeded (last heartbeat received %s seconds ago). Going to check if node is reachable.", fogNode.getId(), HEARTBEAT_TIMEOUT, secondsBetween));
+                if (HEARTBEAT_TIMEOUT < heartbeatAge) {
+                    System.out.println(String.format("[FogNodeMaintainer][%s] Timeout of %s seconds exceeded (last heartbeat received %s seconds ago). Going to check if node is reachable.", fogNode.getId(), HEARTBEAT_TIMEOUT, heartbeatAge));
                     try {
                         if (InetAddress.getByName(fogNode.getNodeRedController().getIp()).isReachable(3000)) {
                             System.out.println(String.format("[FogNodeMaintainer][%s] Is reachable.", fogNode.getId()));
@@ -50,6 +55,19 @@ public class FogNodeMaintainer implements Runnable {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
+                    }
+                }
+
+                // CHECK UPLINKS
+                for (NetworkUplink ul : fogNode.getUplinks()) {
+                    if (ul.getSource() == ul.getDestination())
+                        continue; // don't remeasure uplinks to self
+                    NodeRedNetworkUplink uplink = (NodeRedNetworkUplink) ul;
+                    long uplinkAge = ChronoUnit.SECONDS.between(uplink.getMeasurementTime(), LocalDateTime.now());
+                    if (MAX_UPLINK_AGE < uplinkAge) {
+                        System.out.println(String.format("[FogNodeMaintainer][%s] Going to remeasure uplink %s", fogNode.getId(), uplink));
+                        uplink.remeasure();
+                        System.out.println(String.format("[FogNodeMaintainer][%s] Remeasured uplink %s", fogNode.getId(), uplink));
                     }
                 }
                 Thread.sleep(CHECKING_INTERVAL * 1000);

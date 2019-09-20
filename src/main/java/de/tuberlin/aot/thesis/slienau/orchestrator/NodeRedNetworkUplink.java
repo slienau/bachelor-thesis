@@ -30,7 +30,7 @@ public class NodeRedNetworkUplink extends NetworkUplink {
 
     public void remeasure() {
         NodeRedFogNode source = (NodeRedFogNode) getSource();
-        NodeRedFogNode destination = (NodeRedFogNode) getSource();
+        NodeRedFogNode destination = (NodeRedFogNode) getDestination();
         double newMbitPerSecond = source.measureBandwidthTo(destination.getAddress());
         int newLatency = source.measureLatencyTo(destination.getNodeRedController().getIp());
         this.setMbitPerSecond(newMbitPerSecond);
