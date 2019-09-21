@@ -10,20 +10,20 @@ import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-public class FogNodeMaintainer implements Runnable {
-    private static final int CHECKING_INTERVAL = 1; // FogNodeMaintainer will run every x seconds
-    private static final int HEARTBEAT_TIMEOUT = 3; // FogNodeMaintainer will check if node is still available if no new heartbeat was received within x seconds
-    private static final int HARD_TIMEOUT = 10; // FogNodeMaintainer will remove fogNode from infrastructure without checking if no heartbeat was received within x seconds
+public class FogNodeMonitor implements Runnable {
+    private static final int CHECKING_INTERVAL = 1; // FogNodeMonitor will run every x seconds
+    private static final int HEARTBEAT_TIMEOUT = 3; // FogNodeMonitor will check if node is still available if no new heartbeat was received within x seconds
+    private static final int HARD_TIMEOUT = 10; // FogNodeMonitor will remove fogNode from infrastructure without checking if no heartbeat was received within x seconds
     private final NodeRedFogNode fogNode;
 
-    public FogNodeMaintainer(NodeRedFogNode fogNode) {
+    public FogNodeMonitor(NodeRedFogNode fogNode) {
         this.fogNode = fogNode;
     }
 
     @Override
     public void run() {
         NodeRedOrchestrator orchestrator = NodeRedOrchestrator.getInstance();
-        System.out.println(String.format("[FogNodeMaintainer][%s] Thread started", fogNode.getId()));
+        System.out.println(String.format("[FogNodeMonitor][%s] Thread started", fogNode.getId()));
         while (true) {
             try {
                 // CHECK IF NODE IS STILL AVAILABLE
@@ -37,18 +37,18 @@ public class FogNodeMaintainer implements Runnable {
                 long heartbeatAge = ChronoUnit.SECONDS.between(fogNode.getLatestHeartbeat().getTimestamp(), LocalDateTime.now());
 
                 if (HARD_TIMEOUT < heartbeatAge) {
-                    System.out.println(String.format("[FogNodeMaintainer][%s] Hard timeout of %s seconds exceeded (last heartbeat received %s seconds ago). Going to remove node from infrastructure.", fogNode.getId(), HARD_TIMEOUT, heartbeatAge));
+                    System.out.println(String.format("[FogNodeMonitor][%s] Hard timeout of %s seconds exceeded (last heartbeat received %s seconds ago). Going to remove node from infrastructure.", fogNode.getId(), HARD_TIMEOUT, heartbeatAge));
                     orchestrator.removeFogNode(fogNode.getId());
                     break;
                 }
 
                 if (HEARTBEAT_TIMEOUT < heartbeatAge) {
-                    System.out.println(String.format("[FogNodeMaintainer][%s] Timeout of %s seconds exceeded (last heartbeat received %s seconds ago). Going to check if node is reachable.", fogNode.getId(), HEARTBEAT_TIMEOUT, heartbeatAge));
+                    System.out.println(String.format("[FogNodeMonitor][%s] Timeout of %s seconds exceeded (last heartbeat received %s seconds ago). Going to check if node is reachable.", fogNode.getId(), HEARTBEAT_TIMEOUT, heartbeatAge));
                     try {
                         if (InetAddress.getByName(fogNode.getNodeRedController().getIp()).isReachable(3000)) {
-                            System.out.println(String.format("[FogNodeMaintainer][%s] Is reachable.", fogNode.getId()));
+                            System.out.println(String.format("[FogNodeMonitor][%s] Is reachable.", fogNode.getId()));
                         } else {
-                            System.out.println(String.format("[FogNodeMaintainer][%s] Is not reachable. Going to remove it from infrastructure.", fogNode.getId()));
+                            System.out.println(String.format("[FogNodeMonitor][%s] Is not reachable. Going to remove it from infrastructure.", fogNode.getId()));
                             orchestrator.removeFogNode(fogNode.getId());
                             break;
                         }
@@ -62,6 +62,6 @@ public class FogNodeMaintainer implements Runnable {
                 e.printStackTrace();
             }
         }
-        System.out.println(String.format("[FogNodeMaintainer][%s] Going to terminate thread", fogNode.getId()));
+        System.out.println(String.format("[FogNodeMonitor][%s] Going to terminate thread", fogNode.getId()));
     }
 }

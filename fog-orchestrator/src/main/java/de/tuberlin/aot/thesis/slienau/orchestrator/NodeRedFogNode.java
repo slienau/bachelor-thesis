@@ -8,7 +8,7 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import de.tuberlin.aot.thesis.slienau.orchestrator.models.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.orchestrator.models.SystemInfo;
-import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.FogNodeMaintainer;
+import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.FogNodeMonitor;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
 import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
@@ -46,7 +46,7 @@ public class NodeRedFogNode extends FogNode {
         this.getAndSetCpuBenchmark();
         System.out.println(String.format("[NodeRedFogNode] Created new instance %s", this));
 
-        new Thread(new FogNodeMaintainer(this)).start();
+        new Thread(new FogNodeMonitor(this)).start();
     }
 
     public NodeRedController getNodeRedController() {
