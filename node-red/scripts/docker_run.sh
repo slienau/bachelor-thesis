@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source env.sh
+source ../../env.sh
 
 # mount video device to docker container if it exists
 DOCKER_DEVICE_PARAM=""
