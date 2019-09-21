@@ -1,0 +1,24 @@
+{
+  "transfers": [
+    {
+      "messageType": "IMAGE_ORIGINAL",
+      "size": 1057046,
+      "sourceNode": "nodeA",
+      "time": 173,
+      "destinationNode": "nodeB"
+    }
+  ],
+  "processes": [
+    {
+      "process": "camera-controller",
+      "node": "nodeA",
+      "time": 10
+    },
+    {
+      "process": "object-detector",
+      "node": "nodeB",
+      "time": 200
+    }
+  ],
+  "totalTime": 383
+}
