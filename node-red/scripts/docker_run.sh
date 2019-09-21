@@ -2,6 +2,7 @@
 
 source env.sh
 
+# mount video device to docker container if it exists
 DOCKER_DEVICE_PARAM=""
 VIDEO_DEVICE=/dev/video0
 if [ -e "$VIDEO_DEVICE" ]; then
@@ -11,12 +12,12 @@ fi
 
 docker run -it -d $DOCKER_DEVICE_PARAM\
 --restart=unless-stopped \
---name $DOCKER_CONTAINER_NAME \
+--name nodered \
 --hostname=$HOSTNAME \
--v $DOCKER_VOLUME_NAME:/data \
+-v nodered-data:/data \
 -e MQTT_SERVER=$MQTT_SERVER \
 -e CONNECTED_HARDWARE=$CONNECTED_HARDWARE \
 -e PUBLIC_FQDN=$PUBLIC_FQDN \
 -e PUBLIC_PORT=$PUBLIC_PORT \
 -p $PUBLIC_PORT:1880 \
-$DOCKER_IMAGE
+node-red

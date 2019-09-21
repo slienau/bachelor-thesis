@@ -11,6 +11,6 @@ else
 fi
 
 docker build \
--t $DOCKER_IMAGE \
+-t node-red \
 --build-arg BASE_NODE_IMAGE=$BASE_NODE_IMAGE \
 -f ../Dockerfile ..
