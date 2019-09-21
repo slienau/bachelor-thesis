@@ -1,0 +1,517 @@
+[
+    {
+        "id": "5af3cb51.dbf004",
+        "type": "tab",
+        "label": "Monitoring",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "9d2b2e9.fa765d",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "",
+        "broker": "<###MQTT_SERVER###>",
+        "port": "1883",
+        "clientid": "<###NODE_NAME###>",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "1e7b1e5f.eae4a2",
+        "type": "inject",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "2",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "63daa647.18c328"
+            ]
+        ]
+    },
+    {
+        "id": "5e9fd693.0e4408",
+        "type": "mqtt out",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "/heartbeats/<###NODE_NAME###>/",
+        "qos": "",
+        "retain": "",
+        "broker": "9d2b2e9.fa765d",
+        "x": 690,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "63daa647.18c328",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "set heartbeat",
+        "func": "osUtils = global.get('osUtils')\n\npayload = {\n    timestamp: msg.payload,\n    deviceName: env.get('HOSTNAME'),\n    publicFqdn: env.get('PUBLIC_FQDN'),\n    publicPort: env.get('PUBLIC_PORT'),\n}\n\nreturn {payload} ;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 310,
+        "y": 80,
+        "wires": [
+            [
+                "28c55e2b.d79b22"
+            ]
+        ]
+    },
+    {
+        "id": "28c55e2b.d79b22",
+        "type": "json",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": true,
+        "x": 470,
+        "y": 80,
+        "wires": [
+            [
+                "5e9fd693.0e4408"
+            ]
+        ]
+    },
+    {
+        "id": "883dad9d.1bb2d",
+        "type": "mqtt in",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "/devices/<###NODE_NAME###>/commands/in/benchmark_cpu",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "9d2b2e9.fa765d",
+        "x": 230,
+        "y": 180,
+        "wires": [
+            [
+                "9b29ab34.1d0998"
+            ]
+        ]
+    },
+    {
+        "id": "59135c10.105b94",
+        "type": "mqtt out",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "/devices/<###NODE_NAME###>/commands/out/benchmark_cpu",
+        "qos": "",
+        "retain": "",
+        "broker": "9d2b2e9.fa765d",
+        "x": 1080,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "9b29ab34.1d0998",
+        "type": "exec",
+        "z": "5af3cb51.dbf004",
+        "command": "sysbench --num-threads=32 --cpu-max-prime=5000 --test=cpu run | grep 'total time:' | sed \"s/total time://g\" | sed -e 's/^[ \\t]*//' | sed 's/s//'",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "benchmark cpu",
+        "x": 540,
+        "y": 180,
+        "wires": [
+            [
+                "d7308638.fd78f8"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "d7308638.fd78f8",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "calculate cpu score",
+        "func": "const time = msg.payload\nconst cpuScore = (10000 / time)\nmsg.payload = {cpuScore}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 750,
+        "y": 180,
+        "wires": [
+            [
+                "59135c10.105b94"
+            ]
+        ]
+    },
+    {
+        "id": "a0487ab.703ea88",
+        "type": "exec",
+        "z": "5af3cb51.dbf004",
+        "command": "",
+        "addpay": true,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "10",
+        "oldrc": false,
+        "name": "ping",
+        "x": 650,
+        "y": 260,
+        "wires": [
+            [
+                "29349429.37d27c"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "587370ef.2ff82",
+        "type": "mqtt out",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "/devices/<###NODE_NAME###>/commands/out/ping",
+        "qos": "",
+        "retain": "",
+        "broker": "9d2b2e9.fa765d",
+        "x": 1040,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "1339e1c4.48e57e",
+        "type": "mqtt in",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "/devices/<###NODE_NAME###>/commands/in/ping",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "9d2b2e9.fa765d",
+        "x": 200,
+        "y": 260,
+        "wires": [
+            [
+                "9fb76913.3579c8"
+            ]
+        ]
+    },
+    {
+        "id": "e92174b2.465c58",
+        "type": "mqtt in",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "/devices/<###NODE_NAME###>/commands/in/iperf3",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "9d2b2e9.fa765d",
+        "x": 200,
+        "y": 360,
+        "wires": [
+            [
+                "e2c57019.c727"
+            ]
+        ]
+    },
+    {
+        "id": "1c4cf2aa.f757cd",
+        "type": "exec",
+        "z": "5af3cb51.dbf004",
+        "command": "",
+        "addpay": true,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "10",
+        "oldrc": false,
+        "name": "iperf3",
+        "x": 650,
+        "y": 360,
+        "wires": [
+            [
+                "31e9f7a5.69a628"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "cee0b41c.4b8f98",
+        "type": "mqtt out",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "/devices/<###NODE_NAME###>/commands/out/iperf3",
+        "qos": "",
+        "retain": "",
+        "broker": "9d2b2e9.fa765d",
+        "x": 1070,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "603f5eec.5ca6a",
+        "type": "mqtt in",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "/devices/<###NODE_NAME###>/commands/in/sysinfo",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "9d2b2e9.fa765d",
+        "x": 210,
+        "y": 460,
+        "wires": [
+            [
+                "b427ad3c.3b9ae"
+            ]
+        ]
+    },
+    {
+        "id": "b427ad3c.3b9ae",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "get load",
+        "func": "osUtils = global.get('osUtils')\nos = global.get('os')\ncheckDiskSpace = global.get('checkDiskSpace')\n\nlet payload = {\n    timestamp: new Date(),\n    deviceName: env.get('HOSTNAME'),\n    arch: os.arch(),\n    totalMem: osUtils.totalmem(),\n    freeMem: osUtils.freemem(),\n    cpuCount: osUtils.cpuCount(),\n    loadAvg1: osUtils.loadavg(1),\n    loadAvg5: osUtils.loadavg(5),\n    loadAvg15: osUtils.loadavg(15),\n    connectedHardware: JSON.parse(env.get('CONNECTED_HARDWARE'))\n}\n\ncheckDiskSpace('/').then((diskSpace) => {\n    console.log(diskSpace)\n    payload = {\n        ...payload,\n        totalDisk: (diskSpace.size / (1024*1024*1024)),\n        freeDisk: (diskSpace.free / (1024*1024*1024))\n    }\n    node.send({payload})\n    //msg.payload['diskspace'] = diskSpace\n    // {\n    //     free: 12345678,\n    //     size: 98756432\n    // }\n}).catch(err => {\n    node.error(err)\n    node.send({payload: err})\n})\n\nreturn;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 500,
+        "y": 460,
+        "wires": [
+            [
+                "378a9ac3.324206"
+            ]
+        ]
+    },
+    {
+        "id": "378a9ac3.324206",
+        "type": "json",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": true,
+        "x": 650,
+        "y": 460,
+        "wires": [
+            [
+                "eb73aad1.d24638"
+            ]
+        ]
+    },
+    {
+        "id": "eb73aad1.d24638",
+        "type": "mqtt out",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "/devices/<###NODE_NAME###>/commands/out/sysinfo",
+        "qos": "",
+        "retain": "",
+        "broker": "9d2b2e9.fa765d",
+        "x": 910,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "2366ff39.d6d68",
+        "type": "mqtt in",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "/devices/<###NODE_NAME###>/commands/in/bandwidth",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "9d2b2e9.fa765d",
+        "x": 220,
+        "y": 560,
+        "wires": [
+            [
+                "e2ba42db.08142"
+            ]
+        ]
+    },
+    {
+        "id": "7c84b045.c4c6a",
+        "type": "http request",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": false,
+        "url": "",
+        "tls": "",
+        "proxy": "",
+        "authType": "",
+        "x": 770,
+        "y": 560,
+        "wires": [
+            [
+                "72b52cdd.8a94d4"
+            ]
+        ]
+    },
+    {
+        "id": "e2ba42db.08142",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "set url, payload, timeRequest",
+        "func": "flow.set('BW_DESTINATION', msg.payload.destination)\n\nmsg.url = `http://${msg.payload.destination}/bandwidth`\n\nmsg.payload = 'x'.repeat(msg.payload.size*1024)\n\nflow.set(\"size\", Buffer.byteLength(msg.payload, 'utf8'))\nflow.set(\"timeRequest\", new Date());\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 540,
+        "y": 560,
+        "wires": [
+            [
+                "7c84b045.c4c6a"
+            ]
+        ]
+    },
+    {
+        "id": "836610e4.b65ce",
+        "type": "http in",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "url": "/bandwidth",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 200,
+        "y": 620,
+        "wires": [
+            [
+                "a03b7f22.6d13a"
+            ]
+        ]
+    },
+    {
+        "id": "776ec4ec.b7809c",
+        "type": "http response",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 570,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "a03b7f22.6d13a",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "delete payload",
+        "func": "msg.payload = {}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 400,
+        "y": 620,
+        "wires": [
+            [
+                "776ec4ec.b7809c"
+            ]
+        ]
+    },
+    {
+        "id": "72b52cdd.8a94d4",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "set result",
+        "func": "const time = new Date() - flow.get('timeRequest')\nconst size = flow.get('size')\nconst bitsPerSecond = (size*8) / (time/1000)\nconst mbitPerSecond = bitsPerSecond / Math.pow(10, 6)\n\nmsg.payload = {\n    source: env.get('HOSTNAME'),\n    destination: flow.get('BW_DESTINATION'),\n    time,\n    size,\n    mbitPerSecond\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 940,
+        "y": 560,
+        "wires": [
+            [
+                "c9ca6fc8.39f95"
+            ]
+        ]
+    },
+    {
+        "id": "c9ca6fc8.39f95",
+        "type": "mqtt out",
+        "z": "5af3cb51.dbf004",
+        "name": "",
+        "topic": "/devices/<###NODE_NAME###>/commands/out/bandwidth",
+        "qos": "",
+        "retain": "",
+        "broker": "9d2b2e9.fa765d",
+        "x": 1200,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "9fb76913.3579c8",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "set command",
+        "func": "const destination = msg.payload\n// will execute \"ping {destination}\" and parse the result so that a number is returned only (e.g. 33.12)\nconst command = `ping -c 4 ${destination} | tail -1 | awk '{print $4}' | cut -d '/' -f 2`\nmsg.payload = command\nmsg.pingDestination = destination\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 260,
+        "wires": [
+            [
+                "a0487ab.703ea88"
+            ]
+        ]
+    },
+    {
+        "id": "29349429.37d27c",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "set result",
+        "func": "const result = {\n    source: env.get('HOSTNAME'),\n    destination: msg.pingDestination,\n    time: msg.payload.replace('\\n', '')\n}\nmsg.payload = result\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 790,
+        "y": 260,
+        "wires": [
+            [
+                "587370ef.2ff82"
+            ]
+        ]
+    },
+    {
+        "id": "e2c57019.c727",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "set command",
+        "func": "const destination = msg.payload\nconst command = `iperf3 -t 2 -c ${destination} | grep 'receiver' | awk '{print $7}'`\nmsg.payload = command\nmsg.iperfDestination = destination\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 360,
+        "wires": [
+            [
+                "1c4cf2aa.f757cd"
+            ]
+        ]
+    },
+    {
+        "id": "31e9f7a5.69a628",
+        "type": "function",
+        "z": "5af3cb51.dbf004",
+        "name": "set result",
+        "func": "const result = {\n    source: env.get('HOSTNAME'),\n    destination: msg.iperfDestination,\n    mbits: msg.payload.replace('\\n', '')\n}\nmsg.payload = result\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 800,
+        "y": 360,
+        "wires": [
+            [
+                "cee0b41c.4b8f98"
+            ]
+        ]
+    }
+]
