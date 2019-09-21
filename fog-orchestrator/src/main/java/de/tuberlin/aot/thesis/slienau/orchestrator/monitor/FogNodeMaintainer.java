@@ -14,7 +14,7 @@ public class FogNodeMaintainer implements Runnable {
     private static final int CHECKING_INTERVAL = 1; // FogNodeMaintainer will run every x seconds
     private static final int HEARTBEAT_TIMEOUT = 3; // FogNodeMaintainer will check if node is still available if no new heartbeat was received within x seconds
     private static final int HARD_TIMEOUT = 10; // FogNodeMaintainer will remove fogNode from infrastructure without checking if no heartbeat was received within x seconds
-    private static final int MAX_UPLINK_AGE = 30; // FogNodeMaintainer will remeasure uplinks if an uplink measurement is older than x seconds
+    private static final int MAX_UPLINK_AGE = 60; // FogNodeMaintainer will remeasure uplinks if an uplink measurement is older than x seconds
     private final NodeRedFogNode fogNode;
 
     public FogNodeMaintainer(NodeRedFogNode fogNode) {
