@@ -20,4 +20,5 @@ docker run -it -d $DOCKER_DEVICE_PARAM\
 -e PUBLIC_FQDN=$PUBLIC_FQDN \
 -e PUBLIC_PORT=$PUBLIC_PORT \
 -p $PUBLIC_PORT:1880 \
+--cpus=$CPU_LIMIT \
 node-red
