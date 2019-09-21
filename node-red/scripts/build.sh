@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source env.sh
-
 # set base image either to "arm32v7/node" (for raspberry pi) or official "node" image (for non-arm architectures)
 if [[ "$(uname -m)" == "arm"* ]];
 then
