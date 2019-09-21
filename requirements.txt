@@ -1,0 +1,8 @@
+tensorflow
+#Cython
+#contextlib2
+pillow
+lxml
+#jupyter
+matplotlib
+flask
