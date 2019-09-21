@@ -3,9 +3,6 @@ package de.tuberlin.aot.thesis.slienau.orchestrator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientBuilder;
 import de.tuberlin.aot.thesis.slienau.orchestrator.models.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.orchestrator.models.SystemInfo;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.FogNodeMonitor;
@@ -19,7 +16,6 @@ public class NodeRedFogNode extends FogNode {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final NodeRedController nodeRedController;
-    private final DockerClient dockerClient;
     private Heartbeat latestHeartbeat;
 
     public NodeRedFogNode(String id, String ip, int port, List<String> connectedHardware) {
@@ -31,10 +27,6 @@ public class NodeRedFogNode extends FogNode {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        DefaultDockerClientConfig config
-                = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost(String.format("tcp://%s:52376", ip)).build();
-        dockerClient = DockerClientBuilder.getInstance(config).build();
         this.getAndSetSysinfo();
 
         // remove "unlimited" uplink (used in algorithm) and measure bandwidth to self instead
@@ -55,10 +47,6 @@ public class NodeRedFogNode extends FogNode {
 
     public String getAddress() {
         return String.format("%s:%s", nodeRedController.getIp(), nodeRedController.getPort());
-    }
-
-    public DockerClient getDockerClient() {
-        return dockerClient;
     }
 
     public Heartbeat getLatestHeartbeat() {
