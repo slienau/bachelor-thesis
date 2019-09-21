@@ -82,10 +82,13 @@ public class NodeRedFogNode extends FogNode {
     }
 
     public int measureLatencyTo(String destinationIp) {
-        byte[] resultBytes = this.executeMqttCommand("ping", destinationIp.getBytes());
         try {
+            byte[] resultBytes = this.executeMqttCommand("ping", destinationIp.getBytes(), 10);
+            if (resultBytes == null)
+                throw new IOException(String.format("[NodeRedFogNode][%s] Latency measurement to %s failed", this.getId(), destinationIp));
             return (int) OBJECT_MAPPER.readTree(resultBytes).path("time").doubleValue() + 1; // +1 to "round up"
-        } catch (IOException e) {
+        } catch (Throwable e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -177,8 +180,12 @@ public class NodeRedFogNode extends FogNode {
         return executeMqttCommand(command, null);
     }
 
-    private synchronized byte[] executeMqttCommand(String command, byte[] payload) {
+    private byte[] executeMqttCommand(String command, byte[] payload) {
         int timeout = 30; // timeout of 30 seconds
+        return executeMqttCommand(command, payload, timeout);
+    }
+
+    private byte[] executeMqttCommand(String command, byte[] payload, int timeout) {
         MqttCommandExecutor executor = new MqttCommandExecutor(NodeRedOrchestrator.MQTT_BROKER, this.getId(), command, payload);
         Thread executorThread = new Thread(executor);
         executorThread.start();
@@ -186,6 +193,7 @@ public class NodeRedFogNode extends FogNode {
             executorThread.join(timeout * 1000);
             return executor.getResult();
         } catch (InterruptedException e) {
+            e.printStackTrace();
             throw new NullPointerException(String.format("[NodeRedFogNode] MQTT Command '%s' not executed within %s seconds", command, timeout));
         }
     }

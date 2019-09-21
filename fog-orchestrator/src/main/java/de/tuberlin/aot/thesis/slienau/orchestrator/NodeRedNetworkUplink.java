@@ -28,13 +28,17 @@ public class NodeRedNetworkUplink extends NetworkUplink {
         return measurementTime;
     }
 
-    public void remeasure() {
+    public void measure(boolean bandwidth, boolean latency) {
         NodeRedFogNode source = (NodeRedFogNode) getSource();
         NodeRedFogNode destination = (NodeRedFogNode) getDestination();
-        double newMbitPerSecond = source.measureBandwidthTo(destination.getAddress());
-        int newLatency = source.measureLatencyTo(destination.getNodeRedController().getIp());
-        this.setMbitPerSecond(newMbitPerSecond);
-        this.setLatency(newLatency);
+        if (bandwidth) {
+            double newMbitPerSecond = source.measureBandwidthTo(destination.getAddress());
+            this.setMbitPerSecond(newMbitPerSecond);
+        }
+        if (latency) {
+            int newLatency = source.measureLatencyTo(destination.getNodeRedController().getIp());
+            this.setLatency(newLatency);
+        }
         updateMeasurementTime();
     }
 
