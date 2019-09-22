@@ -201,5 +201,9 @@ The result is a set of deployments which fulfill the application requirements. T
     \label{fig:algorithm-activitydiagram-optimaldeployment}
 \end{figure}
 
-How the hardware and latency requirements are validated is shown in figures \ref{fig:algorithm-activitydiagram-hardware} and \ref{fig:algorithm-activitydiagram-latency}. To validate latency requirements it is necessary to calculate the total execution time of a loop. This is the sum of the processing times of all modules as well as all message transfers between the modules of the loop. These calculations are depicted in figures \ref{fig:algorithm-activitydiagram-latency-processing} and \ref{fig:algorithm-activitydiagram-latency-transfer}.
+How the hardware and latency requirements are validated is shown in figures \ref{fig:algorithm-activitydiagram-hardware} and \ref{fig:algorithm-activitydiagram-latency}. To validate latency requirements it is necessary to calculate the \textit{total latency} of a loop, which is the sum of the processing times of all modules and all message transfers between the modules of the loop. The following formula shows the calculation of the total latency with $t_n$ = execution time of module \textit{n} and $t_m$ = transfer time of message \textit{m}:
+
+\[ \textrm{total latency} = \sum_{n=0}^N t_n + \sum_{M=0}^M t_m\]
+
+The calculations of \textit{total processing time} and \textit{total transfer time} are depicted in activity diagrams in figures \ref{fig:algorithm-activitydiagram-latency-processing} and \ref{fig:algorithm-activitydiagram-latency-transfer}.
 

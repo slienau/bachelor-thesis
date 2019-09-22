@@ -1,16 +1,21 @@
-\documentclass[a4paper,titlepage,onecolumn,twoside,12pt]{scrbook}
+\documentclass[a4paper,titlepage,onecolumn,twoside,12pt]{scrreprt}
 
 \usepackage[utf8]{inputenc} %unix-windows-compatible
 \usepackage[ngerman,english]{babel} %automatic text in german
 \usepackage[
 backend=biber,
-style=ieee,
+style=alphabetic,
 sorting=ynt
 ]{biblatex}
+
 \addbibresource{references.bib} %Imports bibliography file
 
 \usepackage{amsmath}
 \newcommand{\estimates}{\overset{\scriptscriptstyle\wedge}{=}}
+
+%today command
+\newcommand{\leadingzero}[1]{\ifnum #1<10 0\the#1\else\the#1\fi}
+\newcommand{\todayGerman}{\leadingzero{\day}.\leadingzero{\month}.\the\year}
 
 %%% LISTINGS
 \usepackage{listings}
@@ -65,8 +70,6 @@ sorting=ynt
 }
 
 
-
-
 \usepackage{verbatim} %for long comments
 \usepackage{latexsym} %for symbol font
 \usepackage{color,graphicx} %for inserting color and graphics
@@ -95,17 +98,21 @@ sorting=ynt
 }
 \pagestyle{fancy}
 \cfoot{\thepage}
+
+\definecolor{darkblue}{rgb}{0,0,.4}
+\definecolor{darkred}{rgb}{.4,0,0}
+\definecolor{darkgreen}{rgb}{0,0.4,0}
+
 \usepackage[pdfpagelabels=true
-%,backref %references in Literatur-Verz.
+,backref %references in Literatur-Verz.
 , hyperfigures
 , bookmarksnumbered
 , naturalnames
 , plainpages=false
 ]{hyperref}
-\definecolor{darkblue}{rgb}{0,0,.4}
-\definecolor{darkred}{rgb}{.4,0,0}
-\definecolor{darkgreen}{rgb}{0,0.4,0}
-\hypersetup{breaklinks, colorlinks, linkcolor=darkblue, menucolor=darkblue, pagecolor=darkblue, urlcolor=darkblue, citecolor=darkgreen}
+\usepackage[hidelinks]{hyperref}
+%\hypersetup{breaklinks, colorlinks=false, linkcolor=darkblue, menucolor=darkblue, pagecolor=darkblue, urlcolor=darkblue, citecolor=darkgreen}
+
 \usepackage[figure]{hypcap} % a link jumps and focus on the picture and not on the caption
 
 
@@ -114,28 +121,37 @@ sorting=ynt
 \lstset{style=mylststyle}
 \begin{document}
 % ---------------------------------------------------------------
-\frontmatter
+    \frontmatter
+    \pagenumbering{gobble}% Remove page numbers
     \include{pages/titlepage}
+    \newpage\null\thispagestyle{empty}\newpage
+    \input{pages/declaration.tex}
+    \input{pages/abstract.tex}
+    \cleardoublepage
+    \pagenumbering{arabic}
     \tableofcontents
-    \listoffigures
-    \listoftables
-    \lstlistoflistings
-
+    
 % --------------------------------------------------------------
 
 \mainmatter % comment single chapters for faster compilation
-
+    
     \input{chapters/01_introduction.tex}
     \input{chapters/02_related_work.tex}
     \input{chapters/03_use_cases.tex}
     \input{chapters/04_problem_definition.tex}
     \input{chapters/05_algorithm.tex}
-    %\input{chapters/06_containerisation.tex}
     \input{chapters/07_orchestrator.tex}
+    \input{chapters/08_evaluation.tex}
+    
+    
+    \printbibliography
+    \listoffigures
+    \listoftables
+    \lstlistoflistings
     \appendix
     \input{chapters/appendix.tex}
 
 
-\printbibliography
+
 
 \end{document}
