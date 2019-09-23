@@ -35,8 +35,8 @@ public class Application {
         return this.messages.get(contentType);
     }
 
-    public void addSoftwareModule(String id, String inputType, String outputType, int requiredRam, double requiredStorage, int requiredCpuInstructions, List<String> requiredHardwareModules) {
-        this.addModule(new AppSoftwareModule(id, inputType, outputType, requiredRam, requiredStorage, requiredCpuInstructions, requiredHardwareModules));
+    public void addSoftwareModule(String id, String inputType, String outputType, int requiredRam, double requiredStorage, int requiredMi, List<String> requiredHardwareModules) {
+        this.addModule(new AppSoftwareModule(id, inputType, outputType, requiredRam, requiredStorage, requiredMi, requiredHardwareModules));
     }
 
     public void addHardwareModule(String id, String outputType) {

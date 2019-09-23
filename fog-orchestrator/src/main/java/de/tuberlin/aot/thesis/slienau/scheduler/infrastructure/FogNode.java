@@ -163,7 +163,7 @@ public class FogNode {
      * @return Processing time for module on this node in milliseconds
      */
     public double calculateProcessingTimeForModule(AppSoftwareModule module) {
-        double instructionsPerMessage = module.getRequiredCpuInstructionsPerMessage();
+        double instructionsPerMessage = module.getRequiredMi();
         double cpuInstructionsPerSecond = this.cpuInstructionsPerSecond;
         return SchedulerUtils.round((instructionsPerMessage / cpuInstructionsPerSecond) * 1000);
     }
