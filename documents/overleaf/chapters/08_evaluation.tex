@@ -1,6 +1,12 @@
 \chapter{Evaluation\label{cha:evaluation}}
 
-In this chapter the Orchestrator introduced in chapter \ref{cha:orchestrator} is tested and evaluated. For this purpose an object detection application is used, which should be deployed to a given test infrastructure containing several devices. In the first experiment the nodes join and leave the network one after the other. In the second experiment all nodes are online, but the network connection quality is manipulated. For both experiments it is examined which decisions the Orchestrator takes and what effect this decision has on the total latency of the application.
+In this chapter the Orchestrator introduced in chapter \ref{cha:orchestrator} is tested and evaluated. For this purpose an object detection application is used, which should be deployed to a given test infrastructure containing several devices. In the first experiment the nodes join and leave the network one after the other. In the second experiment all nodes are online, but the network connection quality is manipulated. For both experiments it is examined which decisions the Orchestrator makes and what effect this decision has on the total latency of the application.
+
+
+
+
+
+
 
 \section{Experimental setup}
 
@@ -58,13 +64,20 @@ The following three constraints are defined for the experiment:
     \item The detected image must be available within 5 seconds
 \end{enumerate}
 
+
+
+
+
+
+
+
 \section{Preparing the Orchestrator\label{sec:eval-preparing-the-orchestrator}}
 
 For evaluating the Orchestrator we need nodes with different CPU performance(s?).
 However, one vCPU in \texttt{vm-01} is equally fast as in \texttt{vm-02} because they both run on the same host.
 Since the object detection engine uses only one core, the execution time on these two nodes is approximately the same, although \texttt{vm-01} has two cores and \texttt{vm-02} has four cores. For this reason, the docker containers on \texttt{vm-01} run with the additional option \texttt{---cpus="0.5"} which limits the available CPU resources a container can use to a half vCPU.
 
-\subsection*{Possible deployment strategies and their respective latencies}
+\subsection{Possible deployment strategies and their respective latencies\label{sec:eval-possible-deployments}}
 To find the real execution times of all possible deployment strategies, the application was deployed to the infrastructure without using the Orchestrator.
 The module \texttt{webapp} was always deployed on node \texttt{raspi-01} while the module \texttt{detector} was switched through the remaining nodes.
 The object detection application was executed 10 times on each deployment strategy by using a 1,383 KB sized image.
@@ -84,20 +97,20 @@ Based on the measurement results, a prioritization of all possible deployments w
     \hline
         \textbf{Priority} & \textbf{Placement of \texttt{webapp}} & \textbf{Placement of \texttt{detector}} & \textbf{Latency} \\
          \hline
-         \texttt{1} & \texttt{raspi-01} & \texttt{vm-02} & 1317 ms\\
+         \texttt{1} & \texttt{raspi-01} & \texttt{vm-02} & 1,317 ms\\
          \hline
-         \texttt{2} & \texttt{raspi-01} & \texttt{vm-azure} & 2429 ms\\
+         \texttt{2} & \texttt{raspi-01} & \texttt{vm-azure} & 2,429 ms\\
          \hline
-         \texttt{3} & \texttt{raspi-01} & \texttt{vm-01} & 2704 ms\\
+         \texttt{3} & \texttt{raspi-01} & \texttt{vm-01} & 2,704 ms\\
          \hline
-         \texttt{4} & \texttt{raspi-01} & \texttt{raspi-02} & 4757 ms\\
+         \texttt{4} & \texttt{raspi-01} & \texttt{raspi-02} & 4,757 ms\\
          \hline
     \end{tabular}
     \caption{Possible deployment strategies \textcolor{red}{\textbf{for (of?)}} object detection application}
     \label{tab:deployment-strategies-prios}
 \end{table}
 
-\subsection*{Defining the Application}
+\subsection{Defining the Application\label{sec:eval-defining-application}}
 
 Although the Orchestrator handles the infrastructure dynamically, an application must be defined. Therefore, an instance of \texttt{Application} is created during the initialization of the Orchestrator.
 It contains all modules, loops and messages of the object detection application described in section \ref{sec:eval-application}.
@@ -117,7 +130,7 @@ However, CPU resources consumed by the module \texttt{detector} are substantial.
 Since the Orchestrator uses a CPU score instead of MIPS, the value for \texttt{requiredMi} has to be calculated using the formula introduced in section \ref{sec:benchmark-cpu}.
 Values for \textit{CPU score} and \textit{execution time} are taken from \texttt{vm-02}, which are \textit{11661} and \textit{1317 ms}, respectively.
 Therefore:
-\[\textrm{\texttt{requiredMi\textsubscript{detector}}} = \textrm{CPU score} \boldsymbol{\cdot} \frac{\textrm{execution time [ms]}}{1000 \textrm{ [ms]}} = 11661 \boldsymbol{\cdot} \frac{1317}{1000} = 15357\]
+\[\textrm{\texttt{requiredMi\textsubscript{detector}}} = \textrm{CPU score} \boldsymbol{\cdot} \frac{\textrm{execution time [ms]}}{1,000 \textrm{ [ms]}} = 11,661 \boldsymbol{\cdot} \frac{1,317}{1,000} = 15,357\]
 
 \subsubsection*{Setting the loop and messages}
 The application has exactly one loop (instance of \texttt{AppLoop}) where the field \texttt{modules} is populated with a list containing three elements in the following order:
@@ -129,11 +142,85 @@ The first one contains the original image, which in this case has a file size of
 The second message contains the detected image, which has a file size of 142 KB. Therefore, the fields are set to \texttt{"IMAGE\_DETECTED"} and \texttt{142}, respectively. This is the output message of the module \texttt{detector}.
 
 
+
+
+
+
+
+
+
 \section{Experiment 1: Consistent network quality\label{sec:eval-exp-1}}
 
-In this experiment, the nodes are started successively, beginning with the slowest one (regarding the total latency of the object detection application).
+In this experiment, the nodes are started in the following order:
+\begin{enumerate}
+    \item \texttt{raspi-01}
+    \item \texttt{raspi-02}
+    \item \texttt{vm-01}
+    \item \texttt{vm-azure}
+    \item \texttt{vm-02}
+\end{enumerate}
+This order allows to deploy the deployment strategy with the lowest priority in step two, while with each following step a strategy of higher priority is possible (see table \ref{tab:deployment-strategies-prios}).
 
-\section{Experiment 2}
+\subsection{Expected decisions}
+In the first step the Orchestrator shouldn't find a valid deployment because here only \texttt{raspi-01} is online which is not able to execute the module \texttt{detector}.
+It is expected that the Orchestrator deploys the module \texttt{webapp} to \texttt{raspi-01} and \texttt{detector} to \texttt{raspi-02} in the second step and then moves the \texttt{detector} to \texttt{vm-01}, \texttt{vm-azure} and \texttt{vm-02} in the subsequent steps, while \texttt{webapp} remains on \texttt{raspi-01}.
+
+\subsection{Actual decisions}
+
+The Orchestrators decisions are depicted in figure \ref{fig:evaluation-exp1-results}. As we can see, the Orchestrator behaved slightly different than expected. The \texttt{detector} was expected to be deployed to \texttt{raspi-02} in the second step. However, this did not happen. Instead, no possible deployment was found. In steps 1, 3, 4 and 5, however, the Orchestrator made the correct decisions as expected and latency is continuously minimized from step 3 onwards.
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=1.0\textwidth]{evaluation-exp1-result}
+    \caption{Result of Experiment 1: Orchestrators decisions and their impact on total latency}
+    \label{fig:evaluation-exp1-results}
+\end{figure}
+
+Moreover, it was examined how the Orchestrator behaves when a node leaves the network.
+If a node that has \textit{no} module deployed leaves the network, the Orchestrator detects this and removes it from the infrastructure. The deployment strategy remains unchanged as it should be.
+If a node that \textit{has} a module deployed leaves the network, the Orchestrator detects this and removes it from the infrastructure first before it then finds and applies the next best possible deployment strategy (next best deployment strategy is the one of highest priority in the updated infrastructure).
+This complies with the desired behaviour.
+
+\subsection{Investigation of the Orchestrators incorrect decision\label{sec:eval-investigation-cpu}}
+
+The reason for the wrong decision in step two is that the execution time of module \texttt{detector} on node \texttt{raspi-02} calculated by the Orchestrator is incorrect.
+The field \texttt{cpuMips} of the \texttt{FogNode} object representing this node has the value 973.
+This value is the CPU score returned by the \texttt{benchmark\_cpu} command which the Orchestrator executed on the node after the first heartbeat has been received (see section \ref{sec:handling-new-fog-nodes} and \ref{sec:benchmark-cpu} in particular).
+To calculate the execution time of module \textit{M} on node \textit{N}, the Orchestrator uses \texttt{cpuMips} of N and \texttt{requiredMi} of M.
+While preparing the Orchestrator in section \ref{sec:eval-preparing-the-orchestrator}, we set \texttt{requiredMi\textsubscript{detector}} to 15,357. Thus, the execution time is calculated as follows:
+
+\[\textrm{execution time [ms]} = \frac{\textrm{\texttt{requiredMi}}}{\textrm{\texttt{cpuMips}}}\ \boldsymbol{\cdot} 1,000 = \frac{15,357}{973}\ \boldsymbol{\cdot} 1,000 = 15,783 \textrm{ [ms]}\]
+
+The calculated execution time is approximately 3.5 times greater than actual execution time of 4,526 milliseconds (see figure \ref{fig:evaluation-total-latency-without-orchestrator}).
+Furthermore, it is greater than 5,000 milliseconds, which is the \texttt{maxLatency} of the opject detection loop. 
+Therefore, the Orchestrator finds no valid deployment strategy.
+
+The \texttt{benchmark\_cpu} command internally uses the CPU benchmarking tool \texttt{sysbench} which searches for all prime numbers between 1 and a certain upper limit (2000 in this case) and returns the time needed to execute this task.
+Apparently, this time cannot be used to deduce the execution time of other types of tasks like object detection.
+To further investigate this, the simple JavaScript function shown in listing \ref{lst:simple-javascript-function} was executed in Node-RED on \texttt{raspi-02} and \texttt{vm-02}.
+
+\begin{lstlisting}[language=JavaScript,numbers=none,caption={JavaScript function which calculates a simple mathematical problem while measuring the execution time},label=lst:simple-javascript-function]
+const timeStart = new Date();
+let result = 0;
+for (let i=0; i < Math.pow(10,7); i++) {
+    result = result + i;
+}
+const timeEnd = new Date();
+const time = timeEnd - timeStart;
+\end{lstlisting}
+
+The field \texttt{time} of that function contains the execution time in milliseconds which is approximately 2,500 on \texttt{vm-02} and 7,500 on \texttt{raspi-02}, respectively. 
+Thus, the execution of the function is about \textit{3 times faster} on \texttt{vm-02} than on \texttt{raspi-02}, even though the CPU score of \texttt{vm-02} (11,848) is about \textit{12 times greater} than the score of \texttt{raspi-02} (973).
+What's more, the object detection task takes about 1,063 milliseconds on \texttt{vm-02} and 4,757 milliseconds on \texttt{raspi-02}, which is a \textit{4,2-fold difference} (see figure \ref{fig:evaluation-total-latency-without-orchestrator}). A correlation can therefore not be recognized.
+
+However, there might be a correlation between CPUs that have the same architecture, but this is not the case either:
+Executing the function shown in listing \ref{lst:simple-javascript-function} takes about 17,800 milliseconds on \texttt{raspi-01}, which is \textit{2.37 times slower} than on \texttt{raspi-02}, although the CPU score of \texttt{raspi-01} (612) is only \textit{1.59 times smaller} than on \texttt{raspi-02}. Both nodes own a CPU of type \texttt{arm}.\\
+
+In conclusion, the execution time of a given task cannot be used as the basis to compare CPU performance of different devices.
+There seem to be a number of relevant factors affecting the execution time of a task, but this goes beyond the scope of this work.
+
+
+\section{Experiment 2: Volatile network conditions}
 
 TODO
 

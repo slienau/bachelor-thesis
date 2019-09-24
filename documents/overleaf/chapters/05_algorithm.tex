@@ -63,7 +63,7 @@ Next, the relevant classes for the infrastructure are described. The correspondi
         
         \item \underline{\texttt{calculateProcessingTime(AppSoftwareModule module): double}}\\ [0.5ex] 
         Calculates the execution time of an \texttt{AppSoftwareModule} (see section \ref{sec:algorithm-application}) on this node. Returns the value in milliseconds. The result is calculated using the following formula:
-        \[\textrm{execution time [ms]} = \frac{\textrm{required instructions for message}}{\textrm{CPU instructions per second}}\ 1000\]
+        \[\textrm{execution time [ms]} = \frac{\textrm{\texttt{requiredMi}}}{\textrm{\texttt{cpuMips}}}\ \boldsymbol{\cdot} 1000\]
     \end{itemize}
 
 \end{itemize}

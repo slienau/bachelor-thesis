@@ -72,6 +72,25 @@ sorting=ynt
       {]}{{{\color{delim}{]}}}}{1},
 }
 
+\lstdefinelanguage{JavaScript}{
+  morekeywords=[1]{break, continue, delete, else, for, function, if, in,
+    new, return, this, typeof, var, void, while, with},
+  % Literals, primitive types, and reference types.
+  morekeywords=[2]{false, null, true, boolean, number, undefined,
+    Array, Boolean, Date, Math, Number, String, Object},
+  % Built-ins.
+  morekeywords=[3]{eval, parseInt, parseFloat, escape, unescape},
+  sensitive,
+    morekeywords=[1]{await, async, case, catch, class, const, default, do,
+    enum, export, extends, finally, from, implements, import, instanceof,
+    let, static, super, switch, throw, try},
+  morecomment=[s]{/*}{*/},
+  morecomment=[l]//,
+  morecomment=[s]{/**}{*/}, % JavaDoc style comments
+  morestring=[b]',
+  morestring=[b]"
+}[keywords, comments, strings]
+
 
 \usepackage{verbatim} %for long comments
 \usepackage{latexsym} %for symbol font
@@ -151,6 +170,7 @@ sorting=ynt
     \input{chapters/05_algorithm.tex}
     \input{chapters/07_orchestrator.tex}
     \input{chapters/08_evaluation.tex}
+    \input{chapters/09_conclusion.tex}
 
     \input{pages/lists.tex}
     \input{chapters/appendix.tex}

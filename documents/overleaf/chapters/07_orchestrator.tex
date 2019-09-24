@@ -24,7 +24,7 @@ In the case of receiving a heartbeat from a node that the orchestrator does not 
 
 \begin{itemize}
     \item \texttt{sysinfo}: Sends basic information about the nodes hardware (\textit{RAM}, \textit{storage}, \textit{cpu cores}, \textit{connected hardware}).
-    \item \texttt{ping}: Measures the \textit{RTT} from this node to another node. Returns the latency in milliseconds. The command line tool \texttt{ping} is used for this purpose.
+    \item \texttt{ping}: Measures the \textit{RTT} from this node to another node by using the command line tool \texttt{ping}. Returns the latency in milliseconds.
     \item \texttt{bandwidth}: Measures the network connection from this node to another node. Returns the bandwidth in Mbit/s.
     \item \texttt{benchmark\_cpu}: Runs the tool \texttt{sysbench} which is a lightweight benchmark tool made for linux servers. The result is the \textit{execution time} for a given (but always the same) task. A CPU score is calculated based on the execution time (see section \ref{sec:benchmark-cpu}). This score is then returned by the \texttt{benchmark\_cpu} command.
 \end{itemize}
