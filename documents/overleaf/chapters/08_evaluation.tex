@@ -1,9 +1,9 @@
 \chapter{Evaluation\label{cha:evaluation}}
 
 In this chapter the Orchestrator introduced in chapter \ref{cha:orchestrator} is tested and evaluated. For this purpose an object detection application is used, which should be deployed to a given test infrastructure containing several devices.
-In the first experiment the nodes join and leave the network one after the other.
+In the first experiment, the nodes join and leave the network one after the other.
 The second experiment investigates how the system behaves upon network quality changes.
-For both experiments it is examined which decisions the Orchestrator makes and what effect this decision has on the total latency of the application.
+For both experiments it is examined which decisions the Orchestrator makes and what effect this decision have on the total latency of the application.
 
 
 
@@ -21,8 +21,6 @@ For both experiments it is examined which decisions the Orchestrator makes and w
     \caption{Test infrastructure for evaluation}
     \label{fig:evaluation-infrastructure}
 \end{figure}
-
-The test bed consists of the five nodes shown in figure \ref{fig:evaluation-infrastructure}. The hardware characteristics of the devices are shown in table \ref{tab:evaluation-devices}. The three virtual machines run Debian 10, the two Raspberry Pis run Raspbian 10. All nodes have \texttt{Docker version 19.03.2} installed. Another device on the local network runs the Orchestrator and a web browser which is used to access the \textit{Object Detection Web Application}. Communication between the nodes and the Orchestrator is done via an MQTT broker running in the Azure Cloud.
 
 \begin{table}[htb]
     \centering
@@ -45,20 +43,30 @@ The test bed consists of the five nodes shown in figure \ref{fig:evaluation-infr
     \label{tab:evaluation-devices}
 \end{table}
 
+The test bed consists of the five nodes presented in figure \ref{fig:evaluation-infrastructure}. The hardware characteristics of the devices are shown in table \ref{tab:evaluation-devices}. The two Raspberry Pis run Raspbian 10, the three virtual machines run Debian 10. All nodes have \texttt{Docker version 19.03.2} installed. Another device on the local network runs the Orchestrator and a web browser which is used to access the \textit{Object Detection Web Application}. Communication between the nodes and the Orchestrator is done via a MQTT broker running in the Azure Cloud.
+
 \subsection{Application\label{sec:eval-application}}
 
 \begin{figure}[htb]
     \centering
     \includegraphics[width=0.85\textwidth]{evaluation-application}
-    \caption{System architecture of Object Detection Web Application}
+    \caption{System architecture of the Object Detection Web Application}
     \label{fig:evaluation-object-detection-application}
 \end{figure}
 
-The \textit{Object Detection Web Application} consists of the two modules \texttt{webapp} and \texttt{detector} as illustrated in figure \ref{fig:evaluation-object-detection-application}. A screenshot of the web application is shown in figure \ref{fig:object-detection-webapp-screenshot}.\\
+The \textit{Object Detection Web Application} consists of the two modules \texttt{webapp} and \texttt{detector} as illustrated in figure \ref{fig:evaluation-object-detection-application}.
+A screenshot of the web application is shown in figure \ref{fig:object-detection-webapp-screenshot}.\\
 
-In the first step, a user sends an image for object detection to the \texttt{webapp} module which is deployed as a Node-RED flow on \texttt{Node A}. This module should always be deployed on the same node and not be moved so that the web application is always available at the same address. The user calls the web application from that fixed node and he does not care which node actually executes the object detection task. The module \texttt{webapp} forwards the image to the module \texttt{detector} for object detection which is deployed on another node (\texttt{Node B}). This node can vary and is chosen by the Orchestrator. If a new node is selected by the Orchestrator, then the flow \texttt{webapp} on \texttt{Node A} will be updated so that subsequent requests are forwarded to the new node.\\
+In the first step, a user sends an image for object detection to the \texttt{webapp} module which is deployed as a Node-RED flow on \texttt{Node A}.
+This module should always be deployed on the same node and not be moved, so that the web application is always available at the same address.
+The user calls the web application on that fixed node and it is irrelevant for him which node actually executes the object detection task.
+The module \texttt{webapp} forwards the image to the module \texttt{detector} for object detection which is deployed on another node (\texttt{Node B}).
+This node can vary and is chosen by the Orchestrator.
+If a new node is selected by the Orchestrator, the flow \texttt{webapp} on \texttt{Node A} will then be updated so that subsequent requests are forwarded to the new node.\\
 
-The object detection engine can not be executed as a regular Node-RED flow since Node-RED handles JavaScript functions only and the engine requires Python. Even if Node-RED could execute Python code (there are extensions enabling this) the execution of the object detection engine in Node-RED would not be efficient because the engine would have to be initialized every time a new object detection request arrives. However, the engine has a certain initialization time to load the detection graph. Therefore it is more efficient to initialize the engine only once at the beginning so that the following object detection tasks can be executed without additional initialization time. Because Node-RED can not initialize and hold Python objects, a separate docker container is used for this purpose. The flow \texttt{detector} sends an HTTP request containing the undetected image to the \texttt{object-detection-server} running on the same node. The server responds with the detected image which the \texttt{detector} then sends back to the \texttt{webapp} module.
+The object detection engine can not be executed as a regular Node-RED flow since Node-RED handles JavaScript functions only and the engine requires Python.
+Even if Node-RED could execute Python code (there are extensions enabling this), the execution of the object detection engine in Node-RED would not be efficient because the engine would have to be initialized every time a new object detection request arrives.
+However, the engine has a certain initialization time to load the detection graph. Therefore it is more efficient to initialize the engine only once at the beginning so that the following object detection tasks can be executed without additional initialization time. Because Node-RED can not initialize and hold Python objects, a separate docker container is used for this purpose. The flow \texttt{detector} sends an HTTP request containing the undetected image to the \texttt{object-detection-server} running on the same node. The server responds with the detected image which the \texttt{detector} then sends back to the \texttt{webapp} module.
 
 The following three constraints are defined for the experiment:
 \begin{enumerate}
@@ -76,12 +84,13 @@ The following three constraints are defined for the experiment:
 
 \section{Preparing the Orchestrator\label{sec:eval-preparing-the-orchestrator}}
 
-For evaluating the Orchestrator we need nodes with different CPU performance(s?).
+For evaluating the Orchestrator, nodes with different CPU's performance are necessary.
 However, one vCPU in \texttt{vm-01} is equally fast as in \texttt{vm-02} because they both run on the same host.
-Since the object detection engine uses only one core, the execution time on these two nodes is approximately the same, although \texttt{vm-01} has two cores and \texttt{vm-02} has four cores. For this reason, the docker containers on \texttt{vm-01} run with the additional option \texttt{---cpus="0.5"} which limits the available CPU resources a container can use to a half vCPU.
+Since the object detection engine uses only one core, the execution time on these two nodes is approximately the same, although \texttt{vm-01} has two cores and \texttt{vm-02} has four cores.
+For this reason, the docker containers on \texttt{vm-01} run with the additional option \texttt{---cpus="0.5"} which limits the available CPU resources a container can use to a half vCPU.
 
 \subsection{Possible deployment strategies and their respective latencies\label{sec:eval-possible-deployments}}
-To find the real execution times of all possible deployment strategies, the application was deployed to the infrastructure without using the Orchestrator.
+To find the actual execution times of all possible deployment strategies, the application was deployed to the infrastructure without using the Orchestrator.
 The module \texttt{webapp} was always deployed on node \texttt{raspi-01} while the module \texttt{detector} was switched through the remaining nodes.
 The object detection application was executed 10 times on each deployment strategy by using a 1,383 KB sized image.
 The mean values for \textit{total latency}, \textit{processing time} and \textit{transfer time} were calculated thereafter. These are compared in figure \ref{fig:evaluation-total-latency-without-orchestrator}.
@@ -163,9 +172,9 @@ In this experiment, the nodes were started in the following order:
     \item \texttt{vm-azure}
     \item \texttt{vm-02}
 \end{enumerate}
-This order allows to deploy the deployment strategy of lowest priority (priority four) in step two, while with each following step a strategy of higher priority is possible (see table \ref{tab:deployment-strategies-prios}).
+This order allows to apply the deployment strategy of lowest priority (priority four) in step two, while a strategy of higher priority is possible with each following step (see table \ref{tab:deployment-strategies-prios}).
 
-It was expected that the Orchestrator finds no valid deployment in step one because here only \texttt{raspi-01} is online which is not able to execute the module \texttt{detector}.
+It was expected that the Orchestrator finds no valid deployment in step one because solely \texttt{raspi-01} is online which is unable to execute the module \texttt{detector}.
 Another expectation was that the Orchestrator deploys the module \texttt{webapp} to \texttt{raspi-01} and \texttt{detector} to \texttt{raspi-02} in the second step and then moves the \texttt{detector} to \texttt{vm-01}, \texttt{vm-azure} and finally to \texttt{vm-02} in the subsequent steps, while \texttt{webapp} remains on \texttt{raspi-01}.
 
 \subsection*{Results}
@@ -177,10 +186,15 @@ Another expectation was that the Orchestrator deploys the module \texttt{webapp}
     \label{fig:evaluation-exp1-results}
 \end{figure}
 
-The Orchestrator's decisions are depicted in figure \ref{fig:evaluation-exp1-results}. As we can see, the Orchestrator behaved slightly different than expected. The \texttt{detector} was expected to be deployed to \texttt{raspi-02} in the second step. However, this did not happen. Instead, no possible deployment was found. In steps 1, 3, 4 and 5, however, the Orchestrator made the expected decisions and the latency is continuously minimized from step 3 onwards.
+The Orchestrator's decisions are depicted in figure \ref{fig:evaluation-exp1-results}.
+The figure shows that the Orchestrator behaved slightly different than expected.
+The \texttt{detector} was expected to be deployed to \texttt{raspi-02} in the second step. However, this did not happen.
+Instead, no possible deployment was found.
+In steps 1, 3, 4 and 5, however, the Orchestrator made the expected decisions and the latency is minimized continuously from step 3 onwards.
 
 Moreover, it was examined how the Orchestrator behaves when a node leaves the network.
-If a node that has \textit{no} module deployed leaves the network, the Orchestrator detects this and removes it from the infrastructure. The deployment strategy remains unchanged as it should be.
+If a node that has \textit{no} module deployed leaves the network, the Orchestrator detects this and removes it from the infrastructure.
+The deployment strategy remains unchanged as it should be.
 If a node that \textit{has} a module deployed leaves the network, the Orchestrator detects this and removes it from the infrastructure first before it then finds and applies the next best possible deployment strategy (next best deployment strategy is the one of highest priority in the updated infrastructure).
 This complies with the desired behaviour.
 
@@ -190,7 +204,7 @@ The reason for the wrong decision in step two is that the execution time of modu
 The field \texttt{cpuMips} of the \texttt{FogNode} object representing this node has the value 973.
 This value is the CPU score returned by the \texttt{benchmark\_cpu} command which the Orchestrator executed on the node after the first heartbeat has been received (see section \ref{sec:handling-new-fog-nodes} and \ref{sec:benchmark-cpu} in particular).
 To calculate the execution time of module \textit{M} on node \textit{N}, the Orchestrator uses \texttt{cpuMips} of \textit{N} and \texttt{requiredMi} of \textit{M}.
-While preparing the Orchestrator in section \ref{sec:eval-preparing-the-orchestrator}, we set \texttt{requiredMi\textsubscript{detector}} to 15,357. Thus, the execution time is calculated as follows:
+While preparing the Orchestrator in section \ref{sec:eval-preparing-the-orchestrator}, \texttt{requiredMi\textsubscript{detector}} was set to 15,357. Thus, the execution time is calculated as follows:
 
 \[\textrm{execution time [ms]} = \frac{\textrm{\texttt{requiredMi}}}{\textrm{\texttt{cpuMips}}}\ \boldsymbol{\cdot} 1,000 = \frac{15,357}{973}\ \boldsymbol{\cdot} 1,000 = 15,783 \textrm{ [ms]}\]
 
@@ -216,7 +230,7 @@ The field \texttt{time} of that function contains the execution time in millisec
 Thus, the execution of the function is about \textit{3 times faster} on \texttt{vm-02} than on \texttt{raspi-02}, even though the CPU score of \texttt{vm-02} (11,848) is about \textit{12 times greater} than the score of \texttt{raspi-02} (973).
 What's more, the object detection task takes about 1,063 milliseconds on \texttt{vm-02} and 4,757 milliseconds on \texttt{raspi-02}, which is a \textit{4,2-fold difference} (see figure \ref{fig:evaluation-total-latency-without-orchestrator}). A correlation between the execution times of different tasks on various nodes can therefore not be recognized.
 
-However, there might be a correlation between CPUs that share the same architecture, but this is not the case either:
+However, there might be a correlation between CPU's that share the same architecture, but this is not the case either:
 Executing the function shown in listing \ref{lst:simple-javascript-function} takes about 17,800 milliseconds on \texttt{raspi-01}, which is \textit{2.37 times slower} than on \texttt{raspi-02}, although the CPU score of \texttt{raspi-01} (612) is only \textit{1.59 times smaller} than on \texttt{raspi-02}. Both nodes own a CPU of type \texttt{arm}.\\
 
 In conclusion, the execution time of a given task cannot be used as the basis to compare CPU performances of different devices.
@@ -227,14 +241,15 @@ There seem to be a number of relevant factors affecting the execution time of a 
 
 \section{Experiment 2: Volatile network conditions}
 
-In this experiment, the three nodes \texttt{raspi-01}, \texttt{vm-01} and \texttt{vm-azure} were online.
-Under these circumstances, deployment strategy of \textit{priority two} allows the lowest latency (see table \ref{tab:deployment-strategies-prios}).
+In this experiment, the three nodes \texttt{raspi-01}, \texttt{vm-01} and \texttt{vm-azure} were online. Therefore, deployment strategy of \textit{priority two} allowed the lowest latency (see table \ref{tab:deployment-strategies-prios}).
 Here, the \texttt{detector} module is deployed on \texttt{vm-azure}.
-In further course, the router's Internet connection was utilized by other hosts in the network which are not part of the Fog infrastructure.
+In further course, the router's Internet connection was utilized by other hosts on the network that are not part of the Fog infrastructure.
 After a certain period, the bandwidth was freed again.
 
-It was expected that the Orchestrator moves the \texttt{detector} module from \texttt{vm-azure} to \texttt{vm-01} as soon as the Internet connection is utilized that much that the maximum latency of 5,000 milliseconds cannot be guaranteed.
-After the full bandwidth is available again, the \texttt{detector} should be moved back to \texttt{vm-azure}.
+
+It was expected that the Orchestrator moves the \texttt{detector} module from \texttt{vm-azure} to \texttt{vm-01} after the usage of the Internet connection exceeds a certain threshold.
+This is the case as soon as the application no longer has enough bandwidth to meet its latency requirements.
+After the full bandwidth is available again, the \texttt{detector} should be moved back to \texttt{vm-azure} by the Orchestrator as soon as possible.
 
 
 \subsection*{Results}
@@ -253,17 +268,17 @@ The object detection task in request one was finished after 2,370 milliseconds, 
 Between request one and two, network traffic between a host in the local network and another host on the Internet was generated.
 Both hosts were not part of the Fog infrastructure, but they did utilize the same Internet connection that was used for transferring the original image from \texttt{webapp} (deployed on \texttt{raspi-01}) to \texttt{detector} (deployed on \texttt{vm-azure}) as well.
 That's why the maximum latency requirement of 5,000 milliseconds could not be met in request two.
-Although the object detection task on \texttt{vm-azure} took approximately the same time in both requests, the time for transferring the original image (1,382 KB) took 7,641 milliseconds instead of 1,192 milliseconds in request one, to that the total latency added up to 8,921 milliseconds.
+Although the object detection task on \texttt{vm-azure} took approximately the same time in both requests, the time for transferring the original image (1,382 KB) took 7,641 milliseconds instead of 1,192 milliseconds in request one, so that the total latency added up to 8,921 milliseconds.
 
 The Orchestrator recognized this by evaluating the \texttt{statistics} object (see listing \ref{lst:statistics}) introduced in section \ref{sec:orchestrator-monitoring-deployment-strategy}.
 Based on the image size and transfer time, he calculated the actual bandwidth between both nodes, which is \textit{1.48 Mbit/s} in this case.
 The respective \texttt{NetworkUplink} object was updated and the scheduling algorithm was executed to find a new optimal deployment strategy.
 This is what happened between request two and three, before the \texttt{detector} was moved to \texttt{vm-01}.
-As you can see, the latency requirement was fulfilled in request three, although the total latency of 2,671 milliseconds is a bit higher than in request one.
+It can be seen that the latency requirement was fulfilled in request three, although the total latency of 2,671 milliseconds is a bit higher than in request one.
 
 As said before, the scheduling algorithm was triggered during the evaluation of the \texttt{statistics} object in this case.
-However, the algorithm is executed in a predefined interval as well.
-Since the uplinks are also remeasured in a predefined interval, the scheduling algorithm might find a new optimal deployment strategy.
+However, the Orchestrator executes the algorithm in a predefined interval as well.
+Since the uplinks are also remeasured in a predefined interval by the Orchestrator, the scheduling algorithm might find a new optimal deployment strategy.
 This is what happened between request three and four:
 The network traffic generation has been stopped and the uplink between \texttt{raspi-01} and \texttt{vm-azure} has been remeasured.
 The updated bandwidth was taken into account during the subsequent execution of the scheduling algorithm, so that the Orchestrator switched back to the deployment strategy of priority two which led to a lower latency in request four.

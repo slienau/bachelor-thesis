@@ -4,7 +4,11 @@ This section describes the design and implementation of the \textit{QoS Schedule
 
 \section{Algorithm architecture}
 
-The algorithm takes an \texttt{Infrastructure} and an \texttt{Application} as inputs, and outputs an optimal deployment strategy (\texttt{AppDeployment}). Which strategy is optimal depends on the type of the scheduler. For example, the goal of a scheduler can be to minimize the total \textit{energy consumption}, the total \textit{network utilization} or the \textit{computing power} used. Since the focus here is on \textit{QoS}, the deployment that minimizes \textit{total latency} should be the optimal deployment. Figure \ref{fig:algorithm-architecture} illustrates the architecture of the algorithm.
+The algorithm takes an \texttt{Infrastructure} and an \texttt{Application} as inputs, and outputs an optimal deployment strategy (\texttt{AppDeployment}).
+Which strategy is optimal depends on the type of scheduler.
+For example, the goal of a scheduler can be to minimize the total \textit{energy consumption}, the total \textit{network utilization} or the \textit{computing power} used.
+Since the focus here is on \textit{QoS}, the deployment that minimizes \textit{total latency} should be the optimal deployment.
+Figure \ref{fig:algorithm-architecture} illustrates the architecture of the algorithm.
 
 \begin{figure}[h]
     \centering
@@ -16,7 +20,7 @@ The algorithm takes an \texttt{Infrastructure} and an \texttt{Application} as in
 
 \subsection{Infrastructure\label{sec:algorithm-infrastructure}}
 
-The infrastructure consists of \textit{fog nodes} and \textit{network connections} between those nodes. Network connections are modelled as uplinks only, because we are sending data forward in the application loop from one module to another, while every module is deployed on one fog node.
+The infrastructure consists of \textit{fog nodes} and \textit{network connections} between those nodes. Network connections are modeled as uplinks only, because we are sending data forward in the application loop from one module to another, while every module is deployed on one fog node.
 Between two nodes (node A and node B), the downlink of node B from node A's point of view is the same as the uplink of node A from node B's point of view. Therefore each fog node has a set of uplinks to all other reachable Fog nodes.
 A node also has an uplink to itself, since the next module in the loop could be executed on the same node. This uplink is modeled with \textit{infinite speed} and \textit{zero latency}.
 Thus, there are \(n^2\) uplinks in the infrastructure in total ($n \estimates number\ of\ Fog\ nodes$).
@@ -56,7 +60,7 @@ Next, the relevant classes for the infrastructure are described. The correspondi
     Every \texttt{FogNode} instance has the following \textit{methods}:
     \begin{itemize}
         \item \underline{\texttt{deployModule(AppSoftwareModule module): boolean}}\\ [0.5ex] 
-        Tries to deploy an \texttt{AppSoftwareModule} (see section \ref{sec:algorithm-application}) on this node. Checks whether this node can fulfil the modules requirements (RAM, storage, hardware modules). Modules are \textit{not} automatically undeployed. The method can be called multiple times and thus more than one module can be deployed. In this case, sufficient resources must be available to execute \textit{all} modules. The method returns \texttt{false} for the first module that cannot be deployed, otherwise \texttt{true}.
+        Tries to deploy an \texttt{AppSoftwareModule} (see section \ref{sec:algorithm-application}) on this node. Checks whether this node can fulfill the modules requirements (RAM, storage, hardware modules). Modules are \textit{not} automatically undeployed. The method can be called multiple times and thus more than one module can be deployed. In this case, sufficient resources must be available to execute \textit{all} modules. The method returns \texttt{false} for the first module that cannot be deployed, otherwise \texttt{true}.
         
         \item \underline{\texttt{getUplinkTo(FogNode destination): NetworkUplink}}\\ [0.5ex] 
         Returns the \texttt{NetworkUplink} from this node to the \texttt{destination} node.
@@ -73,7 +77,7 @@ Next, the relevant classes for the infrastructure are described. The correspondi
 
 An application consists of \textit{modules}, \textit{messages} and \textit{loops}. A module can either be a \textit{hardware module} (e.g. a camera or a temperature sensor) or a \textit{software module} (e.g. data processor, object detection engine).
 
-Next, the relevant classes for an application are described. The corresponsing class diagram is shown in figure \ref{fig:classdiagram-application}.
+Next, the relevant classes for an application are described. The corresponding class diagram is shown in figure \ref{fig:classdiagram-application}.
 
 \begin{itemize}
     \item \underline{\texttt{AppModule}}: This abstract class is extended by the classes \texttt{AppHardwareModule} and \texttt{AppSoftwareModule}. It contains the the following \textit{fields}:
@@ -145,11 +149,13 @@ In section \ref{sec:qos-scheduler} the concrete class \texttt{QosScheduler} is d
 
 
 \section{QoS Scheduler\label{sec:qos-scheduler}}
-The job of the \textit{QoS scheduler} is to find all deployments which satisfy the latency requirements of all loops and output the one deployment with the lowest latency. How this task is solved is described in this section.\\
+The job of the \textit{QoS Scheduler} is to find all deployments which satisfy the latency requirements of all loops.
+It outputs the one deployment with the lowest latency.
+This section describes how this task is solved.\\
 
 The \texttt{QosScheduler} takes an \texttt{Application} and an \texttt{Infrastructure} in the constructor. It tries to find all valid deployments as well as the optimal deployment for the \texttt{Application} over the \texttt{Infrastructure}. Figure \ref{fig:classdiagram-qosscheduler} shows the class diagram of the related classes.
 
-In the first step the scheduler creates a combination of all possible deployment strategies without checking if the modules could be executed on the assigned nodes (hardware requirements) and if latency requirements are met (app loop requirements).
+In the first step, the scheduler creates a combination of all possible deployment strategies without checking if the modules could be executed on the assigned nodes (hardware requirements) and if latency requirements are met (app loop requirements).
 In a mathematical sense, a permutation with repetition is created in this step.
 
 Table \ref{tab:deployment-combinations} shows all nine possible combinations of an application consisting of \textit{two modules} and an infrastructure consisting of \textit{three fog nodes}.
@@ -183,7 +189,10 @@ Table \ref{tab:deployment-combinations} shows all nine possible combinations of 
     \label{tab:deployment-combinations}
 \end{table}
 
-Each line represents a \textit{deployment strategy candidate}, although it has not yet been checked whether the deployment strategy is valid because the requirements have not yet been checked. In order to do so, the \textit{QoS Scheduler} goes through several steps to check if a deployment strategy fulfills the application requirements. If the answer to any step is negative, this deployment strategy candidate is not valid and the next one will be checked. How the algorithm creates a set of valid deployments is depicted in \ref{fig:algorithm-activitydiagram-validdeployments}, which is also the implementation of the method \texttt{getValidDeplopyments()}.
+Each line represents a \textit{deployment strategy candidate}, although it has not yet been checked whether the deployment strategy is valid because the requirements have not yet been examined.
+In order to do so, the \textit{QoS Scheduler} goes through several steps to analyze if a deployment strategy fulfills the application requirements.
+If the answer to any step is negative, this deployment strategy candidate is not valid and the next one will be analyzed.
+How the algorithm creates a set of valid deployments is depicted in \ref{fig:algorithm-activitydiagram-validdeployments}, which is also the implementation of the method \texttt{getValidDeplopyments()}.
 
 \begin{figure}[htb]
     \centering

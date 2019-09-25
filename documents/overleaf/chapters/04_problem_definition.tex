@@ -19,9 +19,11 @@ The challenge here is to implement a resource allocation algorithm for the given
 \section{Dynamically Varying Network Conditions}
 The network conditions might change at any point of time. The increased demand for services plays a major role here, but there may also be increased network traffic. For instance, in the MWSN scenario, the amount of sensors (end devices) requesting services might increase, which leads to a higher load on the fog nodes hardware until the point of congestion. To avoid congestion and ensure QoS, tasks of services with a lower priority have to be moved elsewhere to free resources for high priority services. Apart from that, the network traffic might increase due to other network services which are not part of our Fog infrastructure but are using the same link.\\
 
-The challenge here is to adapt to the mentioned changes, for which they must be identified first before the load balancing algorithm is executed to calculate an eventually different, optimized deployment.
+The challenge here is to adapt to the mentioned changes, for which they must be identified first before the load balancing algorithm is executed to eventually calculate a differentiated, optimized deployment.
 
 \section{Fog Node Failures}
 A Fog infrastructure is not as reliable as a Cloud infrastructure, for instance. Fog nodes can join or leave the network at any point of time, which leads to a dynamic change in the available resources. Since Fog nodes can be any type of hardware, it is not unlikely that small and relatively cheap devices (e.g. Raspberry Pi) are used. Thus, it is more likely that they might fail since the hardware components are not of high quality compared to enterprise server hardware. Furthermore, the environment is neither monitored nor controlled like a Cloud server data center, which could lead to node failures (e.g. network connection errors or power supply failures).\\
 
-The challenge here is to adapt to those dynamic changes. If a node leaves the network, fewer resources are available and therefore another deployment might be the optimum. The same when a node joins the network, more resources are available and again, another deployment might be ideal.
+The challenge here is to adapt to those dynamic changes.
+If a node leaves the network, fewer resources are available and therefore another deployment might be the optimum.
+Similarly, when a node joins the network, more resources are available making another deployment might be ideal.
