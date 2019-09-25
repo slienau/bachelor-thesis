@@ -103,25 +103,21 @@ public class HeartbeatProcessor implements Runnable {
                             .map(node -> (NodeRedFogNode) node)
                             .collect(Collectors.toList());
 
-                    // add network uplinks from newNode to all other nodes and from other nodes to newNode
+                    // add network uplinks from newNode to all other nodes and from all other nodes to newNode
                     for (NodeRedFogNode destinationNode : destinationNodes) {
-                        // from newNode to other nodes
-                        newNode.addUplink(new NodeRedNetworkUplink(
-                                newNode,
-                                destinationNode,
-                                newNode.measureLatencyTo(destinationNode.getIp()),
-                                newNode.measureBandwidthTo(destinationNode.getAddress())
-                        ));
-                        // from other nodes to newNode
-                        destinationNode.addUplink(new NodeRedNetworkUplink(
-                                destinationNode,
-                                newNode,
-                                destinationNode.measureLatencyTo(newNode.getIp()),
-                                destinationNode.measureBandwidthTo(newNode.getAddress())
-                        ));
+
+                        // from newNode to other node
+                        NodeRedNetworkUplink newUplink1 = new NodeRedNetworkUplink(newNode, destinationNode);
+                        newUplink1.measure(true, true); // measure bandwidth and latency of new uplink
+                        newNode.addUplink(newUplink1);
+
+                        // from other node to newNode
+                        NodeRedNetworkUplink newUplink2 = new NodeRedNetworkUplink(destinationNode, newNode);
+                        newUplink2.measure(true, true);
+                        destinationNode.addUplink(newUplink2);
                     }
 
-                    // check if there is a new optimal deployment after new node and all uplinks have been added
+                    // check if there is a new optimal deployment after new node and all uplinks have been initialized
                     orchestrator.checkForNewOptimalDeployment();
                 } catch (Throwable e) {
                     e.printStackTrace();

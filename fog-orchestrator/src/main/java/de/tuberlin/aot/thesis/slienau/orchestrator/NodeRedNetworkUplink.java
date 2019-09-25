@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class NodeRedNetworkUplink extends NetworkUplink {
 
     private LocalDateTime measurementTime;
+    private NetworkUplinkState state;
 
     /**
      * @param source        source FogNode
@@ -17,11 +18,13 @@ public class NodeRedNetworkUplink extends NetworkUplink {
      */
     public NodeRedNetworkUplink(NodeRedFogNode source, NodeRedFogNode destination, int latency, double mbitPerSecond) {
         super(source, destination, latency, SchedulerUtils.mbitToBit(mbitPerSecond));
-        updateMeasurementTime();
+        state = NetworkUplinkState.UP;
+        measurementTime = LocalDateTime.now();
     }
 
-    private void updateMeasurementTime() {
-        measurementTime = LocalDateTime.now();
+    public NodeRedNetworkUplink(NodeRedFogNode source, NodeRedFogNode destination) {
+        this(source, destination, Integer.MAX_VALUE, 0.0);
+        state = NetworkUplinkState.INITIALIZED;
     }
 
     public LocalDateTime getMeasurementTime() {
@@ -29,17 +32,28 @@ public class NodeRedNetworkUplink extends NetworkUplink {
     }
 
     public void measure(boolean bandwidth, boolean latency) {
+        if (state == NetworkUplinkState.MEASURING) // don't start a second measurement process if another one is still active
+            return;
+        state = NetworkUplinkState.MEASURING;
         NodeRedFogNode source = (NodeRedFogNode) getSource();
         NodeRedFogNode destination = (NodeRedFogNode) getDestination();
         if (bandwidth) {
             double newMbitPerSecond = source.measureBandwidthTo(destination.getAddress());
-            this.setMbitPerSecond(newMbitPerSecond);
+            super.setMbitPerSecond(newMbitPerSecond);
         }
         if (latency) {
             int newLatency = source.measureLatencyTo(destination.getNodeRedController().getIp());
-            this.setLatency(newLatency);
+            super.setLatency(newLatency);
         }
-        updateMeasurementTime();
+        measurementTime = LocalDateTime.now();
+        state = NetworkUplinkState.UP;
+    }
+
+    @Override
+    public void setMbitPerSecond(double mbitPerSecond) {
+        if (state == NetworkUplinkState.MEASURING)
+            return;
+        this.setBitPerSecond(SchedulerUtils.mbitToBit(mbitPerSecond));
     }
 
     @Override
@@ -50,6 +64,11 @@ public class NodeRedNetworkUplink extends NetworkUplink {
                 ", latency=" + getLatency() +
                 ", bandwidth=" + getMBitPerSecond() + "Mbit/s" +
                 ", measurementTime=" + measurementTime +
+                ", state=" + state +
                 '}';
+    }
+
+    public enum NetworkUplinkState {
+        INITIALIZED, MEASURING, UP
     }
 }
