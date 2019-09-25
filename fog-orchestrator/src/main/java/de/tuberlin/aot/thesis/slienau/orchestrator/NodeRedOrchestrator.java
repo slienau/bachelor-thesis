@@ -29,15 +29,15 @@ public class NodeRedOrchestrator {
     private final Infrastructure infrastructure;
     private final Queue<Heartbeat> heartbeatQueue;
     private final Scheduler scheduler;
+    private final Application application;
     private AppDeployment optimalDeployment;
 
     private NodeRedOrchestrator() {
         infrastructure = new Infrastructure();
         heartbeatQueue = new ConcurrentLinkedQueue<>();
-//        Application sensorNetworkApplication = createSensorNetworkApplication();
-//        scheduler = new QosScheduler(sensorNetworkApplication, infrastructure);
-        Application objectDetectionApplication = createObjectDetectionApplication();
-        scheduler = new QosScheduler(objectDetectionApplication, infrastructure);
+//        application = createSensorNetworkApplication();
+        application = createObjectDetectionApplication();
+        scheduler = new QosScheduler(application, infrastructure);
     }
 
     public static void main(String[] args) {
@@ -118,6 +118,10 @@ public class NodeRedOrchestrator {
         return infrastructure;
     }
 
+    public Application getApplication() {
+        return application;
+    }
+
     public void removeFogNode(String fogNodeIdToRemove) throws IOException {
         // remove all uplinks to this node
         for (FogNode fn : infrastructure.getFogNodes()) {
@@ -142,7 +146,7 @@ public class NodeRedOrchestrator {
             return;
         }
         if (d.equals(this.optimalDeployment)) {
-            System.out.println("[NodeRedOrchestrator] No new optimal deployment found!");
+            //System.out.println("[NodeRedOrchestrator] No new optimal deployment found!");
             return;
         }
 
