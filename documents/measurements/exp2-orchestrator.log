@@ -1,0 +1,137 @@
+/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/bin/java "-javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=55875:/Applications/IntelliJ IDEA.app/Contents/bin" -Dfile.encoding=UTF-8 -classpath /Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/charsets.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/deploy.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/ext/cldrdata.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/ext/dnsns.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/ext/jaccess.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/ext/jfxrt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/ext/localedata.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/ext/nashorn.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/ext/sunec.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/ext/sunjce_provider.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/ext/sunpkcs11.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/ext/zipfs.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/javaws.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/jfr.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/jfxswt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/jsse.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/management-agent.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/plugin.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/resources.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib/rt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/lib/ant-javafx.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/lib/dt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/lib/javafx-mx.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/lib/jconsole.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/lib/packager.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/lib/sa-jdi.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/lib/tools.jar:/Users/sebastian-dev/Projects/bachelor-thesis/fog-orchestrator/target/classes:/Users/sebastian-dev/Projects/bachelor-thesis/fog-orchestrator/jars/guava-18.0.jar:/Users/sebastian-dev/Projects/bachelor-thesis/fog-orchestrator/jars/json-simple-1.1.1.jar:/Users/sebastian-dev/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.9.8/jackson-core-2.9.8.jar:/Users/sebastian-dev/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.9.8/jackson-annotations-2.9.8.jar:/Users/sebastian-dev/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.9.8/jackson-databind-2.9.8.jar:/Users/sebastian-dev/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-smile/2.9.8/jackson-dataformat-smile-2.9.8.jar:/Users/sebastian-dev/.m2/repository/com/fasterxml/jackson/jaxrs/jackson-jaxrs-json-provider/2.9.8/jackson-jaxrs-json-provider-2.9.8.jar:/Users/sebastian-dev/.m2/repository/com/fasterxml/jackson/jaxrs/jackson-jaxrs-base/2.9.8/jackson-jaxrs-base-2.9.8.jar:/Users/sebastian-dev/.m2/repository/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.9.8/jackson-module-jaxb-annotations-2.9.8.jar:/Users/sebastian-dev/.m2/repository/org/eclipse/paho/org.eclipse.paho.client.mqttv3/1.2.0/org.eclipse.paho.client.mqttv3-1.2.0.jar:/Users/sebastian-dev/.m2/repository/com/github/dpaukov/combinatoricslib3/3.3.0/combinatoricslib3-3.3.0.jar de.tuberlin.aot.thesis.slienau.orchestrator.NodeRedOrchestrator
+[NodeRedOrchestrator] Starting...
+[Application][od] Added AppSoftwareModule{id='webapp', requiredRam=0, requiredStorage=0.0, requiredMi=0, requiredHardwareModules=[CAMERA]}
+[Application][od] Added AppSoftwareModule{id='detector', requiredRam=0, requiredStorage=0.0, requiredMi=15357, requiredHardwareModules=[OD-DOCKER-CONTAINER]}
+[Application][od] Added message with contentType 'IMAGE_UNDETECTED'
+[Application][od] Added message with contentType 'IMAGE_DETECTED'
+[Application][od] Added AppLoop{loopName='objectDetectionLoop1', maxLatency=5000, modules=[webapp, detector, webapp], application=od}
+[HeartbeatProcessor] Started...
+[InitialHeartbeatHandler] Started
+[HeartbeatMonitor] Connecting to MQTT broker: tcp://dslbabroker.westeurope.azurecontainer.io:1883
+[HeartbeatMonitor] Connected
+[HeartbeatMonitor] Subscribed to topic /heartbeats/#
+[QoSMonitor] Subscribed to topic /results/#
+[NodeRedOrchestrator] No deployment found for application!
+[InitialHeartbeatHandler] Handling initial heartbeat from debian-01
+[NodeRedFogNode][debian-01] Created new instance
+[FogNode][debian-01] Removing uplink to debian-01
+[FogNode][ debian-01] Added NodeRedNetworkUplink{source=debian-01, destination=debian-01, latency=0, bandwidth=275Mbit/s, measurementTime=2019-09-25T15:01:07.817, state=UP}
+[NodeRedFogNode][debian-01] Benchmark result CPU score: 4065
+[NodeRedFogNode][debian-01] Initialization complete NodeRedFogNode{ip=dsl89.ddns.net, port=1891, fogNode=FogNode{id='debian-01', ramUsed=0.0MB/1907.5703MB (0.0%), storageUsed=0.0GB/13.7168045GB (0.0%), cpuCores=2, cpuMips=4065, connectedHardware=[OD-DOCKER-CONTAINER], deployedModules=[], uplinks=[{to: debian-01, 0ms, 275Mbit/s}]}}
+[Infrastructure] Added node 'debian-01'
+[FogNodeMonitor][debian-01] Thread started
+[NodeRedOrchestrator] No deployment found for application!
+[InitialHeartbeatHandler] Handling initial heartbeat from azure-node
+[NodeRedFogNode][azure-node] Created new instance
+[NodeRedController][azure-node] Deleted flow 'od/detector'
+[FogNode][azure-node] Removing uplink to azure-node
+[FogNode][azure-node] Added NodeRedNetworkUplink{source=azure-node, destination=azure-node, latency=0, bandwidth=916Mbit/s, measurementTime=2019-09-25T15:01:12.023, state=UP}
+[NodeRedFogNode][azure-node] Benchmark result CPU score: 10797
+[NodeRedFogNode][azure-node] Initialization complete NodeRedFogNode{ip=dslba-azure-node.westeurope.cloudapp.azure.com, port=51880, fogNode=FogNode{id='azure-node', ramUsed=0.0MB/7954.496MB (0.0%), storageUsed=0.0GB/29.28115GB (0.0%), cpuCores=4, cpuMips=10797, connectedHardware=[OD-DOCKER-CONTAINER], deployedModules=[], uplinks=[{to: azure-node, 0ms, 916Mbit/s}]}}
+[Infrastructure] Added node 'azure-node'
+[FogNodeMonitor][azure-node] Thread started
+[NodeRedOrchestrator] No deployment found for application!
+[NodeRedNetworkUplink]['azure-node'->'debian-01'] Measured and updated uplink: Latency: 2147483647ms --> 1ms; Bandwidth: 0.0Mbit/s --> 41Mbit/s
+[FogNode][azure-node] Added NodeRedNetworkUplink{source=azure-node, destination=debian-01, latency=1, bandwidth=41Mbit/s, measurementTime=2019-09-25T15:01:17.943, state=UP}
+[NodeRedNetworkUplink]['debian-01'->'azure-node'] Measured and updated uplink: Latency: 2147483647ms --> 1ms; Bandwidth: 0.0Mbit/s --> 9Mbit/s
+[FogNode][ debian-01] Added NodeRedNetworkUplink{source=debian-01, destination=azure-node, latency=1, bandwidth=9Mbit/s, measurementTime=2019-09-25T15:01:23.292, state=UP}
+[NodeRedOrchestrator] No deployment found for application!
+[InitialHeartbeatHandler] Handling initial heartbeat from raspi-01
+[NodeRedFogNode][raspi-01] Created new instance
+[NodeRedController][raspi-01] Deleted flow 'od/webapp'
+[FogNode][raspi-01] Removing uplink to raspi-01
+[FogNode][  raspi-01] Added NodeRedNetworkUplink{source=raspi-01, destination=raspi-01, latency=0, bandwidth=77Mbit/s, measurementTime=2019-09-25T15:01:25.145, state=UP}
+[NodeRedFogNode][raspi-01] Initialization complete NodeRedFogNode{ip=dsl89.ddns.net, port=1881, fogNode=FogNode{id='raspi-01', ramUsed=0.0MB/975.6211MB (0.0%), storageUsed=0.0GB/28.991924GB (0.0%), cpuCores=4, cpuMips=612, connectedHardware=[CAMERA], deployedModules=[], uplinks=[{to: raspi-01, 0ms, 77Mbit/s}]}}
+[Infrastructure] Added node 'raspi-01'
+[FogNodeMonitor][raspi-01] Thread started
+[NodeRedOrchestrator] No deployment found for application!
+[NodeRedNetworkUplink]['raspi-01'->'debian-01'] Measured and updated uplink: Latency: 2147483647ms --> 0ms; Bandwidth: 0.0Mbit/s --> 91Mbit/s
+[FogNode][  raspi-01] Added NodeRedNetworkUplink{source=raspi-01, destination=debian-01, latency=0, bandwidth=91Mbit/s, measurementTime=2019-09-25T15:01:26.704, state=UP}
+[NodeRedNetworkUplink]['debian-01'->'raspi-01'] Measured and updated uplink: Latency: 2147483647ms --> 0ms; Bandwidth: 0.0Mbit/s --> 89Mbit/s
+[FogNode][ debian-01] Added NodeRedNetworkUplink{source=debian-01, destination=raspi-01, latency=0, bandwidth=89Mbit/s, measurementTime=2019-09-25T15:01:27.952, state=UP}
+[NodeRedNetworkUplink]['raspi-01'->'azure-node'] Measured and updated uplink: Latency: 2147483647ms --> 1ms; Bandwidth: 0.0Mbit/s --> 9Mbit/s
+[FogNode][  raspi-01] Added NodeRedNetworkUplink{source=raspi-01, destination=azure-node, latency=1, bandwidth=9Mbit/s, measurementTime=2019-09-25T15:01:33.288, state=UP}
+[NodeRedOrchestrator] Found new optimal deployment!
+[AppDeployment] ----------------------------------------
+[AppDeployment] Details for application 'od'
+[AppDeployment] ----------------------------------------
+[AppLoop][objectDetectionLoop1][    0.0ms] Task execution of module 'webapp' on node 'raspi-01'
+[AppLoop][objectDetectionLoop1][ 123.75ms] Transfer message with content type 'IMAGE_UNDETECTED' from 'raspi-01' to 'debian-01' (1383.0 KB via 91 Mbit/s and 0ms RTT)
+[AppLoop][objectDetectionLoop1][3777.86ms] Task execution of module 'detector' on node 'debian-01'
+[AppLoop][objectDetectionLoop1][   13.0ms] Transfer message with content type 'IMAGE_DETECTED' from 'debian-01' to 'raspi-01' (142.0 KB via 89 Mbit/s and 0ms RTT)
+[AppLoop][objectDetectionLoop1][    0.0ms] Task execution of module 'webapp' on node 'raspi-01'
+[AppLoop][objectDetectionLoop1][3914.61ms] <-- TOTAL LATENCY
+
+[NodeRedOrchestrator] Going to deploy new optimal deployment strategy AppDeployment{application=od, moduleToNodeMap=[detector->debian-01, webapp->raspi-01], valid=true, maxLatency=3914ms}
+[NodeRedController][debian-01] Created flow 'od/detector'
+[NodeRedController][raspi-01] Created flow 'od/webapp'
+[NodeRedNetworkUplink]['azure-node'->'raspi-01'] Measured and updated uplink: Latency: 2147483647ms --> 1ms; Bandwidth: 0.0Mbit/s --> 41Mbit/s
+[FogNode][azure-node] Added NodeRedNetworkUplink{source=azure-node, destination=raspi-01, latency=1, bandwidth=41Mbit/s, measurementTime=2019-09-25T15:01:38.146, state=UP}
+[NodeRedOrchestrator] Found new optimal deployment!
+[AppDeployment] ----------------------------------------
+[AppDeployment] Details for application 'od'
+[AppDeployment] ----------------------------------------
+[AppLoop][objectDetectionLoop1][    0.0ms] Task execution of module 'webapp' on node 'raspi-01'
+[AppLoop][objectDetectionLoop1][1216.53ms] Transfer message with content type 'IMAGE_UNDETECTED' from 'raspi-01' to 'azure-node' (1383.0 KB via 9 Mbit/s and 1ms RTT)
+[AppLoop][objectDetectionLoop1][1422.34ms] Task execution of module 'detector' on node 'azure-node'
+[AppLoop][objectDetectionLoop1][  29.12ms] Transfer message with content type 'IMAGE_DETECTED' from 'azure-node' to 'raspi-01' (142.0 KB via 41 Mbit/s and 1ms RTT)
+[AppLoop][objectDetectionLoop1][    0.0ms] Task execution of module 'webapp' on node 'raspi-01'
+[AppLoop][objectDetectionLoop1][2667.99ms] <-- TOTAL LATENCY
+
+[NodeRedOrchestrator] Going to deploy new optimal deployment strategy AppDeployment{application=od, moduleToNodeMap=[detector->azure-node, webapp->raspi-01], valid=true, maxLatency=2667ms}
+[NodeRedController][debian-01] Deleted flow 'od/detector'
+[NodeRedController][azure-node] Created flow 'od/detector'
+[NodeRedController][raspi-01] Updated flow 'od/webapp'
+[NodeRedNetworkUplink]['azure-node'->'debian-01'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 41.0Mbit/s --> 40Mbit/s
+[NodeRedNetworkUplink]['raspi-01'->'debian-01'] Measured and updated uplink: Latency: 0ms --> 0ms; Bandwidth: 91.0Mbit/s --> 66Mbit/s
+[NodeRedNetworkUplink]['debian-01'->'azure-node'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 9.0Mbit/s --> 9Mbit/s
+[NodeRedNetworkUplink]['debian-01'->'raspi-01'] Measured and updated uplink: Latency: 0ms --> 0ms; Bandwidth: 89.0Mbit/s --> 71Mbit/s
+[NodeRedNetworkUplink]['raspi-01'->'azure-node'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 9.0Mbit/s --> 8Mbit/s
+[NodeRedNetworkUplink]['azure-node'->'raspi-01'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 41.0Mbit/s --> 37Mbit/s
+[QoSMonitor] maxLatency of 5000 ms exceeded in application 'od' (loop 'objectDetectionLoop1')! Actual latency was 8921 ms
+[QoSMonitor] Updated uplink speed from raspi-01 to azure-node. Old speed: 8.0 Mbit/s; New Speed: 1.4821976181128125 Mbit/s
+[QoSMonitor] Updated uplink speed from azure-node to raspi-01. Old speed: 37.0 Mbit/s; New Speed: 9.0783125 Mbit/s
+[NodeRedOrchestrator] Found new optimal deployment!
+[AppDeployment] ----------------------------------------
+[AppDeployment] Details for application 'od'
+[AppDeployment] ----------------------------------------
+[AppLoop][objectDetectionLoop1][    0.0ms] Task execution of module 'webapp' on node 'raspi-01'
+[AppLoop][objectDetectionLoop1][ 171.52ms] Transfer message with content type 'IMAGE_UNDETECTED' from 'raspi-01' to 'debian-01' (1383.0 KB via 66 Mbit/s and 0ms RTT)
+[AppLoop][objectDetectionLoop1][3777.86ms] Task execution of module 'detector' on node 'debian-01'
+[AppLoop][objectDetectionLoop1][  16.21ms] Transfer message with content type 'IMAGE_DETECTED' from 'debian-01' to 'raspi-01' (142.0 KB via 71 Mbit/s and 0ms RTT)
+[AppLoop][objectDetectionLoop1][    0.0ms] Task execution of module 'webapp' on node 'raspi-01'
+[AppLoop][objectDetectionLoop1][3965.59ms] <-- TOTAL LATENCY
+
+[NodeRedOrchestrator] Going to deploy new optimal deployment strategy AppDeployment{application=od, moduleToNodeMap=[detector->debian-01, webapp->raspi-01], valid=true, maxLatency=3965ms}
+[NodeRedController][azure-node] Deleted flow 'od/detector'
+[NodeRedController][debian-01] Created flow 'od/detector'
+[NodeRedController][raspi-01] Updated flow 'od/webapp'
+[NodeRedNetworkUplink]['azure-node'->'debian-01'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 40.0Mbit/s --> 39Mbit/s
+[NodeRedNetworkUplink]['raspi-01'->'debian-01'] Measured and updated uplink: Latency: 0ms --> 0ms; Bandwidth: 66.0Mbit/s --> 90Mbit/s
+[NodeRedNetworkUplink]['azure-node'->'raspi-01'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 9.0Mbit/s --> 36Mbit/s
+[NodeRedNetworkUplink]['debian-01'->'azure-node'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 9.0Mbit/s --> 0Mbit/s
+[NodeRedNetworkUplink]['debian-01'->'raspi-01'] Measured and updated uplink: Latency: 0ms --> 0ms; Bandwidth: 71.0Mbit/s --> 74Mbit/s
+[NodeRedNetworkUplink]['raspi-01'->'azure-node'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 1.0Mbit/s --> 0Mbit/s
+[NodeRedNetworkUplink]['azure-node'->'debian-01'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 39.0Mbit/s --> 39Mbit/s
+[NodeRedNetworkUplink]['raspi-01'->'debian-01'] Measured and updated uplink: Latency: 0ms --> 0ms; Bandwidth: 90.0Mbit/s --> 65Mbit/s
+[NodeRedNetworkUplink]['azure-node'->'raspi-01'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 36.0Mbit/s --> 36Mbit/s
+[NodeRedNetworkUplink]['debian-01'->'azure-node'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 0.0Mbit/s --> 8Mbit/s
+[NodeRedNetworkUplink]['debian-01'->'raspi-01'] Measured and updated uplink: Latency: 0ms --> 0ms; Bandwidth: 74.0Mbit/s --> 66Mbit/s
+[NodeRedNetworkUplink]['raspi-01'->'azure-node'] Measured and updated uplink: Latency: 1ms --> 1ms; Bandwidth: 0.0Mbit/s --> 7Mbit/s
+[NodeRedOrchestrator] Found new optimal deployment!
+[AppDeployment] ----------------------------------------
+[AppDeployment] Details for application 'od'
+[AppDeployment] ----------------------------------------
+[AppLoop][objectDetectionLoop1][    0.0ms] Task execution of module 'webapp' on node 'raspi-01'
+[AppLoop][objectDetectionLoop1][1454.23ms] Transfer message with content type 'IMAGE_UNDETECTED' from 'raspi-01' to 'azure-node' (1383.0 KB via 7 Mbit/s and 1ms RTT)
+[AppLoop][objectDetectionLoop1][1422.34ms] Task execution of module 'detector' on node 'azure-node'
+[AppLoop][objectDetectionLoop1][  32.86ms] Transfer message with content type 'IMAGE_DETECTED' from 'azure-node' to 'raspi-01' (142.0 KB via 36 Mbit/s and 1ms RTT)
+[AppLoop][objectDetectionLoop1][    0.0ms] Task execution of module 'webapp' on node 'raspi-01'
+[AppLoop][objectDetectionLoop1][2909.43ms] <-- TOTAL LATENCY
+
+[NodeRedOrchestrator] Going to deploy new optimal deployment strategy AppDeployment{application=od, moduleToNodeMap=[detector->azure-node, webapp->raspi-01], valid=true, maxLatency=2909ms}
+[NodeRedController][debian-01] Deleted flow 'od/detector'
+[NodeRedController][azure-node] Created flow 'od/detector'
+[NodeRedController][raspi-01] Updated flow 'od/webapp'
+
+Process finished with exit code 130 (interrupted by signal 2: SIGINT)

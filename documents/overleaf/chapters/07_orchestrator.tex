@@ -99,7 +99,7 @@ The orchestrator fetches each flow from the database and deploys it to the node-
 \subsection*{Communication}
 The communication between two application modules (Node-RED flows) is done by using the \textit{HTTP nodes} available in Node-RED. For instance, the module \texttt{object-detector} is accepting HTTP requests on the endpoint \texttt{/object-detection/object-detector} (module \textit{input}), so that the module \texttt{camera-controller} (the previous module in the loop) can send its \textit{output} via an \texttt{HTTP POST} request to that endpoint. However, \textit{node A} must know that the output of \texttt{camera-controller} must be send to \textit{node B}. To achieve this, the Orchestrator places the address of \textit{node B} in the \texttt{camera-controller} flow it got from the database before it deploys this flow to \textit{node A} (see figure \ref{fig:orchestrator-activitydiagram-deploy-flows}).
 
-\section{Monitoring the current deployment strategy}
+\section{Monitoring the current deployment strategy\label{sec:orchestrator-monitoring-deployment-strategy}}
 
 The Orchestrator must verify that the selected deployment strategy really meets the application requirements. Since the goal here is to get the result within a certain time, the last module in the loop must tell the Orchestrator how long it took to process the application loop. If the latency requirements could not be fulfilled, the Orchestrator must be able to identify the problem and react to the environmental changes.
 
