@@ -4,7 +4,7 @@ import de.tuberlin.aot.thesis.slienau.orchestrator.models.Heartbeat;
 import de.tuberlin.aot.thesis.slienau.orchestrator.models.NodeRedFlow;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.HeartbeatMonitor;
 import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.HeartbeatProcessor;
-import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.ResultsMonitor;
+import de.tuberlin.aot.thesis.slienau.orchestrator.monitor.QoSMonitor;
 import de.tuberlin.aot.thesis.slienau.scheduler.application.AppSoftwareModule;
 import de.tuberlin.aot.thesis.slienau.scheduler.application.Application;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.FogNode;
@@ -46,7 +46,7 @@ public class NodeRedOrchestrator {
 
         new Thread(new HeartbeatMonitor()).start();
         new Thread(new HeartbeatProcessor()).start();
-        new Thread(new ResultsMonitor()).start();
+        new Thread(new QoSMonitor()).start();
     }
 
     private static Application createSensorNetworkApplication() {

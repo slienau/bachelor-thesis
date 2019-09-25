@@ -9,7 +9,7 @@ import de.tuberlin.aot.thesis.slienau.utils.MqttUtils;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-public class ResultsMonitor implements Runnable {
+public class QoSMonitor implements Runnable {
 
     private final static ObjectMapper MAPPER = new ObjectMapper();
     private final static String topic = "/results/#";
@@ -23,7 +23,7 @@ public class ResultsMonitor implements Runnable {
             connOpts.setCleanSession(true);
             client.connect(connOpts);
             client.subscribe(topic);
-            System.out.println("[ResultsMonitor] Subscribed to topic " + topic);
+            System.out.println("[QoSMonitor] Subscribed to topic " + topic);
         } catch (MqttException me) {
             MqttUtils.printMqttException(me);
         }
@@ -36,7 +36,7 @@ public class ResultsMonitor implements Runnable {
 
         @Override
         public void connectionLost(Throwable cause) {
-            System.err.println("[ResultsMonitor] Connection to MQTT broker lost!");
+            System.err.println("[QoSMonitor] Connection to MQTT broker lost!");
         }
 
         @Override
@@ -61,7 +61,7 @@ public class ResultsMonitor implements Runnable {
                     double oldSpeed = uplink.getMBitPerSecond();
                     double newSpeed = transferStat.getMbitPerSecond();
                     uplink.setMbitPerSecond(newSpeed);
-                    System.out.println(String.format("[ResultsMonitor] Updated uplink speed from %s to %s. Old speed: %s Mbit/s; New Speed: %s Mbit/s", sourceNode.getId(), uplink.getDestination().getId(), oldSpeed, newSpeed));
+                    System.out.println(String.format("[QoSMonitor] Updated uplink speed from %s to %s. Old speed: %s Mbit/s; New Speed: %s Mbit/s", sourceNode.getId(), uplink.getDestination().getId(), oldSpeed, newSpeed));
                 });
             } catch (Exception e) {
                 System.err.println("FAILED to map stats message to ResultStats object. " + e.getMessage());
