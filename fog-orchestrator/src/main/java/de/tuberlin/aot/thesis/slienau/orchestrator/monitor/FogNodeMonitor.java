@@ -14,6 +14,7 @@ public class FogNodeMonitor implements Runnable {
     private static final int CHECKING_INTERVAL = 1; // FogNodeMonitor will run every x seconds
     private static final int HEARTBEAT_TIMEOUT = 3; // FogNodeMonitor will check if node is still available if no new heartbeat was received within x seconds
     private static final int HARD_TIMEOUT = 10; // FogNodeMonitor will remove fogNode from infrastructure without checking if no heartbeat was received within x seconds
+    private static final int UPLINK_MAX_AGE = 60; // FogNodeMonitor will remeasure uplinks which are older than x seconds
     private final NodeRedFogNode fogNode;
 
     public FogNodeMonitor(NodeRedFogNode fogNode) {
@@ -47,6 +48,7 @@ public class FogNodeMonitor implements Runnable {
                     try {
                         if (InetAddress.getByName(fogNode.getNodeRedController().getIp()).isReachable(3000)) {
                             System.out.println(String.format("[FogNodeMonitor][%s] Is reachable.", fogNode.getId()));
+                            continue;
                         } else {
                             System.out.println(String.format("[FogNodeMonitor][%s] Is not reachable. Going to remove it from infrastructure.", fogNode.getId()));
                             orchestrator.removeFogNode(fogNode.getId());
@@ -54,6 +56,19 @@ public class FogNodeMonitor implements Runnable {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
+                    }
+                }
+
+                // REMEASURE OLD UPLINKS
+                for (NetworkUplink nu : fogNode.getUplinks()) {
+                    if (nu.getSource() == nu.getDestination())
+                        continue; // don't remeasure uplinks to localhost
+                    NodeRedNetworkUplink uplink = (NodeRedNetworkUplink) nu;
+                    long uplinkAge = ChronoUnit.SECONDS.between(uplink.getMeasurementTime(), LocalDateTime.now());
+                    if (uplinkAge > UPLINK_MAX_AGE && uplink.getState() != NodeRedNetworkUplink.NetworkUplinkState.MEASURING) {
+//                        System.out.println(String.format("[FogNodeMonitor][%s] Going to remeasure uplink %s", fogNode.getId(), uplink));
+                        uplink.measure(true, true);
+                        break;
                     }
                 }
 

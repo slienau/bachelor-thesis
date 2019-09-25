@@ -21,23 +21,30 @@ public class NodeRedFogNode extends FogNode {
     public NodeRedFogNode(String id, String ip, int port, List<String> connectedHardware) {
         super(id, connectedHardware);
         nodeRedController = new NodeRedController(id, ip, port);
+        System.out.println(String.format("[NodeRedFogNode][%s] Created new instance", this.getId()));
+        initialize();
+    }
+
+    private void initialize() {
         try {
-            // delete all flows on new node (in case they have "old" flows deployed which could disturb the current deployment strategy)
+            // delete all flows on new node (in case they have "old" unwanted flows deployed which could disturb the current deployment strategy)
             nodeRedController.deleteAllFlows();
         } catch (IOException e) {
             e.printStackTrace();
         }
         this.getAndSetSysinfo();
 
-        // remove "unlimited" uplink (used in algorithm) and measure bandwidth to self instead
+        // remove "unlimited" uplink to localhost (used in algorithm) and measure bandwidth instead
         super.removeUplinkTo(this.getId());
         double mbitsToSelf = this.measureBandwidthTo(this.getAddress());
         super.addUplink(new NodeRedNetworkUplink(this, this, 0, mbitsToSelf));
 
         // measure benchmark
         this.getAndSetCpuBenchmark();
-        System.out.println(String.format("[NodeRedFogNode] Created new instance %s", this));
 
+        System.out.println(String.format("[NodeRedFogNode][%s] Initialization complete %s", this.getId(), this));
+
+        // Start FogNodeMonitor thread which monitors this node
         new Thread(new FogNodeMonitor(this)).start();
     }
 
@@ -69,16 +76,14 @@ public class NodeRedFogNode extends FogNode {
         }
     }
 
-    public int measureLatencyTo(String destinationIp) {
-        try {
-            byte[] resultBytes = this.executeMqttCommand("ping", destinationIp.getBytes(), 10);
-            if (resultBytes == null)
-                throw new IOException(String.format("[NodeRedFogNode][%s] Latency measurement to %s failed", this.getId(), destinationIp));
-            return (int) OBJECT_MAPPER.readTree(resultBytes).path("time").doubleValue() + 1; // +1 to "round up"
-        } catch (Throwable e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+    public int measureLatencyTo(String destinationIp) throws IOException {
+        if (this.getIp().equals(destinationIp)) {
+            return 0; // latency to localhost is 0
         }
+        byte[] resultBytes = this.executeMqttCommand("ping", destinationIp.getBytes(), 10);
+        if (resultBytes == null)
+            throw new IOException(String.format("[NodeRedFogNode][%s] Latency measurement to %s failed", this.getId(), destinationIp));
+        return (int) OBJECT_MAPPER.readTree(resultBytes).path("time").doubleValue() + 1; // +1 to "round up"
     }
 
 //    /**
@@ -189,8 +194,9 @@ public class NodeRedFogNode extends FogNode {
     @Override
     public String toString() {
         return "NodeRedFogNode{" +
-                "fogNode=" + super.toString() +
-                ", nodeRedController=" + nodeRedController +
+                "ip=" + nodeRedController.getIp() +
+                ", port=" + nodeRedController.getPort() +
+                ", fogNode=" + super.toString() +
                 '}';
     }
 

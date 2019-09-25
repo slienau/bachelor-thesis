@@ -3,6 +3,7 @@ package de.tuberlin.aot.thesis.slienau.orchestrator;
 import de.tuberlin.aot.thesis.slienau.scheduler.infrastructure.NetworkUplink;
 import de.tuberlin.aot.thesis.slienau.utils.SchedulerUtils;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 public class NodeRedNetworkUplink extends NetworkUplink {
@@ -34,6 +35,9 @@ public class NodeRedNetworkUplink extends NetworkUplink {
     public void measure(boolean bandwidth, boolean latency) {
         if (state == NetworkUplinkState.MEASURING) // don't start a second measurement process if another one is still active
             return;
+
+        int oldLatency = this.getLatency();
+        double oldBandwidth = this.getMBitPerSecond();
         state = NetworkUplinkState.MEASURING;
         NodeRedFogNode source = (NodeRedFogNode) getSource();
         NodeRedFogNode destination = (NodeRedFogNode) getDestination();
@@ -42,11 +46,18 @@ public class NodeRedNetworkUplink extends NetworkUplink {
             super.setMbitPerSecond(newMbitPerSecond);
         }
         if (latency) {
-            int newLatency = source.measureLatencyTo(destination.getNodeRedController().getIp());
-            super.setLatency(newLatency);
+            try {
+                int newLatency = source.measureLatencyTo(destination.getNodeRedController().getIp());
+                super.setLatency(newLatency);
+            } catch (IOException e) {
+                System.err.println(String.format("[NodeRedNetworkUplink] Failed to measure latency from '%s' to '%s'", source.getId(), destination.getId()));
+                e.printStackTrace();
+            }
+
         }
         measurementTime = LocalDateTime.now();
         state = NetworkUplinkState.UP;
+        System.out.println(String.format("[NodeRedNetworkUplink]['%s'->'%s'] Measured and updated uplink: Latency: %sms --> %sms; Bandwidth: %sMbit/s --> %sMbit/s", this.getSource().getId(), this.getDestination().getId(), oldLatency, this.getLatency(), oldBandwidth, this.getMBitPerSecond()));
     }
 
     @Override
@@ -54,6 +65,10 @@ public class NodeRedNetworkUplink extends NetworkUplink {
         if (state == NetworkUplinkState.MEASURING)
             return;
         this.setBitPerSecond(SchedulerUtils.mbitToBit(mbitPerSecond));
+    }
+
+    public NetworkUplinkState getState() {
+        return state;
     }
 
     @Override
