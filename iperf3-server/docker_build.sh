@@ -1,13 +1,12 @@
 #!/bin/bash
 
-source env.sh
+if [[ "$(uname -m)" == "arm"* ]]; then
+    BASE_IMAGE="arm32v7/alpine"
+else
+    BASE_IMAGE="alpine"
+fi
 
 docker build \
---build-arg BASE_IMAGE="alpine" \
--t $DOCKER_IMAGE \
--f Dockerfile .
-
-docker build \
---build-arg BASE_IMAGE="arm32v7/alpine" \
--t $DOCKER_IMAGE:arm \
+--build-arg BASE_IMAGE=$BASE_IMAGE \
+-t iperf3-server \
 -f Dockerfile .

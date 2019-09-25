@@ -1,6 +1,4 @@
 #!/bin/bash
 
-source env.sh
-
-docker stop $DOCKER_CONTAINER_NAME
-docker rm $DOCKER_CONTAINER_NAME
+docker stop iperf3-server
+docker rm iperf3-server
