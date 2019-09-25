@@ -63,7 +63,7 @@ Next, the relevant classes for the infrastructure are described. The correspondi
         
         \item \underline{\texttt{calculateProcessingTime(AppSoftwareModule module): double}}\\ [0.5ex] 
         Calculates the execution time of an \texttt{AppSoftwareModule} (see section \ref{sec:algorithm-application}) on this node. Returns the value in milliseconds. The result is calculated using the following formula:
-        \[\textrm{execution time [ms]} = \frac{\textrm{required instructions for message}}{\textrm{CPU instructions per second}}\ 1000\]
+        \[\textrm{execution time [ms]} = \frac{\textrm{\texttt{requiredMi}}}{\textrm{\texttt{cpuMips}}}\ \boldsymbol{\cdot} 1000\]
     \end{itemize}
 
 \end{itemize}
@@ -90,7 +90,7 @@ Next, the relevant classes for an application are described. The corresponsing c
         \item \underline{\texttt{requiredRam}}: RAM required by the module.
         \item \underline{\texttt{requiredStorage}}: Disk storage required by the module.
         \item \underline{\texttt{requiredHardwareModules}}: Hardware modules that must be connected to the node that executes the software module. For instance, the hardware module \texttt{CAMERA} must be connected to a node which executes the software module \texttt{CAMERA\_CONTROLLER} in order to instruct the camera to take a picture first and output that picture to another module for further processing in the next step.
-        \item \underline{\texttt{requiredMips}}: This attribute determines how many CPU instructions are needed approximately for processing a single message. This allows the execution time to be estimated.
+        \item \underline{\texttt{requiredMi}}: This attribute determines how many CPU instructions are needed approximately for processing a single message. This allows the execution time to be estimated.
     \end{itemize}
     
     \item \underline{\texttt{AppMessage}}: A message has the following \textit{fields}:
@@ -203,7 +203,7 @@ The result is a set of deployments which fulfill the application requirements. T
 
 How the hardware and latency requirements are validated is shown in figures \ref{fig:algorithm-activitydiagram-hardware} and \ref{fig:algorithm-activitydiagram-latency}. To validate latency requirements it is necessary to calculate the \textit{total latency} of a loop, which is the sum of the processing times of all modules and all message transfers between the modules of the loop. The following formula shows the calculation of the total latency with $t_n$ = execution time of module \textit{n} and $t_m$ = transfer time of message \textit{m}:
 
-\[ \textrm{total latency} = \sum_{n=0}^N t_n + \sum_{M=0}^M t_m\]
+\[ \textrm{total latency} = \sum_{n=0}^N t_n + \sum_{m=0}^M t_m\]
 
 The calculations of \textit{total processing time} and \textit{total transfer time} are depicted in activity diagrams in figures \ref{fig:algorithm-activitydiagram-latency-processing} and \ref{fig:algorithm-activitydiagram-latency-transfer}.
 

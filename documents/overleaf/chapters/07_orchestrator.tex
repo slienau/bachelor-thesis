@@ -2,31 +2,31 @@
 
 The algorithm described in section \ref{cha:algorithm} works so far in a static context. However, the task is to apply the optimal deployment to a Node-RED cluster, where the network conditions can change at any time. While the application characteristics remain unchanged, the infrastructure can change mainly in two ways. First, fog nodes may join or leave the network, and second, network connection quality between nodes can get better or worse. These changes must be detected by the Orchestrator, and if the current deployment strategy no longer meets the application requirements, a new optimal deployment must be found and applied.
 
-The class \texttt{NodeRedOrchestrator} takes care of this job. It monitors the infrastructure and deploys the optimal deployment to it by using the \textit{QoS-Scheduler}. To make use of the \textit{QoS-Scheduler}, an \texttt{Infrastructure} and \texttt{Application} instance must be available. The former one is actively maintained by the Orchestrator (see section \ref{orchestrator-monitoring}), while the latter one is statically created upon start-up of the \texttt{NodeRedOrchestrator}. The class \texttt{FogNode} of the algorithm in section \ref{cha:algorithm} is extended by the class \texttt{NodeRedFogNode} in order to add additional functionality for measuring the nodes hardware and network capabilities before it is added to the infrastructure.
+The class \texttt{NodeRedOrchestrator} takes care of this job. It monitors the infrastructure and deploys the optimal deployment to it by using the \textit{QoS-Scheduler}. To make use of the \textit{QoS-Scheduler}, an \texttt{Infrastructure} and \texttt{Application} instance must be available. The former one is actively maintained by the Orchestrator (see section \ref{sec:orchestrator-monitoring}), while the latter one is statically created upon start-up of the \texttt{NodeRedOrchestrator}. The class \texttt{FogNode} of the algorithm in section \ref{cha:algorithm} is extended by the class \texttt{NodeRedFogNode} in order to add additional functionality for measuring the nodes hardware and network capabilities before it is added to the infrastructure.
 
 The corresponding class diagram is shown in figure \ref{fig:orchestrator-classdisgram}.
 
-\section{Monitoring the infrastructure\label{orchestrator-monitoring}}
+\section{Monitoring the infrastructure\label{sec:orchestrator-monitoring}}
 
 Directly after starting the orchestrator, it is only aware of the applications that should be deployed to the infrastructure. However, the infrastructure is empty at the beginning. Fog nodes send their availability status via a \texttt{heartbeat} message to a \texttt{MQTT} broker at a given interval. The orchestrator listens for those messages and has different handlers for different possibilities:
 \begin{enumerate}
     \item The node sending the heartbeat is not registered in the current infrastructure\\
-    → Handle new fog node
+    → Handle new fog node (see section \ref{sec:handling-new-fog-nodes})
     \item The node sending the heartbeat is registered\\
     → Update timestamp of last received heartbeat
     \item Orchestrator is expecting but missing a heartbeat from a node\\
     → Check if node is still up and if not, remove it from infrastructure
 \end{enumerate}
 
-\subsection*{Handling new fog nodes}
+\section{Handling new fog nodes\label{sec:handling-new-fog-nodes}}
 
 In the case of receiving a heartbeat from a node that the orchestrator does not know yet, the hardware capabilities as well as the network connection of the node must be checked before it can be added to the infrastructure. To achieve this, the node is able to receive several commands via \texttt{MQTT}.
 
 \begin{itemize}
     \item \texttt{sysinfo}: Sends basic information about the nodes hardware (\textit{RAM}, \textit{storage}, \textit{cpu cores}, \textit{connected hardware}).
-    \item \texttt{ping}: Measures the \textit{RTT} from this node to another node. Returns the latency in milliseconds. The command line tool \texttt{ping} is used for this purpose.
+    \item \texttt{ping}: Measures the \textit{RTT} from this node to another node by using the command line tool \texttt{ping}. Returns the latency in milliseconds.
     \item \texttt{bandwidth}: Measures the network connection from this node to another node. Returns the bandwidth in Mbit/s.
-    \item \texttt{benchmark\_cpu}: Runs the tool \texttt{sysbench} which is a lightweight benchmark tool made for linux servers. The result is the \textit{execution time} for a given (but always the same) task. The faster the execution time, the faster the CPU.
+    \item \texttt{benchmark\_cpu}: Runs the tool \texttt{sysbench} which is a lightweight benchmark tool made for linux servers. The result is the \textit{execution time} for a given (but always the same) task. A CPU score is calculated based on the execution time (see section \ref{sec:benchmark-cpu}). This score is then returned by the \texttt{benchmark\_cpu} command.
 \end{itemize}
 
 Figure \ref{fig:orchestrator-initial-heartbeat} shows how the Orchestrator handles a \texttt{heartbeat} from an unknown fog node. Note that \texttt{ping} and \texttt{bandwidth} are measured from this node to \textit{all other existing nodes} in the infrastructure.
@@ -40,20 +40,20 @@ Figure \ref{fig:orchestrator-initial-heartbeat} shows how the Orchestrator handl
 
 After the Orchestrator has collected all required information about the node, it is added to the infrastructure and the \textit{Qos Scheduler} is run to (eventually) find a new optimal deployment.
 
-\subsubsection*{Measuring bandwidth}
+\subsection{Measuring bandwidth\label{sec:measuring-bandwidth}}
 To measure the bandwidth a tool called \texttt{iperf3} was used first, which measures the transfer rate via \texttt{TCP}. However, these measured values could not be achieved in practice, since \texttt{HTTP} is used for message transmission between the modules. Because \texttt{HTTP} is build on top of \texttt{TCP}, it introduces additional protocol overhead and thus has a lower transfer rate than \texttt{TCP}. For this reason, \texttt{iperf3} was replaced by a measurement method using \texttt{HTTP}:
 
 To measure the uplink from \textit{node A} to \textit{node B}, \textit{node A} sends a \texttt{HTTP POST} request to a predefined endpoint on \textit{node B}. The \texttt{HTTP body} initially contains \texttt{1MB} of data. After \textit{node B} has received the request, it responds with an empty body. \textit{Node A} can then calculate the \textit{transfer rate} by using the \textit{data size} and \textit{transfer time}.
 If the response from node B is received fairly rapidly (less than 500ms), node A repeats the measurement with a larger data size to get a more accurate result.
 
-\subsubsection*{Benchmarking CPU}
+\subsection{Benchmarking CPU\label{sec:benchmark-cpu}}
 The algorithm uses the unit \textit{MIPS} to specify the speed of a CPU, respectively to specify the required CPU instructions of a module in order to calculate the execution time of a module on a node. However, \textit{MIPS} can't be read from the system like total RAM or amount of CPU cores. For this reason a CPU score is used instead. The Orchestrator calculates this score according to the following formula:
 \[\textrm{CPU score} = \frac{10000}{\textrm{sysbench result [time in ms]}}\]
 
 Thus, the lower the execution time of \texttt{sysbench}, the higher the CPU score. This score is used for the field \texttt{cpuMips} of a \texttt{FogNode} instance.
 
-However, the field \texttt{requiredMips} of an \texttt{AppSoftwareModule} instance must also be set accordingly. To determine this value, the corresponding software module is executed on a node where we know the CPU score. Since we can measure the execution time on that node, the required value can be calculated as follows:
-\[\textrm{required instructions} = \frac{\textrm{CPU score} \boldsymbol{\cdot} \textrm{execution time [ms]}}{1000}\]
+However, the field \texttt{requiredMi} of an \texttt{AppSoftwareModule} instance must also be set accordingly. To determine this value, the corresponding software module is deployed on a node where we know the CPU score. Since we can measure the execution time of processing one message on that node, the required value can be calculated as follows:
+\[\textrm{\texttt{requiredMi}} = \textrm{CPU score} \boldsymbol{\cdot} \frac{\textrm{execution time [ms]}}{1000 \textrm{ [ms]}}\]
 
 
 \section{Using the QoS-Scheduler in the Orchestrator}

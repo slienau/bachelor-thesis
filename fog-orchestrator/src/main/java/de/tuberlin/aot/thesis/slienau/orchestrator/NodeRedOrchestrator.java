@@ -68,13 +68,42 @@ public class NodeRedOrchestrator {
 
     private static Application createObjectDetectionApplication() {
         Application a = new Application("od");
-        a.addHardwareModule("OD-DOCKER-CONTAINER", "IMAGE_DETECTED");
-        a.addSoftwareModule("webapp", null, "IMAGE_UNDETECTED", 0, 0, 0, Arrays.asList("CAMERA"));
-        a.addSoftwareModule("detector", "IMAGE_UNDETECTED", "IMAGE_DETECTED", 0, 0, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_DEBIAN_02, 1250), Arrays.asList("OD-DOCKER-CONTAINER"));
 
-        a.addMessage("IMAGE_UNDETECTED", 1383);
-        a.addMessage("IMAGE_DETECTED", 142);
-        a.addLoop("objectDetectionLoop1", 5000, Arrays.asList("webapp", "detector", "webapp"), true);
+        // adding software module "webapp"
+        a.addSoftwareModule("webapp", // module name
+                null, // module input
+                "IMAGE_UNDETECTED", // module output
+                0, // required RAM
+                0, // required storage
+                0, // required CPU instructions to process one message
+                Arrays.asList("CAMERA")
+        );
+
+
+        // adding software module "detector"
+
+        // execution time of detector on vm-02: 1317 ms
+        // CPU score of vm-02: 11661
+        double requiredMiForDetector = 11661 * (1317d / 1000d);
+
+        a.addSoftwareModule(
+                "detector", // module name
+                "IMAGE_UNDETECTED", // module input
+                "IMAGE_DETECTED", // module output
+                0, // required RAM
+                0, // required storage
+                (int) requiredMiForDetector, // required instructions to process one message
+                Arrays.asList("OD-DOCKER-CONTAINER") // required hardware modules
+        );
+
+        a.addMessage("IMAGE_UNDETECTED", 1383); // sample image (original), 1.383 KB
+        a.addMessage("IMAGE_DETECTED", 142); // sample image (detected), 142 KB
+
+        a.addLoop("objectDetectionLoop1",
+                5000, // max latency
+                Arrays.asList("webapp", "detector", "webapp"), // module sequence
+                true // allow mismatching input/output types
+        );
 
         return a;
     }

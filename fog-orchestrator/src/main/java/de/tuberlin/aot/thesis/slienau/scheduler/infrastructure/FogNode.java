@@ -14,7 +14,7 @@ public class FogNode {
     private float ramTotal;
     private float storageTotal;
     private int cpuCores;
-    private int cpuInstructionsPerSecond;
+    private int cpuMips;
 
     public FogNode(String id, List<String> connectedHardware) {
         this.id = id;
@@ -23,12 +23,12 @@ public class FogNode {
         this.addUplinkToSelf();
     }
 
-    public FogNode(String id, float ramTotal, float storageTotal, int cpuCores, int cpuInstructionsPerSecond, List<String> connectedHardware) {
+    public FogNode(String id, float ramTotal, float storageTotal, int cpuCores, int cpuMips, List<String> connectedHardware) {
         this.id = id;
         this.ramTotal = ramTotal;
         this.storageTotal = storageTotal;
         this.cpuCores = cpuCores;
-        this.cpuInstructionsPerSecond = cpuInstructionsPerSecond;
+        this.cpuMips = cpuMips;
         if (connectedHardware != null)
             this.connectedHardware.addAll(connectedHardware);
         // add uplink to node itself with 0 latency and unlimited bandwidth
@@ -154,8 +154,8 @@ public class FogNode {
         this.cpuCores = cpuCores;
     }
 
-    public void setCpuInstructionsPerSecond(int cpuInstructionsPerSecond) {
-        this.cpuInstructionsPerSecond = cpuInstructionsPerSecond;
+    public void setCpuMips(int cpuMips) {
+        this.cpuMips = cpuMips;
     }
 
     /**
@@ -163,9 +163,9 @@ public class FogNode {
      * @return Processing time for module on this node in milliseconds
      */
     public double calculateProcessingTimeForModule(AppSoftwareModule module) {
-        double instructionsPerMessage = module.getRequiredCpuInstructionsPerMessage();
-        double cpuInstructionsPerSecond = this.cpuInstructionsPerSecond;
-        return SchedulerUtils.round((instructionsPerMessage / cpuInstructionsPerSecond) * 1000);
+        double instructionsPerMessage = module.getRequiredMi();
+        double cpuMips = this.cpuMips;
+        return SchedulerUtils.round((instructionsPerMessage / cpuMips) * 1000);
     }
 
     public String getProcessingTimeString(AppSoftwareModule module) {
@@ -194,7 +194,7 @@ public class FogNode {
                 String.format(", ramUsed=%sMB/%sMB (%s%%)", this.getRamUsed(), this.ramTotal, this.getRamUsedPercent()) +
                 String.format(", storageUsed=%sGB/%sGB (%s%%)", this.getStorageUsed(), this.storageTotal, this.getStorageUsedPercent()) +
                 ", cpuCores=" + cpuCores +
-                ", cpuInstructionsPerSecond=" + cpuInstructionsPerSecond +
+                ", cpuMips=" + cpuMips +
                 ", connectedHardware=" + connectedHardware +
                 ", deployedModules=[" + deployedModules.stream().map(module -> String.format("%s (RAM %sMB/Storage %sGB)", module.getId(), module.getRequiredRam(), module.getRequiredStorage())).collect(Collectors.joining(", ")) + "]" +
                 ", uplinks=[" + uplinks.values().stream().map(uplink -> String.format("{to: %s, %sms, %sMbit/s}", uplink.getDestination().getId(), uplink.getLatency(), uplink.getMBitPerSecond())).collect(Collectors.joining(", ")) + "]" +

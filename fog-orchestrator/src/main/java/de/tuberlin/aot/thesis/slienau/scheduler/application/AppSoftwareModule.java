@@ -8,14 +8,14 @@ import java.util.List;
 public class AppSoftwareModule extends AppModule {
     private final int requiredRam; // MB
     private final double requiredStorage; // GB
-    private final int requiredCpuInstructionsPerMessage;
+    private final int requiredMi; // required Million Instructions to process one message
     private final List<String> requiredHardwareModules;
 
-    AppSoftwareModule(String id, String inputType, String outputType, int requiredRam, double requiredStorage, int requiredCpuInstructionsPerMessage, List<String> requiredHardwareModules) {
+    AppSoftwareModule(String id, String inputType, String outputType, int requiredRam, double requiredStorage, int requiredMi, List<String> requiredHardwareModules) {
         super(id, inputType, outputType);
         this.requiredRam = requiredRam;
         this.requiredStorage = requiredStorage;
-        this.requiredCpuInstructionsPerMessage = requiredCpuInstructionsPerMessage;
+        this.requiredMi = requiredMi;
         this.requiredHardwareModules = new ArrayList<>();
         if (requiredHardwareModules != null)
             this.requiredHardwareModules.addAll(requiredHardwareModules);
@@ -29,8 +29,8 @@ public class AppSoftwareModule extends AppModule {
         return requiredStorage;
     }
 
-    public int getRequiredCpuInstructionsPerMessage() {
-        return requiredCpuInstructionsPerMessage;
+    public int getRequiredMi() {
+        return requiredMi;
     }
 
     public List<String> getRequiredHardwareModules() {
@@ -52,7 +52,7 @@ public class AppSoftwareModule extends AppModule {
                 "id='" + super.getId() + '\'' +
                 ", requiredRam=" + requiredRam +
                 ", requiredStorage=" + requiredStorage +
-                ", requiredCpuInstructions=" + requiredCpuInstructionsPerMessage +
+                ", requiredMi=" + requiredMi +
                 ", requiredHardwareModules=" + requiredHardwareModules +
                 '}';
     }
