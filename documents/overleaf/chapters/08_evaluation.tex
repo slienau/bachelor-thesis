@@ -11,7 +11,7 @@ For both experiments it is examined which decisions the Orchestrator makes and w
 
 
 
-\section{Experimental setup}
+\section{Evaluation setup}
 
 \subsection{Infrastructure\label{sec:eval-infrastructure}}
 
@@ -291,13 +291,23 @@ Nevertheless, the Orchestrator always applies the deployment strategy which allo
 
 \section{Discussion}
 
-TODO
+The evaluation showed that the Orchestrator developed in this thesis is fundamentally able to dynamically apply different deployment strategies to a Node-RED environment resulting in an optimized quality of service.
 
-- CPU: Intel -> gut vergleichbar; ARM -> nicht gut vergleichbar
-alternative methode: test ausführung von modules und sich die zeit merken
+The measurements of the network connections between the nodes produced realistic results, to that the Orchestrator could estimate transfer times of messages fairly well.
+Calculating the execution time of tasks has partly delivered unrealistic results, so this estimation does not work reliably and can lead to wrong decisions as happened in the first experiment.
+The reason for this is the method used by the Orchestrator to measure and compare the CPU performance of different devices.
+A program is run on every new fog node joining the infrastructure, while the execution time is measured.
+However, the execution time of one task cannot be set in relation to the execution time of another task.
 
-problem: input size --> auch hier wären erfahrungswerte besser
+In the first experiment, the values of \texttt{vm-02} were used as the basis for calculating \texttt{requiredMi\textsubscript{detector}}.
+Therefore, the execution time of the \texttt{detector} module could be calculated relatively \textcolor{red}{\textbf{percise (percisely?)}} on \texttt{vm-02}.
+The same was true for \texttt{vm-01}, since both nodes shared the same CPU, although the CPU of \texttt{vm-01} was limited.
+If the values of \texttt{raspi-02} had been used to calculate \texttt{requiredMi\textsubscript{detector}} instead, the execution time of \texttt{detector} on \texttt{raspi-02} would have been estimated correctly, but the estimated execution time on other nodes would have been wrong.
 
-Problem: webapp hat zwei input und zwei output types
+In the second experiment, the deployment strategy changed \textit{after} failing to process a request within the required time.
+This could have been avoided by setting lower intervals for checking uplinks and deployment strategies, thus the increased network traffic after request one would have been detected earlier.
+Therefore, the Orchestrator would have changed the deployment strategy \textit{before} request two, so the maximum allowed latency would not have been exceeded.
+However, the uplink measurements generate network traffic themselves, so that this interval should be chosen with caution.
+If set too low, the measurements would constantly use bandwidth, thus leading to higher latency of the deployed services.
 
-problem: netzwerkmessungen bei vielen nodes
+Although the system enables the QoS-aware task execution on distributed Node-RED clusters, there are some expansion and improvement capabilities of the system which are discussed in the next and last chapter.

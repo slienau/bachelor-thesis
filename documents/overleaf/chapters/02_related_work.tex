@@ -33,7 +33,7 @@ This makes FBP highly attractive for Fog computing environments, where each fog 
 \section{QoS-aware resource allocation and scheduling}
 In this section, related work on QoS, load-balancing, and resource allocation is discussed. Although Fog is considered to be a cloud close to the ground, load balancing strategies of cloud computing cannot be directly adopted in the fog network because of the heterogeneity of fog \cite{novel-load-balancing}.
 
-\subsection{FogTorch}
+\subsection*{FogTorch}
 In \cite{fogtorch} a model to support QoS-aware deployment of multicomponent IoT applications to a Fog infrastructures is proposed. Furthermore, a Java tool called \texttt{FogTorch} has been prototyped which implements that model. The model allows to define QoS profiles, Fog infrastructures and IoT applications, which are used to determine eligible deployments.\\
 
 A \texttt{QoS profile} defines bandwidth and average latency required for an application, or offered by a communication link. A \texttt{fog infrastructure} includes IoT devices, Fog nodes, Cloud data centers, and communication links, while each link is associated to its QoS profile. Cloud computing is modeled according to the hypothesis that it can offer a virtually unlimited amount of hardware capabilities. An IoT \texttt{application} is a set of independently deployable components that are working together and must meet some QoS constraints. For this, software components as well as required interactions among components, including the desired QoS profile, are defined. In the end, an \texttt{eligible deployment} for the IoT application is calculated by an algorithm.\\
@@ -47,11 +47,21 @@ The QoS of communication links are modeled by using probability distributions re
 In the end, it aggregates the results for deployments generated over a large number runs.
 The output of FogTorch$\pi$ contains eligible deployments (like FogTorch), but additionally outputs QoS assurance and resource consumption over Fog nodes which allows to compare possible deployments and evaluate the impact of possible changes.
 
-\subsection{iFogSim}
+\subsection*{MPSO-CO}
+
+\cite{novel-load-balancing} proposes the \textit{modified constrained optimization particle swarm optimization} (MPSO-CO) load balancing algorithm, which is \textit{software defined networking} (SDN)-based.
+It is able to effectively decrease latency and improve the QoS in a \textit{software defined cloud/fog networking} (SDCFN) architecture compared to other algorithms.
+It was developed for Internet of Vehicles (IoV) applications which still suffers high processing latency.
+SDN is used for centralized control and to get the required information before load balancing.
+The key technology of SDN is decoupling data and control plane.
+The controller collects real-time information of the network including load, processing speed, and communication latency.
+Based on that, it can formulate optimal load balancing strategies for the network.
+
+\subsection*{iFogSim}
 
 In \cite{ifogsim} a tool called \textit{iFogSim} is designed and implemented. It is used to \textit{simulate} a Fog computing environment by using two different placement strategies (\textit{cloud-only} and \textit{edge-ward}). It was found that the average latency of a control loop is much lower in a \textit{edge-ward} than in a \textit{cloud-only} placement strategy.\\
 
-In this work an algorithm for a \textit{real} fog environment is developed and implemented in section \ref{cha:algorithm}, which is inspired by \textit{iFogSim} and adopts some classes of its class model. For this reason, the relevant classes for this work are briefly summarized in the following.\\
+In this work an algorithm for a \textit{real} fog environment is developed and implemented in chapter \ref{cha:algorithm}, which is inspired by \textit{iFogSim} and adopts some classes of its class model. For this reason, the relevant classes for this work are briefly summarized in the following.\\
 
 \begin{itemize}
     \item \underline{\texttt{FogDevice}}: Specifies hardware characteristics of a node like CPU power, available RAM, available disk storage, as well as network communication capabilities (uplink and downlink).
@@ -74,16 +84,12 @@ In this work an algorithm for a \textit{real} fog environment is developed and i
     \end{itemize}
 \end{itemize}
 
-\begin{figure}
+\begin{figure}[htb]
     \centering
     \includegraphics[width=9cm]{algorithm-apploop}
     \caption{Application containing four \texttt{AppModule} and two \texttt{AppLoop} instances}
     \label{fig:apploop}
 \end{figure}
-
-\subsection{MPSO-CO}
-
-\cite{novel-load-balancing} proposes the \textit{modified constrained optimization particle swarm optimization} (MPSO-CO) load balancing algorithm, which is \textit{software defined networking} (SDN)-based. Compared to the \textit{constrained optimization particle swarm optimization} (PSO-CO) algorithm, which it is based on, it is able to effectively decrease latency and improve the QoS in a \textit{software defined cloud/fog networking} (SDCFN) architecture. It was developed for applications in the Internet of Vehicles (IoV) which still suffers high processing latency. SDN is used for centralized control and to get the required information before load balancing. The key technology of SDN is decoupling data and control plane. The controller collects real-time information of the network including load, processing speed, and communication latency. Based on that, it can formulate optimal load balancing strategies for the network. It is shown that the MPSO-CO algorithm obtains lower latency compared to PSO-CO, Max-Min load balancing algorithm (LBMM) and greedy load balancing algorithm (Greedy-LB), since LBMM and Greedy-LB do not take the transmission latency into account, and PSO-CO may fall into the local optimum. However, on a low task load (lower than 0.05GB), where transmission latency is not a relevant factor, there is no big difference regarding the latencies of the different algorithms and they all perform pretty much the same.
 
 \section{MAPE-K}
 A self-adaptive system consists of the two layers \texttt{managed subsystem} and \texttt{managing subsystem}, whereas the managing subsystem resides on top of the managed subsystem and monitors the managed subsystem as well as the environment. It realizes a feedback loop which adapts to changes, e.g. environmental changes like congestion or failures, or to goal changes \cite{mape-k}.\\
