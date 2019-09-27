@@ -2,30 +2,45 @@
 
 This section describes two different use cases which would benefit from QoS-Aware deployment.
 
-\section{Notify a device using temperature sensor data\label{sec:sensordata}}
+\section{Notify a Device Using Temperature Sensor Data\label{sec:sensordata}}
 
 Sensor networks are used to monitor an (industrial) environment for various measurable parameters. In a \textit{wireless sensor network} (WSN) different types of sensors (e.g. microphones, CO2, pressure, humidity, thermometers) can be used. The measured values are used to decide whether an action should take place or not. Since the sensors themselves usually have few resources for the calculation, this calculation takes place externally. This can be done either centralized or decentralized by distributing the calculation between different nodes.\\
 
-A task execution on a local node rather than on a cloud server makes sense especially for time-critical or data-intensive applications. \textit{Data-intensive} because the stream of data remains in the local network and does not rely on an internet connection and therefore does not occupy any bandwidth of the internet connection. \textit{Time critical} because the round trip time to a cloud server is usually higher compared to a local server. This work focuses on the time-critical aspect of task distribution and execution.\\
+A task execution on a local node rather than on a cloud server makes sense especially for time-critical or data-intensive applications:
+\textit{Data-intensive} because the stream of data remains in the local network and does not rely on an internet connection.
+Therefore, no bandwidth of the internet connection is occupied.
+\textit{Time critical} because the round trip time to a cloud server is usually higher compared to a local server. This work focuses on the time-critical aspect of task distribution and execution.\\
 
-To distribute services between different nodes, a service must first be split into different modules or tasks, which can then be executed on different fog nodes. In the end the partial results must be merged to an overall result. The fog nodes must therefore be able to communicate with each other and forward the final result to another unit, which then takes further action or not based on the result. The possible actions can be of different priority, e.g. a temperature adjustment might be less important than an emergency stop or emergency braking of a machine.\\
+To distribute services between different nodes, a service must first be split into different modules or tasks, which can then be executed on different fog nodes.
+In the end, the partial results must be merged to an overall result.
+The fog nodes must therefore be able to communicate with each other and forward the final result to another unit, which then takes further action or not based on the result.
 
-It is very important to use a distributed deployment here because the computational resources of the measurement taking node are limited. However, the final result of a calculation must be available within a specified time window if time-critical actions have to be executed. The node itself can not guarantee to calculate the result in time, so it has to offload the task to another node.\\
+\textbf{Use case}: The possible actions can be of different priority, e.g. a temperature adjustment might be less important than an emergency stop or emergency braking of a machine.\\
+
+It is very important to use a distributed deployment here because the computational resources of the measurement taking node are limited.
+However, the final result of a calculation must be available within a specified time window if time-critical actions have to be executed.
+The node itself cannot guarantee to calculate the result in time, so it has to offload the task to another node.\\
 
 \textbf{Task}: Notify a device using sensor data
 \begin{itemize}
-    \item Collect raw data from devices. Devices can be simulated. If we find a dataset that can be used by these services, they can only forward the data to a specified cloud server.
+    \item Collect raw data from devices. Devices can be simulated. If a dataset that can be used by these services is found, devices can only forward the data to a specified cloud server.
     \item A cloud service should operate some processes. Based on the data structure provided by those sensors, the cloud service should evaluate different parameters and end up with a result that will be used by another local service/device in the smart factory.
 \end{itemize}
 \\
-\textbf{Challenge}: We will increase the number of the devices that send the data to the cloud service, at the same time the network will be dynamically manipulated through the \texttt{DITG} tool in order to enforce the Orchestrator to make a decision. Possible decisions are: Moving the service from a cloud to a fog device, or from one fog to another fog device.
+\textbf{Challenge}: The number of the devices sending data to the cloud service will increase, while the network will be dynamically manipulated through the \texttt{DITG} tool at the same time in order to enforce the Orchestrator to make a decision.
+Possible decisions are: Moving the service from a cloud to a fog device, or from one fog to another fog device.
 
 \section{Object Detection}
-The object detection is used in most of the fields in daily life. It is also relevant for a smart factory and factory devices where the information has to be extracted from the recorded picture. This use case aims at reflecting a simple object detection process that will be operated using an Object Detection Service running in Cloud and Fog network. The essential goal is to compare the total delay for the object recognition process in different locations of the network.\\
+Object detection is used in most of the fields in daily life.
+It is also relevant for a smart factory and factory devices where the information has to be extracted from the recorded picture.
+This use case aims at reflecting a simple object detection process that will be operated using an object detection service running in cloud and fog network.
+The essential goal is to compare the total delay for the object recognition process in different locations of the network.\\
 
-\textbf{Use-case}: Factory prints the products, worker takes the product from the conveyor belt and stores it in one of the container locating in front of the worker. A IoT-enabled camera tracks the worker object placement to figure out whether the products are correctly placed. Object Detection Service should analyze the object and inform the user/robot if there is a mistake while placing the objects.\\
+\textbf{Use case}: Factory prints the products, worker takes the product from the conveyor belt and stores it in one of the container locating in front of the worker.
+An IoT-enabled camera tracks the worker object placement to figure out whether the products are placed correctly.
+The object detection service should analyze the object and inform the user/robot if there is a mistake while placing the objects.\\
 
-\textbf{Alternative Use-Case}: Factory worker does not know where to place the object, since the objects differ from each other. Therefore, the printed object should be recognized by the Object Detection Service beforehand and then inform the worker to which container the product should be placed.\\
+\textbf{Alternative use case}: A factory worker does not know where to place the object, since the objects differ from each other. Therefore, the printed object should be recognized by the object detection service beforehand and then inform the worker in which container the object should be placed.\\
 
 \textbf{Task}: Video processing
 \begin{itemize}
@@ -33,4 +48,4 @@ The object detection is used in most of the fields in daily life. It is also rel
     \item Object detection: The service returns the name of the object in text format as well as the correct container for the object
 \end{itemize}
 \\
-\textbf{Challenge}: The task should first be executed in the Cloud. Afterwards, the system should decide if the service requirements are satisfied. Due to varying network conditions which are created by the same tools mentioned in \ref{sec:sensordata}, the system should decide to move the service from the cloud or a fog node to another fog node which can satisfy the service requirements.
+\textbf{Challenge}: The task should first be executed in the cloud. Afterwards, the system should decide if the service requirements are satisfied. Due to varying network conditions which are created by the same tools mentioned in \ref{sec:sensordata}, the system should decide to move the service from the cloud or a fog node to another fog node which can satisfy the service requirements.

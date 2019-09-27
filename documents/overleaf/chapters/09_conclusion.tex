@@ -1,11 +1,42 @@
-\chapter{Conclusion and future work}
+\chapter{Conclusion and Future Work}
 
-TODO
+The purpose of this work was to enable QoS-aware task execution on distributed Node-RED clusters for fog computing environments.
+Therefore, a system that dynamically reacts to changes in the fog network had to be designed and implemented in order to achieve the lowest possible service latencies.
 
-alternative methode: test ausführung von modules und sich die zeit merken
+Initially, a literature research was conducted to obtain the current state of research about fog computing, QoS, resource allocation and self-adaptive systems.
+In the next step, use cases which would benefit from such a system were introduced before describing the technical and theoretical challenges.
 
-problem: input size --> auch hier wären erfahrungswerte besser
+Based on the preceding work, a QoS scheduling and resource allocation algorithm was designed and implemented.
+However, this algorithm had to be used in a dynamic fog environment.
+Therefore, a system able to monitor the infrastructure was implemented next.
+To apply the deployment strategy determined by the algorithm, functionalities for controlling Node-RED instances have been added to the system.
 
-Problem: webapp hat zwei input und zwei output types
+In chapter \ref{cha:use-cases}, two use cases were presented, although only the object detection application was evaluated in chapter \ref{cha:evaluation}.
+The sensor network use case was also tested with the system but not described in this thesis because no additional findings were revealed.
 
-problem: netzwerkmessungen bei vielen nodes, übergeordnete sicht besser?
+The evaluation has shown that the system is able to dynamically apply varying deployment strategies to the infrastructure depending on the fog environment's current state.
+Overall, the results are satisfying, although improvements are possible.\\
+
+
+The task execution time could not always be estimated reliably, so incorrect decisions by the system are possible.
+It was found that the technique used to compare CPUs of different devices is not suitable for this purpose.
+The system would benefit from further research on this topic.
+How to reliably predict the execution time of a different tasks on different devices?
+For instance, this could be achieved by implementing a machine learning algorithm which predicts the execution time of a specific module on a specific node based on historical data.
+
+While evaluating the system, always the same image was sent to the object detection service, so the incoming data size was equal throughout all experiments.
+However, incoming data may vary in size and content, thus affecting the execution time as well as the transfer time.
+If metadata of incoming data could be predicted by a machine learning algorithm, the system's decision making process could thus be supported.
+
+
+Another interesting question is how the system behaves during increasing amount of nodes.
+Since the network connection from every node to every other node is remeasured at a certain interval, the network may congest if the amount of measurements exceed a certain point because each measurements takes time and utilizes bandwidth that cannot be used by user's service requests during the measurement.
+The system could be improved here by checking only certain connections, skipping the ones that are unlikely to be used in a deployment strategy.
+
+Ideally, no network measurements are performed.
+This could be realized through another layer on top of the network.
+For instance, information about the network's current load could be provided by the routers (gateway routers in particular) that are part of the infrastructure.
+
+
+The algorithm developed in this thesis is not limited to be used in a Node-RED infrastructure.
+For instance, it could also be used to deploy and move Docker containers instead of Node-RED flows.

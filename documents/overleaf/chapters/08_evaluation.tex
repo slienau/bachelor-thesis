@@ -11,7 +11,7 @@ For both experiments it is examined which decisions the Orchestrator makes and w
 
 
 
-\section{Evaluation setup}
+\section{Evaluation Setup}
 
 \subsection{Infrastructure\label{sec:eval-infrastructure}}
 
@@ -89,7 +89,7 @@ However, one vCPU in \texttt{vm-01} is equally fast as in \texttt{vm-02} because
 Since the object detection engine uses only one core, the execution time on these two nodes is approximately the same, although \texttt{vm-01} has two cores and \texttt{vm-02} has four cores.
 For this reason, the docker containers on \texttt{vm-01} run with the additional option \texttt{---cpus="0.5"} which limits the available CPU resources a container can use to a half vCPU.
 
-\subsection{Possible deployment strategies and their respective latencies\label{sec:eval-possible-deployments}}
+\subsection{Possible Deployment Strategies and Their Respective Latencies\label{sec:eval-possible-deployments}}
 To find the actual execution times of all possible deployment strategies, the application was deployed to the infrastructure without using the Orchestrator.
 The module \texttt{webapp} was always deployed on node \texttt{raspi-01} while the module \texttt{detector} was switched through the remaining nodes.
 The object detection application was executed 10 times on each deployment strategy by using a 1,383 KB sized image.
@@ -162,7 +162,7 @@ The second message contains the detected image, which has a file size of 142 KB.
 
 
 
-\section{Experiment 1: Consistent network quality\label{sec:eval-exp-1}}
+\section{Experiment 1: Consistent Network Quality\label{sec:eval-exp-1}}
 
 In this experiment, the nodes were started in the following order:
 \begin{enumerate}
@@ -239,7 +239,7 @@ There seem to be a number of relevant factors affecting the execution time of a 
 
 
 
-\section{Experiment 2: Volatile network conditions}
+\section{Experiment 2: Volatile Network Conditions}
 
 In this experiment, the three nodes \texttt{raspi-01}, \texttt{vm-01} and \texttt{vm-azure} were online. Therefore, deployment strategy of \textit{priority two} allowed the lowest latency (see table \ref{tab:deployment-strategies-prios}).
 Here, the \texttt{detector} module is deployed on \texttt{vm-azure}.
@@ -262,7 +262,7 @@ After the full bandwidth is available again, the \texttt{detector} should be mov
 \end{figure}
 
 The Orchestrator's decisions are depicted in figure \ref{fig:evaluation-exp2-results}. 
-Initially, he applied deployment strategy of priority two as expected.
+Initially, it applied deployment strategy of priority two as expected.
 The object detection task in request one was finished after 2,370 milliseconds, while the \texttt{detector} was executed on \texttt{vm-azure}.
 
 Between request one and two, network traffic between a host in the local network and another host on the Internet was generated.
@@ -271,7 +271,7 @@ That's why the maximum latency requirement of 5,000 milliseconds could not be me
 Although the object detection task on \texttt{vm-azure} took approximately the same time in both requests, the time for transferring the original image (1,382 KB) took 7,641 milliseconds instead of 1,192 milliseconds in request one, so that the total latency added up to 8,921 milliseconds.
 
 The Orchestrator recognized this by evaluating the \texttt{statistics} object (see listing \ref{lst:statistics}) introduced in section \ref{sec:orchestrator-monitoring-deployment-strategy}.
-Based on the image size and transfer time, he calculated the actual bandwidth between both nodes, which is \textit{1.48 Mbit/s} in this case.
+Based on the image size and transfer time, it calculated the actual bandwidth between both nodes, which is \textit{1.48 Mbit/s} in this case.
 The respective \texttt{NetworkUplink} object was updated and the scheduling algorithm was executed to find a new optimal deployment strategy.
 This is what happened between request two and three, before the \texttt{detector} was moved to \texttt{vm-01}.
 It can be seen that the latency requirement was fulfilled in request three, although the total latency of 2,671 milliseconds is a bit higher than in request one.

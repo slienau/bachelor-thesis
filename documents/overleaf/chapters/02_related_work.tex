@@ -1,8 +1,9 @@
 \chapter{Related Work\label{cha:relwork}}
 In this section relevant topics for this work are discussed based on related work.
 
-\section{Fog infrastructure}
-Fog is an architecture that distributes computation, communication, control and storage closer to the end users along the cloud-to-things continuum \cite{fog-research-opportunities}. Although cloud computing has established itself over the last few years, it cannot be used for certain use-cases, especially time-critical and bandwidth-intensive ones. Because of the closer physical distance to a fog node, fog computing can reach a much lower end-to-end latency than cloud computing \cite{mobility-aware-scheduling}\cite{novel-load-balancing}. This plays a vital role in applications such as vehicle-to-vehicle communication \cite{novel-load-balancing}.\\
+\section{Fog Infrastructure}
+Fog is an architecture that distributes computation, communication, control, and storage closer to the end users along the cloud-to-things continuum \cite{fog-research-opportunities}.
+Although cloud computing has established itself over the last few years, it cannot be used for certain use-cases, especially time-critical and bandwidth-intensive ones. Because of the closer physical distance to a fog node, fog computing can reach a much lower end-to-end latency than cloud computing \cite{mobility-aware-scheduling}\cite{novel-load-balancing}. This plays a vital role in applications such as vehicle-to-vehicle communication \cite{novel-load-balancing}.\\
 
 A network of fog nodes is a distributed heterogeneous network. Unlike in cloud computing, where hardware capabilities are virtually unlimited \cite{fogtorch}, resources on a fog device are usually constrained. They cannot execute every task because their computation power is limited. Furthermore, the available resources vary from node to node, making the whole network \textit{heterogeneous}. Instead of executing a task on a central computer, it is \textit{distributed} between several nodes in the network.
 Firstly, one must determine which fog node can execute which part of the task in terms of resource-constraints.
@@ -17,7 +18,7 @@ Figure \ref{fig:foginfrastructure} shows a typical fog environment.
     \label{fig:foginfrastructure}
 \end{figure}
 
-\section{Flow-based Programming}
+\section{Flow-Based Programming}
 Flow-based programming (FBP) allows the developer to structurally define the informational flow within a system.
 As it is not important \textit{where} a specific task is physically executed, FBP focuses on the \textit{path} the data takes from one process to another.
 Any number of further processes can be involved in between, while every process manipulates or just reads the data to trigger further actions. Each process has a specific in- and output.
@@ -28,24 +29,30 @@ It is also possible to split the data flow at a particular point and combine it 
 Data between processes is transferred in \textit{Information Packets (IPs)}.
 IPs belong to a single process or are in a transfer state, where they are owned by no process.
 As soon as a process receives an IP, it can start processing it without the need to communicate with other processes, because the IP contains all necessary information the process needs to fulfill the task.
-This makes FBP highly attractive for Fog computing environments, where each fog node can be used to execute one or more process types, depending on the process requirements like computation power, bandwidth or latency.
+This makes FBP highly attractive for fog computing environments, where each fog node can be used to execute one or more process types, depending on the process requirements like computation power, bandwidth or latency.
 
-\section{QoS-aware resource allocation and scheduling}
-In this section, related work on QoS, load-balancing, and resource allocation is discussed. Although Fog is considered to be a cloud close to the ground, load balancing strategies of cloud computing cannot be directly adopted in the fog network because of the heterogeneity of fog \cite{novel-load-balancing}.
+\section{QoS-Aware Resource Allocation and Scheduling Approaches}
+In this section, related work on QoS, load-balancing, and resource allocation is discussed.
+Although fog is considered to be a cloud close to the ground, load balancing strategies of cloud computing cannot be directly adopted in the fog network because of the heterogeneity of fog \cite{novel-load-balancing}.
 
 \subsection*{FogTorch}
-In \cite{fogtorch} a model to support QoS-aware deployment of multicomponent IoT applications to a Fog infrastructures is proposed. Furthermore, a Java tool called \texttt{FogTorch} has been prototyped which implements that model. The model allows to define QoS profiles, Fog infrastructures and IoT applications, which are used to determine eligible deployments.\\
+In \cite{fogtorch} a model to support QoS-aware deployment of multicomponent IoT applications to fog infrastructures is proposed. Furthermore, a Java tool called \texttt{FogTorch} has been prototyped which implements that model. The model allows to define QoS profiles, fog infrastructures and IoT applications, which are used to determine eligible deployments.\\
 
-A \texttt{QoS profile} defines bandwidth and average latency required for an application, or offered by a communication link. A \texttt{fog infrastructure} includes IoT devices, Fog nodes, Cloud data centers, and communication links, while each link is associated to its QoS profile. Cloud computing is modeled according to the hypothesis that it can offer a virtually unlimited amount of hardware capabilities. An IoT \texttt{application} is a set of independently deployable components that are working together and must meet some QoS constraints. For this, software components as well as required interactions among components, including the desired QoS profile, are defined. In the end, an \texttt{eligible deployment} for the IoT application is calculated by an algorithm.\\
+A \textit{QoS profile} defines bandwidth and average latency required for an application, or offered by a communication link.
+A \textit{fog infrastructure} includes IoT devices, fog nodes, cloud data centers, and communication links, while each link is associated to its QoS profile.
+Cloud computing is modeled according to the hypothesis that it can offer a virtually unlimited amount of hardware capabilities.
+An IoT \textit{application} is a set of independently deployable components that are working together and must meet some QoS constraints.
+For this, software components as well as required interactions among components, including the desired QoS profile, are defined.
+In the end, an \textit{eligible deployment} for the IoT application is calculated by an algorithm.\\
 
-An algorithm selects where a component is to be deployed within the Cloud to Things continuum. For this, a preprocessing procedure which reduces the search space for eligible deployments runs before a backtracking procedure and heuristics are used to determine a single eligible deployment. Because the proposed backtracking algorithm follows a heuristic approach to get a solution faster, it shows greedy behavior.\\
+An algorithm selects where a component is to be deployed within the cloud to things continuum. For this, a preprocessing procedure which reduces the search space for eligible deployments runs before a backtracking procedure and heuristics are used to determine a single eligible deployment. Because the proposed backtracking algorithm follows a heuristic approach to get a solution faster, it shows greedy behavior.\\
 
-\cite{fogtorchpi} presents FogTorch$\pi$, an open source prototype based on ForTorch\cite{fogtorch}.
-Compared to FogTorch, FogTorch$\pi$ additionally allows for expressing \textit{processing capabilities} and \textit{average QoS attributes} of a Fog infrastructure, as well as processing and QoS requirements of an application.
-It determines deployments of the application over the Fog infrastructure that meet all such requirements \cite{fogtorchpi}.
-The QoS of communication links are modeled by using probability distributions repeatedly (based on historical data) to simulate different runtime behaviour.
-In the end, it aggregates the results for deployments generated over a large number runs.
-The output of FogTorch$\pi$ contains eligible deployments (like FogTorch), but additionally outputs QoS assurance and resource consumption over Fog nodes which allows to compare possible deployments and evaluate the impact of possible changes.
+\cite{fogtorchpi} presents FogTorch$\pi$, an open source prototype based on ForTorch \cite{fogtorch}.
+Compared to FogTorch, FogTorch$\pi$ additionally allows for expressing \textit{processing capabilities} and \textit{average QoS attributes} of a fog infrastructure, as well as processing and QoS requirements of an application.
+It determines deployments of the application over the fog infrastructure that meet all such requirements \cite{fogtorchpi}.
+The QoS of communication links are modeled by using probability distributions repeatedly (based on historical data) to simulate different runtime behaviors.
+In the end, it aggregates the results for deployments generated over a large number of runs.
+The output of FogTorch$\pi$ contains eligible deployments (like FogTorch), but additionally outputs QoS assurance and resource consumption over fog nodes which allows to compare possible deployments and evaluate the impact of possible changes.
 
 \subsection*{MPSO-CO}
 
@@ -59,16 +66,18 @@ Based on that, it can formulate optimal load balancing strategies for the networ
 
 \subsection*{iFogSim}
 
-In \cite{ifogsim} a tool called \textit{iFogSim} is designed and implemented. It is used to \textit{simulate} a Fog computing environment by using two different placement strategies (\textit{cloud-only} and \textit{edge-ward}). It was found that the average latency of a control loop is much lower in a \textit{edge-ward} than in a \textit{cloud-only} placement strategy.\\
+In \cite{ifogsim} a tool called \textit{iFogSim} is designed and implemented.
+It is used to \textit{simulate} a fog computing environment by using two different placement strategies (\textit{cloud-only} and \textit{edge-ward}).
+It was found that the average latency of a control loop is much lower in an \textit{edge-ward} than in a \textit{cloud-only} placement strategy.\\
 
-In this work an algorithm for a \textit{real} fog environment is developed and implemented in chapter \ref{cha:algorithm}, which is inspired by \textit{iFogSim} and adopts some classes of its class model. For this reason, the relevant classes for this work are briefly summarized in the following.\\
+In this work, an algorithm for a \textit{real} fog environment is developed and implemented in chapter \ref{cha:algorithm}, which is inspired by \textit{iFogSim} and adopts some classes of its class model. For this reason, the relevant classes for this work are briefly summarized in the following.\\
 
 \begin{itemize}
     \item \underline{\texttt{FogDevice}}: Specifies hardware characteristics of a node like CPU power, available RAM, available disk storage, as well as network communication capabilities (uplink and downlink).
     
     \item \underline{\texttt{Sensor}}: Represents an IoT sensor, is connected to a \texttt{FogDevice}, has an \textit{output characteristic}.
     
-    \item \underline{\texttt{Tuple}}: Fundamental communication unit. It is characterized by its \textit{type}, \textit{source} and \textit{destination} application module. Processing requirements (in \textit{Million Instructions}) and \textit{length of data} are defined as well. 
+    \item \underline{\texttt{Tuple}}: Fundamental communication unit. It is characterized by its \textit{type}, \textit{source} and \textit{destination} application module. Processing requirements (in \textit{million instructions}) and \textit{length of data} are defined as well. 
     
     \item \underline{\texttt{Application}}: An application consists of several modules, each module processing incoming data.
     \begin{itemize}
@@ -76,24 +85,31 @@ In this work an algorithm for a \textit{real} fog environment is developed and i
         
         \item \underline{\texttt{AppEdge}}: Models the \textit{data-dependency} between a pair of application modules. It is characterized by the \textit{type} of a tuple, \textit{processing requirements} as well as the \textit{length of data} the tuple carries.
         
-        \item \underline{\texttt{AppLoop}}: Specifies \textit{process-control loops}. A loop has a \textit{starting} and \textit{terminating} module (as well as any number of modules in between). Figure \ref{fig:apploop} shows an applications containing two loops: \begin{enumerate}
+        \item \underline{\texttt{AppLoop}}: Specifies \textit{process-control loops}. A loop has a \textit{starting} and \textit{terminating} module (as well as any number of modules in between). Figure \ref{fig:apploop} shows an application containing two loops: \begin{enumerate}
             \item \texttt{Sensor -> Analyzer -> User Interface}
             \item \texttt{Sensor -> Analyzer -> Actuator}
         \end{enumerate}
-        For every loop an \textit{end-to-end latency} can be specified. For instance, the second loop might be time critical since an actuator changes the environment based on the sensors value and thus has a lower latency requirement.
+        For every loop an \textit{end-to-end latency} can be specified. For instance, the second loop is time critical if an actuator changes the environment based on the sensors value and thus has a lower latency requirement.
     \end{itemize}
 \end{itemize}
 
 \begin{figure}[htb]
     \centering
     \includegraphics[width=9cm]{algorithm-apploop}
-    \caption{Application containing four \texttt{AppModule} and two \texttt{AppLoop} instances}
+    \caption{Application containing four AppModule and two AppLoop instances}
     \label{fig:apploop}
 \end{figure}
 
 \section{MAPE-K}
-A self-adaptive system consists of the two layers \texttt{managed subsystem} and \texttt{managing subsystem}, whereas the managing subsystem resides on top of the managed subsystem and monitors the managed subsystem as well as the environment. It realizes a feedback loop which adapts to changes, e.g. environmental changes like congestion or failures, or to goal changes \cite{mape-k}.\\
+A self-adaptive system consists of the two layers \textit{managed subsystem} and \textit{managing subsystem}, whereas the managing subsystem resides on top of the managed subsystem and monitors the managed subsystem as well as the environment.
+It realizes a feedback loop which adapts to changes, e.g. goal changes or environmental changes like congestion or failures \cite{mape-k}.\\
 
-The \textit{Monitor-Analyze-Plan-Execute over a Knowledge base} (MAPE-K) \cite{autonomic-computing} reference control model is the most influential reference control model for autonomic and self-adaptive systems. It is commonly used to realize feedback loops \cite{mape-k}.\\
+The \textit{Monitor-Analyze-Plan-Execute over a Knowledge base (MAPE-K)} \cite{autonomic-computing} reference control model is the most influential reference control model for autonomic and self-adaptive systems.
+It is commonly used to realize feedback loops \cite{mape-k}.\\
 
-The component \texttt{Knowledge} (K) is responsible for storing and providing data from/to other components. The component \texttt{Monitor} (M) collects data through probes or sensors from the environment as well as data from the managed subsystem. The collected data is saved in K. The component \texttt{Analyze} (A) analyzes the collected data to check if the system needs to adapt. If this is the case, the component \texttt{Plan} (P) will determine which actions are required to put the system in the desired state. The component \texttt{Execution} (E) then carries out these actions. \cite{mape-k}  
+The component \textit{Knowledge (K)} is responsible for storing and providing data from/to other components.
+The component \textit{Monitor (M)} collects data through probes or sensors from the environment as well as data from the managed subsystem.
+The collected data is saved in K.
+The component \textit{Analyze (A)} analyzes the collected data to check if the system needs to adapt.
+If this is the case, the component \textit{Plan (P)} will determine which actions are required to put the system in the desired state.
+The component \textit{Execution} (E) then carries out these actions \cite{mape-k}.

@@ -1,6 +1,22 @@
 \newpage
+
+\selectlanguage{ngerman}
 \section*{Abstract}
-Abstract goes here
- 
-\section*{Abstrakt}
-Abstrakt ...
+
+Fog-Architekturen werden aufgrund der steigenden Anzahl vernetzter Geräte immer häufiger eingesetzt, insbesondere im Bereich von Internet of Things.
+Hierbei werden Dienste wie Aufgabenausführung oder Datenspeicherung näher am Benutzer platziert, was im Vergleich zu Cloud-Architekturen zu einer höheren Servicequalität führt, da geringere Latenzzeiten und höhere Bandbreiten möglich sind.
+Eine Herausforderung dabei ist, Services bestmöglich auf einer Infrastruktur zu verteilen.
+In dieser Arbeit wird ein Algorithmus konzipiert und umgesetzt, welcher eine QoS-bewusste Verteilung von Aufgaben in einer Fog-Umgebung ermöglicht.
+Darüber hinaus wird ein System entwickelt, welches mit Hilfe des Algorithmus eine optimale Verteilungsstrategie eines vorgegebenen Services findet und diese auf ein Node-RED Cluster anwendet.
+Dies geschieht dynamisch, da die Infrastruktur überwacht wird und das System regelmäßig überprüft, ob die aktuelle Verteilungsstrategie optimal ist oder ob durch Veränderung der Netzwerkbedingungen eine andere Verteilung angewendet werden kann, die geringere Ausführungszeiten ermöglicht.
+
+
+\selectlanguage{english}
+\section*{Abstract}
+
+Fog architectures are used more and more due to the increasing number of connected devices through networks.
+This is especially the case in the Internet of Things domain.
+In a fog architecture, services such as task execution or data storage are placed closer to the user, resulting in a higher quality of service compared to cloud architectures because lower latencies and higher bandwidths can be achieved.
+In this work, an algorithm is designed and implemented that enables QoS-aware distribution of tasks in a fog environment.
+Furthermore, a system is developed that uses the algorithm to find and deploy the optimal distribution strategy for a given service to a Node-RED cluster.
+This is done dynamically since the environment is monitored and the system regularly checks if the current task distribution is still optimal or if another distribution enabling shorter latencies can be applied due to changed network condition.
