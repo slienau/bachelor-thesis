@@ -20,5 +20,7 @@
       "time": 200
     }
   ],
+  "totalTransferTime": 173,
+  "totalProcessingTime": 210,
   "totalTime": 383
 }

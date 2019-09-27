@@ -4,18 +4,18 @@ This section describes the design and implementation of the \textit{QoS Schedule
 
 \section{Algorithm Architecture}
 
-The algorithm takes an \texttt{Infrastructure} and an \texttt{Application} as inputs, and outputs an optimal deployment strategy (\texttt{AppDeployment}).
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\textwidth]{algorithm-architecture}
+    \caption{QoS scheduling algorithm architecture}
+    \label{fig:algorithm-architecture}
+\end{figure}
+
+The algorithm takes an instance of \texttt{Infrastructure} and \texttt{Application} as inputs, and outputs an optimal deployment strategy (\texttt{AppDeployment}).
 The optimal deployment strategy differs depending on the type of scheduler.
 For example, the goal of a scheduler can be to minimize the total \textit{energy consumption}, the total \textit{network utilization} or the \textit{computing power} used.
 Since the focus here is on \textit{QoS}, the deployment that minimizes \textit{total latency} should be the optimal deployment.
 Figure \ref{fig:algorithm-architecture} illustrates the architecture of the algorithm.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=7cm]{algorithm-architecture}
-    \caption{QoS scheduling algorithm architecture}
-    \label{fig:algorithm-architecture}
-\end{figure}
 
 
 \subsection{Infrastructure\label{sec:algorithm-infrastructure}}
@@ -31,15 +31,15 @@ Figure \ref{fig:algorithm-infrastructure} shows a fog infrastructure with three 
 
 \begin{figure}[htb]
     \centering
-    \includegraphics[width=0.75\textwidth]{algorithm-infrastructure}
-    \caption{Infrastructure with three nodes and nine uplinks}
+    \includegraphics[width=0.8\textwidth]{algorithm-infrastructure}
+    \caption{Fog infrastructure with three nodes and nine uplinks}
     \label{fig:algorithm-infrastructure}
 \end{figure}
 
 Next, the relevant classes for the infrastructure are described. The corresponding class diagram is depicted in figure \ref{fig:classdiagram-infrastructure}.
 
 \begin{itemize}
-    \item \underline{\texttt{Infrastructure}}: Contains a \texttt{List} of \texttt{FogNode} instances.
+    \item \underline{\texttt{Infrastructure}}: Contains a list of \texttt{FogNode} instances.
     
     \item \underline{\texttt{NetworkUplink}}: Every instance of \texttt{NetworkUplink} has the following \textit{fields}:
     \begin{itemize}

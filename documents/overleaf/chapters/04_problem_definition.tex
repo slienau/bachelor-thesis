@@ -2,28 +2,30 @@
 This part structures the problem. The problem here is mainly resource allocation and its usage. What are the technical and the theoretical challenges?
 
 \section{Load Balancing Among Fog Nodes}
-In a Node-RED context, a service can be seen as a Node-RED \textit{flow} and consists of several \textit{tasks} (functions in a flow), whereas each function could be executed on a different node.
-The challenge here is to decide which node should execute which function (see figure \ref{fig:distributed-flow}).
-The goal is to meet the service's QoS requirements.
-For the MWSN use cases it has to be ensured that a result is available within the defined maximum latency timespan, e.g. within 10ms for condition monitoring for safety.\\
+In a Node-RED context, a service can consist of several \textit{flows}, while each flow provides certain functionality.
+These flows are able to communicate with each other by using the \textit{HTTP} or \textit{TCP} nodes available in Node-RED, for instance.
+Hence, a service can be \textit{distributed} by deploying its flows on different devices.
+The challenge here is to decide which \textit{flow} should be deployed to which \textit{node} (see figure \ref{fig:distributed-flow}).
 
-\begin{figure}
+\begin{figure}[htp]
     \centering
     \includegraphics[width=12cm]{architecture-distributed-flow}
-    \caption{Distributed flow}
+    \caption{Distributed service in a Node-RED context}
     \label{fig:distributed-flow}
 \end{figure}
 
-Fog infrastructure is characterized by different nodes offering various hardware and software resources.
-In order to assign tasks to nodes, it must first be checked whether a node is able to execute the task with given QoS requirements.\\
+The goal is to meet the service's QoS requirements.
+For the WSN use cases it has to be ensured that a result is available within the defined maximum latency timespan, e.g. within 10 milliseconds for condition monitoring for safety.
 
+Fog infrastructure is characterized by different nodes offering various hardware and software resources.
+In order to assign tasks to nodes, it must first be checked whether a node is able to execute the task with given QoS requirements.
 The challenge here is to implement a resource allocation algorithm for the given use cases.
 
 
 \section{Dynamically Varying Network Conditions}
 The network conditions might change at any point in time.
-The increased demand for services plays a major role here, but there may also be increased network traffic.
-For instance, in the MWSN scenario, the amount of sensors requesting services might increase, which leads to a higher load on the fog nodes hardware until the point of congestion.
+Increased network traffic plays a major role here, but there may also be increased demand for services.
+For instance, in the WSN scenario, the amount of sensors requesting services might increase, which leads to a higher load on the fog nodes hardware until the point of congestion.
 To avoid congestion and ensure QoS, tasks of services with a lower priority have to be moved elsewhere to free resources for high priority services.
 Apart from that, the network traffic might increase due to other network services which are not part of the fog infrastructure but are using the same link.\\
 

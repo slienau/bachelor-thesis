@@ -99,7 +99,7 @@ sorting=ynt
 \usepackage{ae}
 
 %margins
-\usepackage{geometry}
+\usepackage[a4paper,width=150mm,bottom=40mm,top=30mm,indingoffset=30mm]{geometry}
 %\usepackage[a4paper,width=150mm,top=25mm,bottom=25mm,bindingoffset=6mm]{geometry}
 
 \setcounter{secnumdepth}{4} %numbering of the subsubsections
@@ -154,9 +154,10 @@ sorting=ynt
     \include{pages/titlepage}
     \newpage\null\thispagestyle{empty}\newpage
     \input{pages/declaration.tex}
+    \newpage\null\thispagestyle{empty}\newpage
     \input{pages/abstract.tex}
     \selectlanguage{english}
-    \cleardoublepage
+    \clearpage
     \pagenumbering{arabic}
     \tableofcontents
     
@@ -164,14 +165,21 @@ sorting=ynt
 
 \mainmatter % comment single chapters for faster compilation
     
-    \clearpage
+    \cleardoublepage
     \input{chapters/01_introduction.tex}
+    \cleardoublepage
     \input{chapters/02_related_work.tex}
+    \clearpage
     \input{chapters/03_use_cases.tex}
+    \clearpage
     \input{chapters/04_problem_definition.tex}
+    \cleardoublepage
     \input{chapters/05_algorithm.tex}
+    \cleardoublepage
     \input{chapters/07_orchestrator.tex}
+    \cleardoublepage
     \input{chapters/08_evaluation.tex}
+    \cleardoublepage
     \input{chapters/09_conclusion.tex}
 
     \input{pages/lists.tex}

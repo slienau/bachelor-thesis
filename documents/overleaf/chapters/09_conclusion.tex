@@ -1,3 +1,4 @@
+\clearpage
 \chapter{Conclusion and Future Work}
 
 The purpose of this work was to enable QoS-aware task execution on distributed Node-RED clusters for fog computing environments.
@@ -17,17 +18,17 @@ Overall, the results are satisfying, although improvements are possible.\\
 
 The task execution time could not always be estimated reliably, so incorrect decisions by the system are possible.
 It was found that the technique used to compare CPUs of different devices is not suitable for this purpose.
-The system would benefit from further research on this topic.
-How to reliably predict the execution time of a different tasks on different devices?
+The system would benefit from further research on this topic:
+How to reliably predict the execution time of different tasks on different devices?
 For instance, this could be achieved by implementing a machine learning algorithm which predicts the execution time of a specific module on a specific node based on historical data.
 
-While evaluating the system, always the same image was sent to the object detection service, so the incoming data size was equal throughout all experiments.
+While evaluating the system, the same image was always sent to the object detection service, so the incoming data size was equal throughout all experiments.
 However, incoming data may vary in size and content, thus affecting the execution time as well as the transfer time.
 If metadata of incoming data could be predicted by a machine learning algorithm, the system's decision making process could thus be supported.
 
 
-Another interesting question is how the system behaves during increasing amount of nodes.
-Since the network connection from every node to every other node is remeasured at a certain interval, the network may congest if the amount of measurements exceed a certain point because each measurements takes time and utilizes bandwidth that cannot be used by user's service requests during the measurement.
+Another interesting question is how the system behaves with an increasing amount of nodes.
+Since the network connection from every node to every other node is remeasured at a certain interval, the network may congest if the amount of measurements exceed a certain point because each measurement takes time and utilizes bandwidth that cannot be used by users' service requests during the measurement.
 The system could be improved here by checking only certain connections, skipping the ones that are unlikely to be used in a deployment strategy.
 
 Ideally, no network measurements are performed.
