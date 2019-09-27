@@ -21,12 +21,12 @@ Figure \ref{fig:algorithm-architecture} illustrates the architecture of the algo
 \subsection{Infrastructure\label{sec:algorithm-infrastructure}}
 
 The infrastructure consists of \textit{fog nodes} and \textit{network connections} between those nodes.
-Network connections are modeled as uplinks only, because we are sending data forward in the application loop from one module to another, while every module is deployed on one fog node.
+Network connections are modeled as uplinks only, because data is sent forward in the application loop from one module to another, while every module is deployed on one fog node.
 Between two nodes (node A and node B), the downlink of node B from node A's point of view is the same as the uplink of node A from node B's point of view.
-Therefore, each fog node has a set of uplinks to all other reachable Fog nodes.
+Therefore, each fog node has a set of uplinks to all other reachable fog nodes.
 A node also has an uplink to itself, since the next module in the loop could be executed on the same node.
 This uplink is modeled with \textit{infinite speed} and \textit{zero latency}.
-Hence, there are \(n^2\) uplinks in the infrastructure in total ($n \estimates number\ of\ Fog\ nodes$).
+Hence, there are \(n^2\) uplinks in the infrastructure in total ($n \estimates number\ of\ fog\ nodes$).
 Figure \ref{fig:algorithm-infrastructure} shows a fog infrastructure with three nodes and the corresponding nine uplinks.
 
 \begin{figure}[htb]
@@ -70,7 +70,7 @@ Next, the relevant classes for the infrastructure are described. The correspondi
         
         \item \underline{\texttt{calculateProcessingTime(AppSoftwareModule module): double}}\\ [0.5ex] 
         Calculates the execution time of an \texttt{AppSoftwareModule} (see section \ref{sec:algorithm-application}) on this node. Returns the value in milliseconds. The result is calculated using the following formula:
-        \[\textrm{execution time [ms]} = \frac{\textrm{\texttt{requiredMi}}}{\textrm{\texttt{cpuMips}}}\ \boldsymbol{\cdot} 1000\]
+        \[\textrm{execution time [ms]} = \frac{\textrm{\texttt{requiredMi}}}{\textrm{\texttt{cpuMips}}}\ \boldsymbol{\cdot} 1,000\]
     \end{itemize}
 
 \end{itemize}
@@ -165,7 +165,7 @@ This section describes how this task is solved.\\
 The \texttt{QosScheduler} takes an \texttt{Application} and an \texttt{Infrastructure} in the constructor.
 It tries to find all valid deployments as well as the optimal deployment for the \texttt{Application} over the \texttt{Infrastructure}.
 
-In the first step, the scheduler creates a combination of all possible deployment strategies without checking if the modules could be executed on the assigned nodes (hardware requirements) and if latency requirements are met (app loop requirements).
+In the first step, the scheduling algorithm creates a combination of all possible deployment strategies without checking if the modules could be executed on the assigned nodes (hardware requirements) and if latency requirements are met (app loop requirements).
 In a mathematical sense, a permutation with repetition is created in this step.
 
 Table \ref{tab:deployment-combinations} shows all nine possible combinations of an application consisting of \textit{two modules} and an infrastructure consisting of \textit{three fog nodes}.

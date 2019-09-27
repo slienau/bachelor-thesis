@@ -53,19 +53,20 @@ Because \texttt{HTTP} is built on top of \texttt{TCP}, it introduces additional 
 For this reason, \texttt{iperf3} was replaced by a measurement method using \texttt{HTTP}:
 
 To measure the uplink from \textit{node A} to \textit{node B}, \textit{node A} sends a \texttt{HTTP POST} request to a predefined endpoint on \textit{node B}. The \texttt{HTTP body} initially contains \texttt{1MB} of data. After \textit{node B} has received the request, it responds with an empty body. \textit{Node A} can then calculate the \textit{transfer rate} by using the \textit{data size} and \textit{transfer time}.
-If the response from node B is received fairly rapidly (less than 500ms), node A repeats the measurement with a larger data size to get a more accurate result.
+If the response from node B is received fairly rapidly (less than 500 milliseconds), node A repeats the measurement with a larger data size to get a more accurate result.
 
 \subsection{CPU Benchmarking\label{sec:benchmark-cpu}}
 The algorithm uses the unit \textit{MIPS} to identify the speed of a CPU.
 The execution time of a module on a node is calculated by using that value in addition to the required CPU instructions of the module (see function \texttt{calculateProcessingTime()} of the \texttt{FogNode} object).
 However, \textit{MIPS} cannot be read from the system like total RAM or amount of CPU cores.
 For this reason, a \textit{CPU score} is used instead. The Orchestrator calculates this score according to the following formula:
-\[\textrm{CPU score} = \frac{10000}{\textrm{sysbench result [time in ms]}}\]
+\[\textrm{CPU score} = \frac{10,000}{\textrm{sysbench result [time in ms]}}\]
 
 Thus, the lower the execution time of \texttt{sysbench}, the higher the CPU score. This score is used for the field \texttt{cpuMips} of a \texttt{FogNode} instance.
 
-However, the field \texttt{requiredMi} of an \texttt{AppSoftwareModule} instance must also be set accordingly. To determine this value, the corresponding software module is deployed on a node where the CPU score is known. Since we can measure the execution time of processing one message on that node, the required value can be calculated as follows:
-\[\textrm{\texttt{requiredMi}} = \textrm{CPU score} \boldsymbol{\cdot} \frac{\textrm{execution time [ms]}}{1000 \textrm{ [ms]}}\]
+However, the field \texttt{requiredMi} of an \texttt{AppSoftwareModule} instance must also be set accordingly. To determine this value, the corresponding software module is deployed on a node where the CPU score is known.
+Since the execution time of processing one message on that node can be measured, the required value can be calculated as follows:
+\[\textrm{\texttt{requiredMi}} = \textrm{CPU score} \boldsymbol{\cdot} \frac{\textrm{execution time [ms]}}{1,000 \textrm{ [ms]}}\]
 
 
 \section{Using the QoS-Scheduler in the Orchestrator}
@@ -111,7 +112,7 @@ The process of deploying a deployment strategy (instance of \texttt{AppDeploymen
 \begin{figure}[htb]
     \centering
     \includegraphics[width=0.7\textwidth]{orchestrator-activitydiagram-deploy-flows}
-    \caption{Activity diagram for deploying an \texttt{AppDeployment} to a Node-RED infrastructure}
+    \caption{Activity diagram for applying a deployment strategy to a Node-RED infrastructure}
     \label{fig:orchestrator-activitydiagram-deploy-flows}
 \end{figure}
 
