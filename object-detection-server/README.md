@@ -2,40 +2,39 @@
 
 ## Install
 
-The whole runtime environment is available as a docker image. There is a general image for Linux / Mac, and one for Raspberry Pi / ARM. You have to build the docker images first before you can run the object detection server.
+The runtime environment is available as a docker image.
+Inside the `scripts/` folder you can find scripts for building the images.
+These are available for `x86` CPU architectures, and for `arm` (which can be used on Raspberry Pis).
+You have to build the docker images first before you can run the object detection server.
 
-### Linux / Mac
+### Build the image
 
 ```bash
-cd docker
+cd scripts
 ./build.sh
 ```
 
-### Raspberry Pi
-
-```bash
-cd docker/arm
-./build.sh
-```
+Executing the build script will create the docker image `object-detection-server`.
+The image is built for the architecture where the script is executed (as long it is `x86` or `arm`).
 
 ## Run
 
 ### Run object detection server
 
 ```bash
-cd docker
-./run.sh
+cd scripts
+./docker_run.sh
 ```
 
 Server will be available at `localhost:6001`
 
-### Development mode
+### Run in development mode
 
 In development mode, the `src/` dir will be mounted to the docker container, so local changes are detected and applied by flask inside of the container.
 
 ```bash
-cd docker
-./run.sh dev
+cd scripts
+./docker_run_dev.sh
 ```
 
 ## API
@@ -44,8 +43,16 @@ cd docker
 
 #### POST `/object-detection/detect-image`
 
+Sending a HTTP POST request to `/object-detection/detect-image` with an image inside the body (e.g. `sample-images/image2.jpg`) will return the detected image in the response.
+
+##### Request
+|Type | Content |
 |--- |--- |
+| Header | `Content-Type: image/jpeg` |
+| Body | Raw image data (original) |
+
+##### Response
+|Type |Content |
 |--- |--- |
-| Request Header | `Content-Type: image/jpeg` |
-| Request Body | Raw image data (original) |
-| Response Body | Raw image data (processed) |
+| Header | `Content-Type: image/jpeg` |
+| Body | Raw image data (detected) |
