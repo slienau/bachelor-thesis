@@ -1,0 +1,707 @@
+[
+  {
+    "id": "e842c1fc.801b2",
+    "type": "tab",
+    "label": "sensornetwork/data-reader",
+    "disabled": true,
+    "info": ""
+  },
+  {
+    "id": "406ba8eb.e0be58",
+    "type": "tab",
+    "label": "sensornetwork/data-processor",
+    "disabled": true,
+    "info": ""
+  },
+  {
+    "id": "22617b79.47aec4",
+    "type": "tab",
+    "label": "sensornetwork/data-viewer",
+    "disabled": true,
+    "info": ""
+  },
+  {
+    "id": "7aad60c7.b6807",
+    "type": "tab",
+    "label": "od/webapp",
+    "disabled": true,
+    "info": ""
+  },
+  {
+    "id": "220cde00.0a3482",
+    "type": "tab",
+    "label": "od/detector",
+    "disabled": true,
+    "info": ""
+  },
+  {
+    "id": "b73fae02.4055",
+    "type": "mqtt-broker",
+    "z": "",
+    "name": "",
+    "broker": "192.168.7.13",
+    "port": "1883",
+    "clientid": "sensornetwork-dataviewer",
+    "usetls": false,
+    "compatmode": true,
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": ""
+  },
+  {
+    "id": "11e2c964.4afd77",
+    "type": "function",
+    "z": "406ba8eb.e0be58",
+    "name": "process sensor data",
+    "func": "const searchString = '123'\n\nlet status = 'GOOD'\n\nif (msg.payload.sensordata.indexOf(searchString) !== -1) {\n    status = 'BAD'\n}\n\nmsg.payload.status = status\nmsg.payload.sensordata = undefined\nmsg.payload.datasize = undefined\n\n// Simulated processing\nlet random = Math.random()\nfor (i = 0; i < 10000; i++) {\n  random += Math.random()\n}\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 260,
+    "y": 200,
+    "wires": [
+      [
+        "ca51b58a.ca6218"
+      ]
+    ]
+  },
+  {
+    "id": "8b83079a.7b9668",
+    "type": "http in",
+    "z": "406ba8eb.e0be58",
+    "name": "",
+    "url": "/sensordata/processor",
+    "method": "post",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 160,
+    "y": 80,
+    "wires": [
+      [
+        "1fefab86.fd5704",
+        "813b0545.d79a48"
+      ]
+    ]
+  },
+  {
+    "id": "1fefab86.fd5704",
+    "type": "function",
+    "z": "406ba8eb.e0be58",
+    "name": "stats: transfer end / processing start",
+    "func": "// outputs: 1\n/* EDIT START */\n\nconst PROCESS_NAME = \"data-processor\"\n\n/* EDIT END */\n\nconst transfer = msg.payload.stats.transfers[msg.payload.stats.transfers.length-1]\ntransfer.time = new Date() - new Date(transfer.timeStart)\ntransfer.timeStart = undefined\ntransfer.destinationNode = env.get('HOSTNAME')\n\n\nmsg.payload.stats.processes.push({\n    process: PROCESS_NAME,\n    node: env.get('HOSTNAME'),\n    timeStart: new Date(),\n})\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 250,
+    "y": 140,
+    "wires": [
+      [
+        "11e2c964.4afd77"
+      ]
+    ]
+  },
+  {
+    "id": "79cc37db.c7d7a8",
+    "type": "inject",
+    "z": "e842c1fc.801b2",
+    "name": "interval",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "repeat": "5",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 100,
+    "y": 120,
+    "wires": [
+      [
+        "1f7b7ee2.1d7411"
+      ]
+    ]
+  },
+  {
+    "id": "b9b54fbf.740c8",
+    "type": "function",
+    "z": "e842c1fc.801b2",
+    "name": "generate sensor data",
+    "func": "// 1 MB\nconst data = 'x'.repeat(1*1024*1024)\n// msg.payload = Buffer.byteLength(text2, 'utf8');\n\nlet randomString = ''\n\nfor (i = 0; i < 1024; i++) {\n  // each iteration generates 8 bytes\n  randomString += Math.random().toString(36).substring(2, 10)\n}\n\nconst sensordata = data + randomString;\n\nmsg.payload = {\n    ...msg.payload,\n    messageId: Math.random().toString(36).substring(2, 10), //TODO: use UUID\n    sensorId: 'sensor-01',\n    origin: 'node-01',\n    timeMeasurement: new Date(),\n    sensordata: sensordata,\n}\n\nmsg.payload.datasize = Buffer.byteLength(msg.payload.sensordata, 'utf8')\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 340,
+    "y": 120,
+    "wires": [
+      [
+        "1ea45076.bad84"
+      ]
+    ]
+  },
+  {
+    "id": "5cef5d39.cf9b34",
+    "type": "comment",
+    "z": "e842c1fc.801b2",
+    "name": "Fog-node 1: Has sensor connected, collects sensor data and sends it via HTTP to other node for processing",
+    "info": "",
+    "x": 390,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "78a7a13c.82da6",
+    "type": "http request",
+    "z": "e842c1fc.801b2",
+    "name": "POST <###DESTINATION-1###>/sensordata/processor",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": false,
+    "url": "<###DESTINATION-1###>/sensordata/processor",
+    "tls": "",
+    "proxy": "",
+    "authType": "",
+    "x": 1030,
+    "y": 120,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1ea45076.bad84",
+    "type": "function",
+    "z": "e842c1fc.801b2",
+    "name": "stats: processing end, transfer start",
+    "func": "/* !!! EDIT !!! */\n\nconst messageType = 'SENSOR_DATA'\n\n/* END */\n\n\nconst processes = msg.payload.stats.processes\nconst index = processes.length - 1\n\nprocesses[index] = {\n    ...processes[index],\n    time: new Date() - new Date(processes[index].timeStart),\n    timeStart: undefined,\n}\n\nmsg.payload.stats.transfers.push({\n    messageType: messageType,\n    size: Buffer.byteLength(JSON.stringify(msg.payload), 'utf8'),\n    sourceNode: env.get('HOSTNAME'),\n    timeStart: new Date(),\n})\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 640,
+    "y": 120,
+    "wires": [
+      [
+        "78a7a13c.82da6"
+      ]
+    ]
+  },
+  {
+    "id": "ed622516.d66c88",
+    "type": "debug",
+    "z": "22617b79.47aec4",
+    "name": "",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 1170,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "1e783fdc.5dee8",
+    "type": "function",
+    "z": "22617b79.47aec4",
+    "name": "status message",
+    "func": "const {status, stats} = msg.payload\n\nmsg.payload = `status is ${status}; \nstats:\n  ${stats}\n`\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 980,
+    "y": 120,
+    "wires": [
+      [
+        "ed622516.d66c88"
+      ]
+    ]
+  },
+  {
+    "id": "506da147.9f166",
+    "type": "function",
+    "z": "22617b79.47aec4",
+    "name": "stats: transfer end / processing start",
+    "func": "/* EDIT START */\n\nconst PROCESS_NAME = \"data-viewer\"\n\n/* EDIT END */\n\nconst transfer = msg.payload.stats.transfers[msg.payload.stats.transfers.length-1]\ntransfer.time = new Date() - new Date(transfer.timeStart)\ntransfer.timeStart = undefined\ntransfer.destinationNode = env.get('HOSTNAME')\n\n\nmsg.payload.stats.processes.push({\n    process: PROCESS_NAME,\n    node: env.get('HOSTNAME'),\n    timeStart: new Date(),\n})\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 470,
+    "y": 120,
+    "wires": [
+      [
+        "eb607850.114108"
+      ]
+    ]
+  },
+  {
+    "id": "93468105.8ea2c",
+    "type": "http in",
+    "z": "22617b79.47aec4",
+    "name": "",
+    "url": "/sensordata/viewer",
+    "method": "post",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "506da147.9f166",
+        "d257b682.278248"
+      ]
+    ]
+  },
+  {
+    "id": "79872557.7a9afc",
+    "type": "http request",
+    "z": "406ba8eb.e0be58",
+    "name": "<###DESTINATION-1###>/sensordata/viewer",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": false,
+    "url": "<###DESTINATION-1###>/sensordata/viewer",
+    "tls": "",
+    "proxy": "",
+    "authType": "",
+    "x": 520,
+    "y": 320,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "5a105b62.490434",
+    "type": "http response",
+    "z": "406ba8eb.e0be58",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 590,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "813b0545.d79a48",
+    "type": "function",
+    "z": "406ba8eb.e0be58",
+    "name": "empty payload",
+    "func": "msg.payload = 'empty'\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 420,
+    "y": 60,
+    "wires": [
+      [
+        "5a105b62.490434"
+      ]
+    ]
+  },
+  {
+    "id": "13901792.62b7e8",
+    "type": "http response",
+    "z": "22617b79.47aec4",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 590,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "d257b682.278248",
+    "type": "function",
+    "z": "22617b79.47aec4",
+    "name": "empty payload",
+    "func": "msg.payload = 'empty'\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 420,
+    "y": 60,
+    "wires": [
+      [
+        "13901792.62b7e8"
+      ]
+    ]
+  },
+  {
+    "id": "ac18bcf2.a9739",
+    "type": "mqtt out",
+    "z": "22617b79.47aec4",
+    "name": "",
+    "topic": "/results/sensornetwork/",
+    "qos": "",
+    "retain": "",
+    "broker": "b73fae02.4055",
+    "x": 1250,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "a488b612.0c2528",
+    "type": "function",
+    "z": "22617b79.47aec4",
+    "name": "stats for orchestrator",
+    "func": "msg.payload = msg.payload.stats\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 1000,
+    "y": 180,
+    "wires": [
+      [
+        "ac18bcf2.a9739"
+      ]
+    ]
+  },
+  {
+    "id": "1f7b7ee2.1d7411",
+    "type": "function",
+    "z": "e842c1fc.801b2",
+    "name": "stats: initialize, processing start",
+    "func": "/* EDIT START */\nconst PROCESS_NAME = \"data-reader\"\n/* EDIT END */\n\n\nmsg.payload = {\n    stats: {\n        transfers: [],\n        processes: []\n    }\n}\n\nmsg.payload.stats.processes.push({\n    process: PROCESS_NAME,\n    node: env.get(\"HOSTNAME\"),\n    timeStart: new Date()\n})\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 230,
+    "y": 60,
+    "wires": [
+      [
+        "b9b54fbf.740c8"
+      ]
+    ]
+  },
+  {
+    "id": "ca51b58a.ca6218",
+    "type": "function",
+    "z": "406ba8eb.e0be58",
+    "name": "stats: processing end, transfer start",
+    "func": "// outputs: 1\n/* !!! EDIT !!! */\n\nconst messageType = \"SENSOR_DATA_PROCESSED\"\n\n/* END */\n\n\nconst processes = msg.payload.stats.processes\nconst index = processes.length - 1\n\nprocesses[index] = {\n    ...processes[index],\n    time: new Date() - new Date(processes[index].timeStart),\n    timeStart: undefined,\n}\n\nmsg.payload.stats.transfers.push({\n    messageType: messageType,\n    size: Buffer.byteLength(JSON.stringify(msg.payload), 'utf8'),\n    sourceNode: env.get('HOSTNAME'),\n    timeStart: new Date(),\n})\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 340,
+    "y": 260,
+    "wires": [
+      [
+        "79872557.7a9afc"
+      ]
+    ]
+  },
+  {
+    "id": "eb607850.114108",
+    "type": "function",
+    "z": "22617b79.47aec4",
+    "name": "stats: end",
+    "func": "const processes = msg.payload.stats.processes\nconst index = processes.length - 1\n\nprocesses[index] = {\n    ...processes[index],\n    time: new Date() - new Date(processes[index].timeStart),\n    timeStart: undefined,\n}\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 760,
+    "y": 120,
+    "wires": [
+      [
+        "1e783fdc.5dee8",
+        "a488b612.0c2528"
+      ]
+    ]
+  },
+  {
+    "id": "afb40052.83ee8",
+    "type": "http in",
+    "z": "7aad60c7.b6807",
+    "name": "",
+    "url": "/od/forwarder",
+    "method": "post",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 150,
+    "y": 200,
+    "wires": [
+      [
+        "faf03d5.0d54ac"
+      ]
+    ]
+  },
+  {
+    "id": "19f64aa7.e0c675",
+    "type": "http request",
+    "z": "7aad60c7.b6807",
+    "name": "send undetected image to detector",
+    "method": "POST",
+    "ret": "bin",
+    "paytoqs": false,
+    "url": "http://<###DESTINATION-1###>/od/detector",
+    "tls": "",
+    "proxy": "",
+    "authType": "",
+    "x": 760,
+    "y": 200,
+    "wires": [
+      [
+        "52763a5a.cc5d94"
+      ]
+    ]
+  },
+  {
+    "id": "1017234d.9a4e0d",
+    "type": "http response",
+    "z": "7aad60c7.b6807",
+    "name": "send detected image back to webapp",
+    "statusCode": "",
+    "headers": {},
+    "x": 730,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "10f52233.17a92e",
+    "type": "function",
+    "z": "7aad60c7.b6807",
+    "name": "set headers",
+    "func": "msg.headers = {};\nmsg.headers['Content-Type'] = 'image/jpeg';\nmsg.headers['X-Stats'] = JSON.stringify(flow.get('stats'));\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 510,
+    "y": 200,
+    "wires": [
+      [
+        "19f64aa7.e0c675"
+      ]
+    ]
+  },
+  {
+    "id": "8175a12.e29ed6",
+    "type": "http in",
+    "z": "7aad60c7.b6807",
+    "name": "",
+    "url": "/od/webapp",
+    "method": "get",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 140,
+    "y": 100,
+    "wires": [
+      [
+        "95779f1b.965ef"
+      ]
+    ]
+  },
+  {
+    "id": "95779f1b.965ef",
+    "type": "template",
+    "z": "7aad60c7.b6807",
+    "name": "webapp template",
+    "field": "payload",
+    "fieldType": "msg",
+    "format": "handlebars",
+    "syntax": "mustache",
+    "template": "<html>\n\n<head>\n    <title>Object Detection Web Application</title>\n    <style>\n        img {\n            width: 100%;\n            height: auto;\n        }\n\n        .button {\n            background-color: #4CAF50; /* Green */\n            border: none;\n            color: white;\n            padding: 15px 32px;\n            text-align: center;\n            text-decoration: none;\n            display: inline-block;\n            font-size: 16px;\n        }\n\n        table, th, td {\n            border: 1px dotted black;\n            border-collapse: collapse;\n        }\n\n        td {\n            padding: 2px;\n        }\n\n        li {\n            padding-bottom: 10px;\n        }\n\n        .grid-container {\n            display: grid;\n            grid-template-columns: 50% 50%;\n        }\n    </style>\n</head>\n\n<body>\n<h1>Object Detection Web Application</h1>\n<div class=\"grid-container\">\n    <div>\n        <div>\n            <h2>Upload</h2>\n            <label for=\"image-file\" class=\"button\">Choose file</label>\n            <input id=\"image-file\" type=\"file\" style=\"display: none\"/>\n            <button onclick=\"onButtonClick()\" class=\"button\">Detect image</button>\n        </div>\n        <hr>\n        <div>\n            <div id=\"image-original-container\" style=\"display: block\">\n                <button onclick=\"onToggleImageClick()\" class=\"button\">Show detected image</button>\n                <h3>Original Image</h3>\n                <img id=\"image-original\"/>\n            </div>\n            <div id=\"image-detected-container\" style=\"display: none\">\n                <button onclick=\"onToggleImageClick()\" class=\"button\">Show original image</button>\n                <h3>Detected Image</h3>\n                <img id=\"image-detected\"/>\n            </div>\n        </div>\n    </div>\n\n    <div id=\"stats-container\">\n        <h3>Statistics</h3>\n        <button onclick=\"onToggleStatsClick()\">Toggle Details</button>\n        <ul id=\"stats-list\"></ul>\n    </div>\n\n</div>\n\n<script>\n  const onToggleStatsClick = () => {\n    const statsDetailElements = document.getElementsByClassName('stats-details')\n    Array.from(statsDetailElements).forEach((element) => {\n      toggleElementDisplay(element)\n    })\n  }\n  const onToggleImageClick = () => {\n    toggleDisplayById('image-original-container')\n    toggleDisplayById('image-detected-container')\n  }\n  const toggleDisplayById = (id) => {\n    const element = document.getElementById(id)\n    toggleElementDisplay(element)\n  }\n  const toggleElementDisplay = (element) => {\n    if (element.style.display === 'none') {\n      element.style.display = 'block'\n    } else {\n      element.style.display = 'none'\n    }\n  }\n  const showDetectedImage = () => {\n    const element = document.getElementById('image-detected-container')\n    if (element.style.display === 'none')\n      onToggleImageClick()\n  }\n  const showOriginalImage = () => {\n    const element = document.getElementById('image-original-container')\n    if (element.style.display === 'none')\n      onToggleImageClick()\n  }\n  const replaceImageData = (elementId, imageData) => {\n    const element = document.getElementById(elementId)\n    element.src = window.URL.createObjectURL(imageData)\n    element.style.display = 'block'\n  }\n  const clearImage = (elementId) => {\n    const element = document.getElementById(elementId)\n    element.removeAttribute('src')\n    element.style.display = 'none'\n  }\n  const onButtonClick = () => {\n    clearImage('image-detected')\n    showOriginalImage()\n    const url = '/od/forwarder'\n    const originalImageData = document.getElementById('image-file').files[0]\n    replaceImageData('image-original', originalImageData)\n    console.log(`Going to upload image '${originalImageData.name}' (size: ${originalImageData.size} byte) to ${url} for object detection`)\n\n    const params = {\n      headers: {\n        'content-type': 'image/jpeg'\n      },\n      body: originalImageData,\n      method: 'POST',\n      responseType: 'blob'\n    }\n    fetch(url, params)\n      .then(response => {\n        const stats = JSON.parse(response.headers.get('X-Stats'))\n        handleStats(stats)\n        response.blob().then(data => {\n          console.log('Response data', data)\n          replaceImageData('image-detected', data)\n          showDetectedImage()\n        })\n      })\n      .catch(error => console.error(error))\n  }\n\n  const handleStats = stats => {\n    const newItem = document.createElement('li')\n    const itemHeader = document.createElement('div')\n    itemHeader.style.marginBottom = '10px'\n    const date = new Date()\n    itemHeader.innerHTML = `Total latency of <b>${stats.totalTime} ms</b> for Object Detection on ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}.${date.getMilliseconds()}<br>`\n    newItem.appendChild(itemHeader)\n\n    const statsDetails = document.createElement('div')\n    itemHeader.onclick = () => toggleElementDisplay(statsDetails)\n    statsDetails.className = 'stats-details'\n    let statDetailsVisible = false\n    if (document.getElementsByClassName('stats-details')[0] !== undefined) {\n      statDetailsVisible = document.getElementsByClassName('stats-details')[0].style.display !== 'none' || false\n    }\n    statsDetails.style.display = statDetailsVisible ? 'block' : 'none'\n\n    // create transfer table\n    statsDetails.innerHTML += '<b>Transfers</b>'\n    const transferTable = document.createElement('table')\n    transferTable.style.marginBottom = '10px'\n    transferTable.innerHTML = '<thead><tr><th>Source</th><th>Destination</th><th>Content</th><th>Size</th><th>Time</th><th>Speed</th></tr></thead>'\n    stats.transfers.forEach(transfer => {\n      const mbit = (transfer.size * 8) / Math.pow(10, 6) // Byte to Bit --> Bit to Mbit\n      const mbits = mbit / (transfer.time / 1000) // Mbit per Second\n      transferTable.innerHTML += `<tr><td>${transfer.sourceNode}</td><td>${transfer.destinationNode}</td><td>${transfer.messageType}</td><td>${(transfer.size / 1024).toFixed(2)} KB</td><td>${transfer.time} ms</td><td>${mbits.toFixed(2)} Mbit/s</td></tr>`\n    })\n    transferTable.innerHTML += `<tr><td></td><td></td><td></td><td></td><td>${stats.totalTransferTime} ms</td><th></th></tr>`\n    statsDetails.appendChild(transferTable)\n\n    // create task executions table\n    statsDetails.innerHTML += '<b>Task Executions</b>'\n    const processesTable = document.createElement('table')\n    processesTable.innerHTML = '<thead><tr><th>Task</th><th>Node</th><th>Time</th></tr></thead>'\n    stats.processes.forEach(task => {\n      processesTable.innerHTML += `<tr><td>${task.process}</td><td>${task.node}</td><td>${task.time} ms</td></tr>`\n    })\n    processesTable.innerHTML += `<tr><td></td><td></td><td>${stats.totalProcessingTime} ms</td></tr>`\n    statsDetails.appendChild(processesTable)\n    newItem.appendChild(statsDetails)\n\n    // append new list item to stats list\n    const statsList = document.getElementById('stats-list')\n    statsList.insertBefore(newItem, statsList.childNodes[0])\n  }\n</script>\n</body>\n\n</html>\n",
+    "output": "str",
+    "x": 380,
+    "y": 100,
+    "wires": [
+      [
+        "70d66fdb.fcf21"
+      ]
+    ]
+  },
+  {
+    "id": "70d66fdb.fcf21",
+    "type": "http response",
+    "z": "7aad60c7.b6807",
+    "name": "",
+    "statusCode": "",
+    "headers": {},
+    "x": 560,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "faf03d5.0d54ac",
+    "type": "function",
+    "z": "7aad60c7.b6807",
+    "name": "set stats",
+    "func": "// initialize stats object\nconst stats = {\n    transfers: [],\n    processes: []\n}\n\n// add process object to array for this module (no task execution, so time=0)\nstats.processes.push({\n    process: 'webapp',\n    node: env.get(\"HOSTNAME\"),\n    time: 0,\n})\n\n// add transfer object to array\nstats.transfers.push({\n    messageType: 'IMAGE_UNDETECTED',\n    size: Buffer.byteLength(msg.payload, 'utf8'),\n    sourceNode: env.get('HOSTNAME'),\n    timeStart: new Date(),\n})\n\nflow.set('stats', stats)\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 340,
+    "y": 200,
+    "wires": [
+      [
+        "10f52233.17a92e"
+      ]
+    ]
+  },
+  {
+    "id": "52763a5a.cc5d94",
+    "type": "function",
+    "z": "7aad60c7.b6807",
+    "name": "parse and set stats",
+    "func": "// read stats from HTTP response headers\nlet stats = JSON.parse(msg.headers['x-stats'])\n\n// get latest transfer element and calculate transfer time\nconst transfer = stats.transfers[stats.transfers.length-1]\ntransfer.time = new Date() - new Date(transfer.timeStart)\ntransfer.timeStart = undefined\ntransfer.destinationNode = env.get('HOSTNAME')\n\n// sum times and add result to stats object\nconst transferTime = stats.transfers.map(transfer => transfer.time).reduce((a,b) => a + b, 0)\nconst processingTime = stats.processes.map(process => process.time).reduce((a,b) => a + b, 0)\n\nstats = {\n    ...stats,\n    totalTransferTime: transferTime,\n    totalProcessingTime: processingTime,\n    totalTime: transferTime + processingTime\n}\n\n// update stats object in flow context so that it can be read later\nflow.set('stats', stats)\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 210,
+    "y": 260,
+    "wires": [
+      [
+        "1d8a6faf.c91fd",
+        "f2944aef.2f7048"
+      ]
+    ]
+  },
+  {
+    "id": "1d8a6faf.c91fd",
+    "type": "function",
+    "z": "7aad60c7.b6807",
+    "name": "stats for orchestrator",
+    "func": "// get stats object from flow context\nconst stats = flow.get('stats')\nmsg.payload = stats\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 260,
+    "y": 320,
+    "wires": [
+      [
+        "c92b31fe.d1f55"
+      ]
+    ]
+  },
+  {
+    "id": "f2944aef.2f7048",
+    "type": "function",
+    "z": "7aad60c7.b6807",
+    "name": "set headers",
+    "func": "msg.headers = {};\nmsg.headers['Content-Type'] = 'image/jpeg';\nmsg.headers['X-Stats'] = JSON.stringify(flow.get('stats'));\nmsg.headers['Access-Control-Expose-Headers'] = 'X-Stats'\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 450,
+    "y": 260,
+    "wires": [
+      [
+        "1017234d.9a4e0d"
+      ]
+    ]
+  },
+  {
+    "id": "c92b31fe.d1f55",
+    "type": "mqtt out",
+    "z": "7aad60c7.b6807",
+    "name": "",
+    "topic": "/results/od/",
+    "qos": "",
+    "retain": "",
+    "broker": "b73fae02.4055",
+    "x": 470,
+    "y": 320,
+    "wires": []
+  },
+  {
+    "id": "3e7fdb37.986e94",
+    "type": "http request",
+    "z": "220cde00.0a3482",
+    "name": "forward request to local docker container",
+    "method": "POST",
+    "ret": "bin",
+    "paytoqs": false,
+    "url": "http://172.17.0.1:6001/object-detection/detect-image",
+    "tls": "",
+    "proxy": "",
+    "authType": "",
+    "x": 460,
+    "y": 260,
+    "wires": [
+      [
+        "a3069a5d.1ba238"
+      ]
+    ]
+  },
+  {
+    "id": "cb974ce6.16391",
+    "type": "http response",
+    "z": "220cde00.0a3482",
+    "name": "",
+    "statusCode": "",
+    "headers": {
+      "Content-Type": "image/jpeg"
+    },
+    "x": 670,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "83601eed.8e87d",
+    "type": "http in",
+    "z": "220cde00.0a3482",
+    "name": "",
+    "url": "/od/detector",
+    "method": "post",
+    "upload": false,
+    "swaggerDoc": "",
+    "x": 130,
+    "y": 80,
+    "wires": [
+      [
+        "9670721c.dd447"
+      ]
+    ]
+  },
+  {
+    "id": "1b29faa8.a1efe5",
+    "type": "function",
+    "z": "220cde00.0a3482",
+    "name": "set header",
+    "func": "msg.payload = msg.payload;\nmsg.headers = {};\nmsg.headers['Content-Type'] = 'image/jpeg';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 310,
+    "y": 200,
+    "wires": [
+      [
+        "3e7fdb37.986e94"
+      ]
+    ]
+  },
+  {
+    "id": "9670721c.dd447",
+    "type": "function",
+    "z": "220cde00.0a3482",
+    "name": "parse and set stats",
+    "func": "// get stats from HTTP headers\nconst stats = JSON.parse(msg.req.headers['x-stats'])\n\n// get latest transfer element and calculate transfer time\nconst transfer = stats.transfers[stats.transfers.length-1]\ntransfer.time = new Date() - new Date(transfer.timeStart)\ntransfer.timeStart = undefined\ntransfer.destinationNode = env.get('HOSTNAME')\n\n// add new \"process\" object, set start time\nstats.processes.push({\n    process: \"detector\",\n    node: env.get('HOSTNAME'),\n    timeStart: new Date(),\n})\n\n// store stats object in flow context\nflow.set('stats', stats)\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 230,
+    "y": 140,
+    "wires": [
+      [
+        "1b29faa8.a1efe5"
+      ]
+    ]
+  },
+  {
+    "id": "a3069a5d.1ba238",
+    "type": "function",
+    "z": "220cde00.0a3482",
+    "name": "set stats",
+    "func": "const stats = flow.get('stats')\n\nconst processes = stats.processes\n\n// calculate processing time for latest process (object detection)\nconst index = processes.length - 1\nprocesses[index] = {\n    ...processes[index],\n    time: new Date() - new Date(processes[index].timeStart),\n    timeStart: undefined,\n}\n\nstats.transfers.push({\n    messageType: \"IMAGE_DETECTED\",\n    size: Buffer.byteLength(msg.payload, 'utf8'),\n    sourceNode: env.get('HOSTNAME'),\n    timeStart: new Date(),\n})\n\nflow.set('stats', stats)\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 560,
+    "y": 320,
+    "wires": [
+      [
+        "9ad89b5f.c1fa78"
+      ]
+    ]
+  },
+  {
+    "id": "9ad89b5f.c1fa78",
+    "type": "function",
+    "z": "220cde00.0a3482",
+    "name": "set headers",
+    "func": "msg.headers = {};\nmsg.headers['Content-Type'] = 'image/jpeg';\nmsg.headers['X-Stats'] = JSON.stringify(flow.get('stats'));\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 610,
+    "y": 380,
+    "wires": [
+      [
+        "cb974ce6.16391"
+      ]
+    ]
+  }
+]
