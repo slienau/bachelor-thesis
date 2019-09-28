@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 public class NodeRedOrchestrator {
 
+    // address of the MQTT broker used for heartbeats, commands and results
     public static final String MQTT_BROKER = "tcp://dslbabroker.westeurope.azurecontainer.io:1883";
     private static final NodeRedFlowDatabase flowDatabase = NodeRedFlowDatabase.getInstance();
     private static NodeRedOrchestrator instance;
@@ -47,23 +48,6 @@ public class NodeRedOrchestrator {
         new Thread(new HeartbeatMonitor()).start();
         new Thread(new HeartbeatProcessor()).start();
         new Thread(new QoSMonitor()).start();
-    }
-
-    private static Application createSensorNetworkApplication() {
-        Application a = new Application("sensornetwork");
-
-        a.addHardwareModule("CAMERA", "RAW_SENSOR_DATA");
-        a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 1, 0.5, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_RASPI_3, 54), Arrays.asList("CAMERA"));
-//        a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 1, 0.5, 1, null);
-        a.addSoftwareModule("data-processor", "SENSOR_DATA", "SENSOR_DATA_PROCESSED", 10, 0.5, SchedulerUtils.calculateRequiredInstructionsForAppModule(SchedulerUtils.CPU_SCORE_MBP_2018, 1000), null);
-        a.addSoftwareModule("data-viewer", "SENSOR_DATA_PROCESSED", null, 1, 0.5, 1, null);
-
-        a.addMessage("RAW_SENSOR_DATA", 1024);
-        a.addMessage("SENSOR_DATA", 1024);
-        a.addMessage("SENSOR_DATA_PROCESSED", 10);
-
-        a.addLoop("sensorNetworkLoop1", 999999, Arrays.asList("data-reader", "data-processor", "data-viewer"));
-        return a;
     }
 
     private static Application createObjectDetectionApplication() {
@@ -105,6 +89,25 @@ public class NodeRedOrchestrator {
                 true // allow mismatching input/output types
         );
 
+        return a;
+    }
+
+    private static Application createSensorNetworkApplication() {
+        Application a = new Application("sensornetwork");
+
+        a.addHardwareModule("CAMERA", "RAW_SENSOR_DATA");
+        // execution of data-reader takes 54ms on raspi-01 (cpu score of 612)
+        a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 1, 0.5, SchedulerUtils.calculateRequiredInstructionsForAppModule(612, 54), Arrays.asList("CAMERA"));
+//        a.addSoftwareModule("data-reader", "RAW_SENSOR_DATA", "SENSOR_DATA", 1, 0.5, 1, null);
+        // execution of data-processor takes 1000ms on macbook pro (cpu score of 9795)
+        a.addSoftwareModule("data-processor", "SENSOR_DATA", "SENSOR_DATA_PROCESSED", 10, 0.5, SchedulerUtils.calculateRequiredInstructionsForAppModule(9795, 1000), null);
+        a.addSoftwareModule("data-viewer", "SENSOR_DATA_PROCESSED", null, 1, 0.5, 1, null);
+
+        a.addMessage("RAW_SENSOR_DATA", 1024);
+        a.addMessage("SENSOR_DATA", 1024);
+        a.addMessage("SENSOR_DATA_PROCESSED", 10);
+
+        a.addLoop("sensorNetworkLoop1", 999999, Arrays.asList("data-reader", "data-processor", "data-viewer"));
         return a;
     }
 

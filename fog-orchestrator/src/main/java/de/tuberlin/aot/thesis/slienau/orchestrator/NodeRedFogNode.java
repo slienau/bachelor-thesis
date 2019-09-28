@@ -40,7 +40,7 @@ public class NodeRedFogNode extends FogNode {
         super.addUplink(new NodeRedNetworkUplink(this, this, 0, mbitsToSelf));
 
         // measure benchmark
-        this.getAndSetCpuBenchmark();
+        this.getAndSetCpuScore();
 
         System.out.println(String.format("[NodeRedFogNode][%s] Initialization complete %s", this.getId(), this));
 
@@ -145,19 +145,7 @@ public class NodeRedFogNode extends FogNode {
         }
     }
 
-    private void getAndSetCpuBenchmark() {
-        // Skip MQTT command execution for known (slow) devices to save time
-        if (this.getId().equals("raspi-01")) {
-            // device id "raspi-01" is a raspberry pi 3 in the test setup
-            this.setCpuMips(SchedulerUtils.CPU_SCORE_RASPI_3);
-            return;
-        }
-        if (this.getId().equals("raspi-02")) {
-            // device id "raspi-02" is a raspberry pi 4 in the test setup
-            this.setCpuMips(SchedulerUtils.CPU_SCORE_RASPI_4);
-            return;
-        }
-
+    private void getAndSetCpuScore() {
         // Execute benchmark command on node
         byte[] benchmarkResultBytes = this.executeMqttCommand("benchmark_cpu");
         try {

@@ -61,10 +61,25 @@ public class NodeRedController {
         return flow;
     }
 
+    /**
+     * Deploys a flow to the node
+     *
+     * @param nodeRedFlow
+     * @return
+     * @throws IOException
+     */
     public boolean deployFlow(NodeRedFlow nodeRedFlow) throws IOException {
         return deployFlow(nodeRedFlow, new ArrayList<>());
     }
 
+    /**
+     * Deploys a flow to the node
+     *
+     * @param nodeRedFlow
+     * @param destinations
+     * @return
+     * @throws IOException
+     */
     public boolean deployFlow(NodeRedFlow nodeRedFlow, List<NodeRedFogNode> destinations) throws IOException {
         String flowName = nodeRedFlow.getName();
         JsonNode flow = nodeRedFlow.getFlow();

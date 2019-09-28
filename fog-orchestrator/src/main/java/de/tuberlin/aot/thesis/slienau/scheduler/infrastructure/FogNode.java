@@ -162,7 +162,7 @@ public class FogNode {
      * @param module The AppSoftwareModule to execute on this node
      * @return Processing time for module on this node in milliseconds
      */
-    public double calculateProcessingTimeForModule(AppSoftwareModule module) {
+    public double calculateProcessingTime(AppSoftwareModule module) {
         double instructionsPerMessage = module.getRequiredMi();
         double cpuMips = this.cpuMips;
         return SchedulerUtils.round((instructionsPerMessage / cpuMips) * 1000);
@@ -170,7 +170,7 @@ public class FogNode {
 
     public String getProcessingTimeString(AppSoftwareModule module) {
         String processingStringTemplate = "%6sms Processing time for module '%s' on '%s'.";
-        double processingTime = this.calculateProcessingTimeForModule(module);
+        double processingTime = this.calculateProcessingTime(module);
         return String.format(processingStringTemplate, processingTime, module.getId(), this.getId());
     }
 

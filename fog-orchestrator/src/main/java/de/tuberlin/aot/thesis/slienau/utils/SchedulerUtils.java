@@ -2,13 +2,6 @@ package de.tuberlin.aot.thesis.slienau.utils;
 
 public class SchedulerUtils {
 
-    public static int CPU_SCORE_RASPI_3 = 612; // 4 arm cores
-    public static int CPU_SCORE_RASPI_4 = 973; // 4 arm cores
-    public static int CPU_SCORE_MBP_2018 = 9795; // 8 cores
-    public static int CPU_SCORE_DEBIAN_01 = 5809; // 2 vCPUs, docker limited to 0.5 cores
-    public static int CPU_SCORE_DEBIAN_02 = 11661; // 4 vCPUs, docker limited to 1.0 cores
-    public static int CPU_SCORE_AZURE_NODE = 10662; // azure size: Standard F4s_v2 (4 cores)
-
     public static double makePercent(double used, double total) {
         return round((used / total) * 100);
     }

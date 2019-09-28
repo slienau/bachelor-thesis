@@ -108,7 +108,7 @@ public class AppLoop {
             if (thisModule instanceof AppSoftwareModule && nextModule instanceof AppSoftwareModule) {
                 FogNode sourceNode = appDeployment.getNodeForSoftwareModule((AppSoftwareModule) thisModule);
                 FogNode destinationNode = appDeployment.getNodeForSoftwareModule((AppSoftwareModule) nextModule);
-                transferTime += this.getAppMessageByMessageType(thisModule.getOutputType()).calculateMessageTransferTime(sourceNode, destinationNode);
+                transferTime += this.getAppMessageByMessageType(thisModule.getOutputType()).transferTime(sourceNode, destinationNode);
             }
         }
         return transferTime;
@@ -123,7 +123,7 @@ public class AppLoop {
 
     public double calculateTotalProcessingTime(AppDeployment appDeployment) {
         return this.getSoftwareModules().stream()
-                .mapToDouble(softwareModule -> appDeployment.getNodeForSoftwareModule(softwareModule).calculateProcessingTimeForModule(softwareModule))
+                .mapToDouble(softwareModule -> appDeployment.getNodeForSoftwareModule(softwareModule).calculateProcessingTime(softwareModule))
                 .sum();
     }
 
@@ -178,7 +178,7 @@ public class AppLoop {
                 FogNode processingNode = appDeployment.getNodeForSoftwareModule(thisModuleSw);
 
                 sb.append(prefix).append(String.format("[%7sms] Task execution of module '%s' on node '%s'",
-                        processingNode.calculateProcessingTimeForModule(thisModuleSw), thisModule.getId(), processingNode.getId())).append("\n");
+                        processingNode.calculateProcessingTime(thisModuleSw), thisModule.getId(), processingNode.getId())).append("\n");
 
                 if (nextModule == null) {
                     // thisModule is final module --> end of AppLoop
@@ -188,7 +188,7 @@ public class AppLoop {
                 AppMessage message = this.getAppMessageByMessageType(thisModule.getOutputType());
                 FogNode sourceNode = appDeployment.getNodeForSoftwareModule((AppSoftwareModule) thisModule);
                 FogNode destinationNode = appDeployment.getNodeForSoftwareModule((AppSoftwareModule) nextModule);
-                double transferTime = message.calculateMessageTransferTime(sourceNode, destinationNode);
+                double transferTime = message.transferTime(sourceNode, destinationNode);
                 NetworkUplink uplink = sourceNode.getUplinkTo(destinationNode.getId());
                 sb.append(prefix).append(String.format("[%7sms] Transfer message with content type '%s' from '%s' to '%s' (%s KB via %s Mbit/s and %sms RTT)", transferTime, message.getContentType(), sourceNode.getId(), destinationNode.getId(), message.getDataPerMessage(), uplink.getMBitPerSecond(), uplink.getLatency())).append("\n");
             }

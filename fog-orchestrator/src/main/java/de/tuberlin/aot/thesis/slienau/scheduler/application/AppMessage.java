@@ -21,7 +21,7 @@ public class AppMessage {
         return contentType;
     }
 
-    public double calculateMessageTransferTime(FogNode sourceNode, FogNode destinationNode) {
+    public double transferTime(FogNode sourceNode, FogNode destinationNode) {
         NetworkUplink uplink = sourceNode.getUplinkTo(destinationNode.getId());
         if (uplink == null) // no uplink from source to destination --> infinite transfer time
             return Double.MAX_VALUE;
@@ -31,7 +31,7 @@ public class AppMessage {
     public String createMessageTransferTimeString(FogNode sourceNode, FogNode destinationNode) {
         String transferStringTemplate = "%6sms Transfer time from '%s' to '%s' for message content '%s' (size: %sKB; bandwidth: %sMBit/s, RTT: %sms)";
         NetworkUplink uplink = sourceNode.getUplinkTo(destinationNode.getId());
-        double messageTransferTime = this.calculateMessageTransferTime(sourceNode, destinationNode);
+        double messageTransferTime = this.transferTime(sourceNode, destinationNode);
         return String.format(transferStringTemplate,
                 messageTransferTime, sourceNode.getId(), destinationNode.getId(), this.getContentType(), this.getDataPerMessage(), uplink.getMBitPerSecond(), uplink.getLatency());
     }

@@ -129,10 +129,10 @@ public class AppDeployment {
         for (AppLoop loop : application.getLoops()) {
             sb.append(loop.createDetailString(this));
         }
-        sb
-                .append(createSoftwareModuleInfoString())
-                .append(createFogNodeUsageString())
-                .append("[AppDeployment] ----------------------------------------\n");
+//        sb
+//                .append(createSoftwareModuleInfoString())
+//                .append(createFogNodeUsageString())
+//                .append("[AppDeployment] ----------------------------------------\n");
         return sb.toString();
     }
 

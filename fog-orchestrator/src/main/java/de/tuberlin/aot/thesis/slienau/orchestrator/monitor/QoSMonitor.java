@@ -13,6 +13,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.io.IOException;
 
+/**
+ * Monitors the services to ensure QoS
+ */
 public class QoSMonitor implements Runnable {
 
     private final static ObjectMapper MAPPER = new ObjectMapper();
@@ -46,6 +49,7 @@ public class QoSMonitor implements Runnable {
 
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
+            // evaluates the 'statistics' object to see if the service's latency requirements could be fulfilled
             try {
                 ResultStats stats = MAPPER.readValue(message.getPayload(), ResultStats.class);
 
@@ -69,13 +73,14 @@ public class QoSMonitor implements Runnable {
                             NetworkUplink uplink = sourceNode.getUplinkTo(transferStat.getDestinationNode());
                             if (uplink == null)
                                 return;
+                            // calculate and update the speed of the uplink
                             double oldSpeed = uplink.getMBitPerSecond();
                             double newSpeed = transferStat.getMbitPerSecond();
                             uplink.setMbitPerSecond(newSpeed);
                             System.out.println(String.format("[QoSMonitor] Updated uplink speed from %s to %s. Old speed: %s Mbit/s; New Speed: %s Mbit/s", sourceNode.getId(), uplink.getDestination().getId(), oldSpeed, newSpeed));
                         });
 
-                        // check and deploy new strategy
+                        // check and deploy new deployment strategy
                         orchestrator.checkForNewOptimalDeployment();
                     }
                 }
@@ -94,7 +99,7 @@ public class QoSMonitor implements Runnable {
     }
 
     /**
-     * Checks every X seconds if there is a better deployment strategy which is possible in case of environmental changes
+     * DeploymentMonitor checks every X seconds if there is a better deployment strategy which is possible in case of environmental changes, e.g. network uplinks changed
      */
     static class DeploymentMonitor extends Thread {
         private final static int INTERVAL = 10; // check every 10 seconds

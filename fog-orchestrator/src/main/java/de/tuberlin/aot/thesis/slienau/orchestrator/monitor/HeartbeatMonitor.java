@@ -10,6 +10,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import java.io.IOException;
 import java.util.Queue;
 
+/**
+ * Monitors the MQTT brokers for heartbeats sent by the fog nodes
+ */
 public class HeartbeatMonitor implements Runnable {
 
     private final String broker;
@@ -46,12 +49,19 @@ public class HeartbeatMonitor implements Runnable {
             System.out.println("[HeartbeatMonitor] Connection to MQTT broker lost!");
         }
 
+        /**
+         * Handles incoming heartbeats
+         *
+         * @param topic
+         * @param mqttMessage
+         */
         public void messageArrived(String topic, MqttMessage mqttMessage) {
             String jsonIn = new String(mqttMessage.getPayload());
             ObjectMapper mapper = new ObjectMapper();
             try {
                 Heartbeat incomingHeartbeat = mapper.readValue(jsonIn, Heartbeat.class);
                 synchronized (heartbeatQueue) {
+                    // add incoming heartbeats to 'heartbeatQueue', which are read by the 'HeartbeatProcessor' thread
                     heartbeatQueue.add(incomingHeartbeat);
                     heartbeatQueue.notifyAll();
                 }

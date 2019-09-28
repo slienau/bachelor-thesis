@@ -12,6 +12,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
+/**
+ * Handles incoming heartbeats sent by the fog nodes
+ */
 public class HeartbeatProcessor implements Runnable {
 
     @Override
@@ -23,6 +26,7 @@ public class HeartbeatProcessor implements Runnable {
         new InitialHeartbeatHandler(initialHeartbeatsQueue).start();
         while (true) {
             Heartbeat hb;
+            // read 'heartbeatQueue'. HeartbeatMonitor fills this queue with the arriving heartbeats
             synchronized (heartbeatQueue) {
                 while (heartbeatQueue.isEmpty()) {
                     try {
@@ -35,15 +39,17 @@ public class HeartbeatProcessor implements Runnable {
                 heartbeatQueue.notifyAll();
             }
 
+            // get FogNode instance of heartbeat
             NodeRedFogNode fogNode = (NodeRedFogNode) orchestrator.getInfrastructure().getFogNode(hb.getDeviceName());
             if (fogNode == null) {
-                // new node --> add to processing queue
+                // no fog node in infrastructure --> new node --> add to 'initialHeartbeatsQueue' which is handles by the 'InitialHeartbeatHandler'
                 synchronized (initialHeartbeatsQueue) {
                     initialHeartbeatsQueue.offer(hb);
                     initialHeartbeatsQueue.notifyAll();
                 }
             } else {
-                // update timestamp of heartbeat to current time so that InfrastructureMaintainer can check missing timestamps
+                // fog node already in infrastructure
+                // --> update timestamp of heartbeat to current time so that InfrastructureMaintainer can check missing timestamps
                 hb.setTimestamp(LocalDateTime.now());
                 fogNode.setLatestHeartbeat(hb);
             }
@@ -51,6 +57,9 @@ public class HeartbeatProcessor implements Runnable {
         }
     }
 
+    /**
+     * Handles new heartbeats from nodes which are not in the infrastructure yet
+     */
     class InitialHeartbeatHandler extends Thread {
 
         private final Queue<Heartbeat> initialHeartbeatsQueue;
@@ -65,6 +74,7 @@ public class HeartbeatProcessor implements Runnable {
             NodeRedOrchestrator orchestrator = NodeRedOrchestrator.getInstance();
             while (true) {
                 Heartbeat initialHeartbeat;
+                // get initial heartbeat from queue
                 synchronized (initialHeartbeatsQueue) {
                     while (initialHeartbeatsQueue.isEmpty()) {
                         try {
@@ -81,8 +91,11 @@ public class HeartbeatProcessor implements Runnable {
                     // continue if node was added in the meantime
                     continue;
                 }
+
+                // handle new heartbeat
                 System.out.println(String.format("[InitialHeartbeatHandler] Handling initial heartbeat from %s", initialHeartbeat.getDeviceName()));
                 try {
+                    // create new node. during the instantiation, system information like CPU, RAM, connected hardware, ... is retrieved
                     NodeRedFogNode newNode = new NodeRedFogNode(
                             initialHeartbeat.getDeviceName(),
                             initialHeartbeat.getPublicFqdn(),
@@ -97,7 +110,7 @@ public class HeartbeatProcessor implements Runnable {
                     Infrastructure infrastructure = orchestrator.getInfrastructure();
                     infrastructure.addFogNode(newNode);
 
-                    // Get a all nodes from infrastructure except newNode
+                    // Get a all nodes from infrastructure except newNode (for measuring the uplinks in the next step)
                     List<NodeRedFogNode> destinationNodes = infrastructure.getFogNodes().stream()
                             .filter(node -> !node.getId().equals(newNode.getId()))
                             .map(node -> (NodeRedFogNode) node)
