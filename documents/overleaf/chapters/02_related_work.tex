@@ -1,5 +1,5 @@
 \chapter{Related Work\label{cha:relwork}}
-In this section relevant topics for this work are discussed based on related work.
+In this section, relevant topics for this work are discussed based on related work.
 
 \section{Fog Infrastructure}
 Fog is an architecture that distributes computation, communication, control, and storage closer to the end users along the cloud-to-things continuum \cite{fog-research-opportunities}.
@@ -23,7 +23,7 @@ In the end, all partial results are combined into the final result.
 Flow-based programming (FBP) allows the developer to structurally define the informational flow within a system.
 As it is not important \textit{where} a specific task is physically executed, FBP focuses on the \textit{path} the data takes from one process to another.
 Any number of further processes can be involved in between, while every process manipulates or just reads the data to trigger further actions.
-Each process has a specific in- and output.
+Each process has a specific input and output.
 For the developer, all execution units are \textit{black box processes}, which can consume and create data.
 The processes can be executed and recomposed in any order, as long as the output and input formats match each other.
 It is also possible to split the data flow at a particular point and combine it back together at a later point, making parallel computation possible.\\
@@ -43,7 +43,7 @@ In this section, related work on QoS, load-balancing, and resource allocation is
 Although fog is considered to be a cloud close to the ground, load balancing strategies of cloud computing cannot be directly adopted in the fog network because of the heterogeneity of fog \cite{novel-load-balancing}.
 
 \subsection*{FogTorch}
-In \cite{fogtorch} a model to support QoS-aware deployment of multicomponent IoT applications to fog infrastructures is proposed. Furthermore, a Java tool called \texttt{FogTorch} has been prototyped which implements that model. The model allows to define QoS profiles, fog infrastructures and IoT applications, which are used to determine eligible deployments.\\
+In \cite{fogtorch} a model to support QoS-aware deployment of multi-component IoT applications to fog infrastructures is proposed. Furthermore, a Java tool called \texttt{FogTorch} has been prototyped which implements that model. The model allows to define QoS profiles, fog infrastructures and IoT applications, which are used to determine eligible deployments.\\
 
 A \textit{QoS profile} defines bandwidth and average latency required for an application, or offered by a communication link.
 A \textit{fog infrastructure} includes IoT devices, fog nodes, cloud data centers, and communication links, while each link is associated to its QoS profile.
@@ -114,9 +114,9 @@ It realizes a feedback loop which adapts to changes, e.g. goal changes or enviro
 The \textit{Monitor-Analyze-Plan-Execute over a Knowledge base (MAPE-K)} \cite{autonomic-computing} reference control model is the most influential reference control model for autonomic and self-adaptive systems.
 It is commonly used to realize feedback loops \cite{mape-k}.\\
 
-The component \textit{Knowledge (K)} is responsible for storing and providing data from/to other components.
+The component \textit{Knowledge (K)} is responsible for storing and providing data from or to other components.
 The component \textit{Monitor (M)} collects data through probes or sensors from the environment as well as data from the managed subsystem.
 The collected data is saved in K.
 The component \textit{Analyze (A)} analyzes the collected data to check if the system needs to adapt.
 If this is the case, the component \textit{Plan (P)} will determine which actions are required to put the system in the desired state.
-The component \textit{Execution} (E) then carries out these actions \cite{mape-k}.
+The component \textit{Execution (E)} then carries out these actions \cite{mape-k}.

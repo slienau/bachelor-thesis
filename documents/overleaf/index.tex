@@ -1,11 +1,12 @@
 \documentclass[a4paper,titlepage,onecolumn,twoside,12pt]{scrreprt}
-
+%margins
+\usepackage[a4paper,width=150mm,top=25mm,bottom=35mm,bindingoffset=6mm]{geometry}
 \usepackage[utf8]{inputenc} %unix-windows-compatible
 \usepackage[ngerman,english]{babel} %automatic text in german
 \usepackage[
 backend=biber,
 style=alphabetic,
-sorting=ynt
+sorting=ynt,
 ]{biblatex}
 
 \addbibresource{references.bib} %Imports bibliography file
@@ -98,10 +99,6 @@ sorting=ynt
 \usepackage{textcomp}
 \usepackage{ae}
 
-%margins
-\usepackage[a4paper,width=150mm,bottom=40mm,top=30mm,indingoffset=30mm]{geometry}
-%\usepackage[a4paper,width=150mm,top=25mm,bottom=25mm,bindingoffset=6mm]{geometry}
-
 \setcounter{secnumdepth}{4} %numbering of the subsubsections
 \setlength{\parindent}{0pt} %no indentation between paragraphs
 \setlength{\parskip}{4pt} %space between paragraphs
@@ -140,10 +137,10 @@ sorting=ynt
 
 
 %start chapter on same page
-\usepackage{etoolbox}
-\makeatletter
-\patchcmd{\scr@startchapter}{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
-\makeatother
+%\usepackage{etoolbox}
+%\makeatletter
+%\patchcmd{\scr@startchapter}{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
+%\makeatother
 
 
 \lstset{style=mylststyle}
@@ -165,21 +162,21 @@ sorting=ynt
 
 \mainmatter % comment single chapters for faster compilation
     
-    \cleardoublepage
+    %\cleardoublepage
     \input{chapters/01_introduction.tex}
-    \cleardoublepage
+    %\cleardoublepage
     \input{chapters/02_related_work.tex}
-    \clearpage
+    %\clearpage
     \input{chapters/03_use_cases.tex}
-    \clearpage
+    %\clearpage
     \input{chapters/04_problem_definition.tex}
-    \cleardoublepage
+    %\cleardoublepage
     \input{chapters/05_algorithm.tex}
-    \cleardoublepage
+    %\cleardoublepage
     \input{chapters/07_orchestrator.tex}
-    \cleardoublepage
+    %\cleardoublepage
     \input{chapters/08_evaluation.tex}
-    \cleardoublepage
+    %\cleardoublepage
     \input{chapters/09_conclusion.tex}
 
     \input{pages/lists.tex}

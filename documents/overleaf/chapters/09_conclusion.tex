@@ -9,7 +9,7 @@ In the next step, use cases which would benefit from such a system were introduc
 
 Based on the preceding work, a QoS scheduling and resource allocation algorithm was designed and implemented.
 However, this algorithm had to be used in a dynamic fog environment.
-Therefore, a system able to monitor the infrastructure was implemented next.
+Therefore, an infrastructure monitoring system was implemented next.
 To apply the deployment strategy determined by the algorithm, functionalities for controlling Node-RED instances have been added to the system.
 
 The evaluation has shown that the system is able to dynamically apply varying deployment strategies to the infrastructure depending on the fog environment's current state.
@@ -24,15 +24,15 @@ For instance, this could be achieved by implementing a machine learning algorith
 
 While evaluating the system, the same image was always sent to the object detection service, so the incoming data size was equal throughout all experiments.
 However, incoming data may vary in size and content, thus affecting the execution time as well as the transfer time.
-If metadata of incoming data could be predicted by a machine learning algorithm, the system's decision making process could thus be supported.
+The system’s decision making process could be supported if metadata of incoming data could be predicted by a machine learning algorithm.
 
 
 Another interesting question is how the system behaves with an increasing amount of nodes.
-Since the network connection from every node to every other node is remeasured at a certain interval, the network may congest if the amount of measurements exceed a certain point because each measurement takes time and utilizes bandwidth that cannot be used by users' service requests during the measurement.
+Since any network connection from one node to another is remeasured at a certain interval, the network may congest if the amount of measurements exceed a certain point because each measurement takes time and utilizes bandwidth that cannot be used by users' service requests during the measurement.
 The system could be improved here by checking only certain connections, skipping the ones that are unlikely to be used in a deployment strategy.
 
 Ideally, no network measurements are performed.
-This could be realized through another layer on top of the network.
+This could be realized by another layer on top of the network.
 For instance, information about the network's current load could be provided by the routers (gateway routers in particular) that are part of the infrastructure.
 
 

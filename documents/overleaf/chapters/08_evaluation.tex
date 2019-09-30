@@ -17,10 +17,12 @@ For both experiments, the decisions the Orchestrator makes and the effect these 
 
 \begin{figure}[htb]
     \centering
-    \includegraphics[width=0.85\textwidth]{evaluation-infrastructure}
+    \includegraphics[width=0.8\textwidth]{evaluation-infrastructure}
     \caption{Test infrastructure for evaluation}
     \label{fig:evaluation-infrastructure}
 \end{figure}
+
+The test bed consists of the five nodes presented in figure \ref{fig:evaluation-infrastructure}. The hardware characteristics of the devices are shown in table \ref{tab:evaluation-devices}. The two Raspberry Pis run Raspbian 10, the three virtual machines run Debian 10. All nodes have Docker version 19.03.2 installed. Another device on the local network runs the Orchestrator and a web browser which is used to access the \textit{Object Detection Web Application}. Communication between the nodes and the Orchestrator is done via a MQTT broker running in the Azure Cloud.
 
 \begin{table}[htb]
     \centering
@@ -43,8 +45,6 @@ For both experiments, the decisions the Orchestrator makes and the effect these 
     \label{tab:evaluation-devices}
 \end{table}
 
-The test bed consists of the five nodes presented in figure \ref{fig:evaluation-infrastructure}. The hardware characteristics of the devices are shown in table \ref{tab:evaluation-devices}. The two Raspberry Pis run Raspbian 10, the three virtual machines run Debian 10. All nodes have \texttt{Docker version 19.03.2} installed. Another device on the local network runs the Orchestrator and a web browser which is used to access the \textit{Object Detection Web Application}. Communication between the nodes and the Orchestrator is done via a MQTT broker running in the Azure Cloud.
-
 \subsection{Application\label{sec:eval-application}}
 
 \begin{figure}[htb]
@@ -54,12 +54,12 @@ The test bed consists of the five nodes presented in figure \ref{fig:evaluation-
     \label{fig:evaluation-object-detection-application}
 \end{figure}
 
-The \textit{Object Detection Web Application} consists of the two modules \texttt{webapp} and \texttt{detector} as illustrated in figure \ref{fig:evaluation-object-detection-application}.
+The \textit{Object Detection Web Application} consists of the two modules \texttt{webapp} and \mbox{\texttt{detector}} as illustrated in figure \ref{fig:evaluation-object-detection-application}.
 A screenshot of the web application is shown in figure \ref{fig:object-detection-webapp-screenshot}.\\
 
 In the first step, a user sends an image for object detection to the \texttt{webapp} module which is deployed as a Node-RED flow on \texttt{Node A}.
 This module should always be deployed on the same node and not be moved, so that the web application is always available at the same address.
-The user calls the web application on that fixed node while it is irrelevant for him which node actually executes the object detection task.
+The user calls the web application on that fixed node while it is irrelevant for them which node actually executes the object detection task.
 The module \texttt{webapp} forwards the image to the module \texttt{detector} for object detection which is deployed on another node (\texttt{Node B}).
 This node can vary and is chosen by the Orchestrator.
 If a new node is selected by the Orchestrator, the flow \texttt{webapp} on \texttt{Node A} will then be updated so that subsequent requests are forwarded to the new node.\\
@@ -296,7 +296,7 @@ Nevertheless, the Orchestrator always applies the deployment strategy which allo
 
 The evaluation showed that the Orchestrator developed in this thesis is fundamentally able to dynamically apply different deployment strategies to a Node-RED environment resulting in an optimized quality of service.
 
-The measurements of the network connections between the nodes produced realistic results, to that the Orchestrator could estimate transfer times of messages fairly well.
+The measurements of the network connections between the nodes produced realistic results, so the Orchestrator could estimate transfer times of messages fairly well.
 Calculating the execution time of tasks has partly delivered unrealistic results, so this estimation does not work reliably and can lead to wrong decisions as happened in the first experiment.
 The reason for this is the method used by the Orchestrator to measure and compare the CPU performance of different devices.
 A program is run on every new fog node joining the infrastructure, while the execution time is measured.
@@ -308,9 +308,9 @@ The same was true for \texttt{vm-01}, since both nodes shared the same CPU, alth
 If the values of \texttt{raspi-02} had been used to calculate \texttt{requiredMi\textsubscript{detector}} instead, the execution time of \texttt{detector} on \texttt{raspi-02} would have been estimated correctly, but the estimated execution time on other nodes would have been wrong.
 
 In the second experiment, the deployment strategy changed \textit{after} failing to process a request within the required time.
-This could have been avoided by setting lower intervals for checking uplinks and deployment strategies, thus the increased network traffic after request one would have been detected earlier.
+This could have been avoided by setting lower intervals for checking uplinks and deployment strategies, hence the increased network traffic after request one would have been detected earlier.
 Therefore, the Orchestrator would have changed the deployment strategy \textit{before} request two, so the maximum allowed latency would not have been exceeded.
-However, the uplink measurements generate network traffic themselves, so that this interval should be chosen with caution.
-If set too low, the measurements would constantly use bandwidth, thus leading to higher latency of the deployed services.
+However, the uplink measurements generate network traffic themselves, so this interval has to be chosen with caution.
+If set too low, the measurements would constantly use bandwidth, leading to higher latency of the deployed services.
 
 Although the system enables the QoS-aware task execution on distributed Node-RED clusters, there are some expansion and improvement capabilities of the system which are discussed in the next and last chapter.

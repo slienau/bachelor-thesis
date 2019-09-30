@@ -1,5 +1,5 @@
 \chapter{Problem Definition \& Challenges\label{cha:problem-definition}}
-This part structures the problem. The problem here is mainly resource allocation and its usage. What are the technical and the theoretical challenges?
+This chapter describes the technical and theoretical challenges of this thesis. The problem is mainly resource allocation and its usage.
 
 \section{Load Balancing Among Fog Nodes}
 In a Node-RED context, a service can consist of several \textit{flows}, while each flow provides certain functionality.
@@ -32,8 +32,8 @@ Apart from that, the network traffic might increase due to other network service
 The challenge here is to adapt to the mentioned changes, for which they must be identified first before the load balancing algorithm is executed to eventually calculate a differentiated, optimized deployment.
 
 \section{Fog Node Failures}
-A fog infrastructure is not as reliable as a cloud infrastructure, for instance.
-Fog nodes can join or leave the network at any point in time, which leads to a dynamic change in the available resources.
+A fog infrastructure is not as reliable as a cloud infrastructure.
+For instance, fog nodes can join or leave the network at any point in time, which leads to a dynamic change in the available resources.
 Since fog nodes can be any type of hardware, it is not unlikely that small and relatively cheap devices (e.g. Raspberry Pi) are used.
 Thus, it is more likely that they might fail since the hardware components are not of high quality compared to enterprise server hardware.
 Furthermore, the environment is neither monitored nor controlled like a cloud server data center, which could lead to node failures (e.g. network connection errors or power supply failures).\\

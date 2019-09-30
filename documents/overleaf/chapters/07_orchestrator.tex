@@ -12,7 +12,7 @@ However, the task is to apply the optimal deployment to a Node-RED cluster, wher
 
 The class \texttt{NodeRedOrchestrator} is the implementation of the described Orchestrator.
 It monitors the infrastructure and deploys the optimal deployment to it by using the \textit{QoS-Scheduler}.
-To make use of the \textit{QoS-Scheduler}, an \texttt{Infrastructure} and \texttt{Application} instance must be available. The former one is actively maintained by the Orchestrator (see section \ref{sec:orchestrator-monitoring}), while the latter one is statically created upon start-up of the \texttt{NodeRedOrchestrator}.
+To make use of the \textit{QoS-Scheduler}, an \mbox{\texttt{Infrastructure}} and \mbox{\texttt{Application}} instance must be available. The former one is actively maintained by the Orchestrator (see section \ref{sec:orchestrator-monitoring}), while the latter one is statically created upon start-up of the \texttt{NodeRedOrchestrator}.
 The class \texttt{FogNode} of the algorithm in chapter \ref{cha:algorithm} is extended by the class \texttt{NodeRedFogNode} in order to add additional functionality for measuring the nodes hardware and network capabilities before it is added to the infrastructure.
 The corresponding class diagram is shown in figure \ref{fig:orchestrator-classdisgram}.
 
@@ -105,11 +105,11 @@ In the example shown in table \ref{tab:deployment-strategy-example}, the algorit
 Every running Node-RED instance can be controlled via the \textit{Node-RED Admin API}. In order to make use of it, the \texttt{NodeRedController} was implemented (see figure \ref{fig:orchestrator-classdisgram}). It is able to call all necessary API functions, so that the Orchestrator can control the Node-RED instances (create, update and delete flows in particular).
 
 \subsection*{Flow database}
-In a Node-RED context, each module is a Node-RED flow and is stored in a database.
 A Node-RED flow can be manually exported, saved, and imported via the Node-RED web interface so that every flow could be transferred from one Node-RED instance to another.
 However, in this architecture, nothing is manually exported and stored in a database.
-Instead, there is a dedicated Node-RED instance which serves exclusively as the flow database and is not used for task execution.
+Instead, there is a \textit{dedicated Node-RED instance} which serves exclusively as the \textit{flow database} and is \textit{not used for task execution}.
 The Orchestrator can then query a specific flow from this instance via the \texttt{NodeRedController} by calling the method \texttt{getFlowByName(flowName)}.
+In a Node-RED context, each application \textit{module} is a Node-RED \textit{flow} which is stored in the database.
 
 The flow database is implemented in the class \texttt{NodeRedFlowDatabase} (see figure \ref{fig:orchestrator-classdisgram}).
 
@@ -118,9 +118,9 @@ The Orchestrator obtains each flow from the database and deploys it to the Node-
 The Orchestrator manages the flows on the nodes by using the \texttt{NodeRedController}.
 The process of deploying a deployment strategy (instance of \texttt{AppDeployment}) to the infrastructure is shown in figure \ref{fig:orchestrator-activitydiagram-deploy-flows}.
 
-\begin{figure}[htb]
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=0.7\textwidth]{orchestrator-activitydiagram-deploy-flows}
+    \includegraphics[width=0.65\textwidth]{orchestrator-activitydiagram-deploy-flows}
     \caption{Activity diagram for applying a deployment strategy to a Node-RED infrastructure}
     \label{fig:orchestrator-activitydiagram-deploy-flows}
 \end{figure}
@@ -158,6 +158,7 @@ The \texttt{statistics} object contains two arrays:
 
 An example is shown in listing \ref{lst:statistics}.
 
+\clearpage
 \lstinputlisting[language=json, caption=Sample statistics JSON object,label={lst:statistics}]{listings/statistics.json}
 
 Not only the entire execution time of a loop can be extracted from that object, but also the duration of every single message transfer and task execution.
