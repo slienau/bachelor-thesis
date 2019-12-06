@@ -20,7 +20,7 @@ The Orchestrator is using this interface to communicate with the nodes.
 `/devices/raspi-01/commands/in/sysinfo`:
 
 ```json
----
+[]
 ```
 
 `/devices/raspi-01/commands/out/sysinfo`:

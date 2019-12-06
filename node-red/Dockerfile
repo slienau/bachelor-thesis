@@ -1,6 +1,6 @@
 ARG NODE_VERSION=8
 ARG BASE_NODE_IMAGE=node
-ARG BASE_IMAGE_SUFFIX="-slim"
+ARG BASE_IMAGE_SUFFIX="-stretch-slim"
 FROM ${BASE_NODE_IMAGE}:${NODE_VERSION}${BASE_IMAGE_SUFFIX}
 
 # install aditional software
@@ -36,5 +36,7 @@ EXPOSE 1880
 # Environment variable holding file path for flows configuration
 ENV FLOWS=flows.json
 ENV NODE_PATH=/usr/src/node-red/node_modules:/data/node_modules
+
+WORKDIR /usr/src/node-red
 
 CMD ["bash", "/data/docker-entrypoint.sh"]
