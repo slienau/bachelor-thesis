@@ -1,26 +1,51 @@
 <script type="text/javascript">
-    RED.nodes.registerType('lower-case',{
+    RED.nodes.registerType('module-requirements',{
         category: 'function',
         color: '#a6bbcf',
         defaults: {
-            name: {value:""}
+            "required-ram": {value: 0},
+            "required-storage": {value: 0},
+            "required-mi": {value: 0},
+            "required-hw": {value: ""},
+            "output-msg-size": {value: 0},
+            "executing-nodes": {value: ""},
         },
-        inputs:1,
-        outputs:1,
+        inputs:0,
+        outputs:0,
         icon: "file.png",
         label: function() {
-            return this.name||"lower-case";
+            return this.name||"module-requirements";
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="lower-case">
+<script type="text/x-red" data-template-name="module-requirements">
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+        <label for="node-input-required-ram"><i class="icon-tag"></i>Required RAM [MB]</label>
+        <input type="number" id="node-input-required-ram" placeholder="1024">
+    </div>
+    <div class="form-row">
+        <label for="node-input-required-storage"><i class="icon-tag"></i>Required Storage [GB]</label>
+        <input type="number" id="node-input-required-storage" placeholder="0.1">
+    </div>
+    <div class="form-row">
+        <label for="node-input-required-mi"><i class="icon-tag"></i>Required Instructions [MI]</label>
+        <input type="number" id="node-input-required-mi" placeholder="5000">
+    </div>
+    <div class="form-row">
+        <label for="node-input-required-hw"><i class="icon-tag"></i>Required Hardware Modules</label>
+        <input type="text" id="node-input-required-hw" placeholder="CAMERA;TEMPERATURE">
+    </div>
+    <div class="form-row">
+        <label for="node-input-output-msg-size"><i class="icon-tag"></i>Output Message Size [KB]</label>
+        <input type="number" id="node-input-output-msg-size" placeholder="1364">
+    </div>
+    <div class="form-row">
+        <label for="node-input-executing-nodes"><i class="icon-tag"></i>Fog Devices</label>
+        <input type="text" id="node-input-executing-nodes" placeholder="fog-node-01;fog-node-04">
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="lower-case">
-    <p>A simple node that converts the message payloads into all lower-case characters</p>
+<script type="text/x-red" data-help-name="module-requirements">
+    <p>Define the hardware requirements for a module (subflow)</p>
 </script>
