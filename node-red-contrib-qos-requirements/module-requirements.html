@@ -1,7 +1,8 @@
 <script type="text/javascript">
     RED.nodes.registerType('module-requirements',{
-        category: 'function',
-        color: '#a6bbcf',
+        category: 'QoS',
+        paletteLabel: 'module requirements',
+        color: 'lightgrey',
         defaults: {
             "required-ram": {value: 0},
             "required-storage": {value: 0},
@@ -12,9 +13,9 @@
         },
         inputs:0,
         outputs:0,
-        icon: "file.png",
+        icon: "font-awesome/fa-list",
         label: function() {
-            return this.name||"module-requirements";
+            return this.name||"module requirements";
         }
     });
 </script>

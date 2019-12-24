@@ -1,0 +1,27 @@
+<script type="text/javascript">
+    RED.nodes.registerType('loop-requirements',{
+        category: 'QoS',
+        paletteLabel: 'loop requirements',
+        color: 'lightgrey',
+        defaults: {
+            "max-latency": {value: 5000},
+        },
+        inputs:0,
+        outputs:0,
+        icon: "font-awesome/fa-list",
+        label: function() {
+            return this.name||"loop requirements";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="loop-requirements">
+    <div class="form-row">
+        <label for="node-input-max-latency"><i class="icon-tag"></i>Max. Latency [ms]</label>
+        <input type="number" id="node-input-max-latency" placeholder="5000">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="loop-requirements">
+    <p>Define the loops' QoS requirements</p>
+</script>

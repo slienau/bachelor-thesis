@@ -8,7 +8,8 @@
   },
   "node-red" : {
     "nodes": {
-      "module-requirements": "module-requirements.js"
+      "module-requirements": "module-requirements.js",
+      "loop-requirements": "loop-requirements.js"
     }
   },
   "author": "",
