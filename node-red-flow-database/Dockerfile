@@ -17,10 +17,14 @@ WORKDIR /usr/src/node-red
 COPY src/ /usr/src/node-red/
 RUN npm install --no-optional
 
+# copy custom node to image
+COPY node-red-contrib-qos-requirements/ /opt/node-red-contrib-qos-requirements/
+
 # copy data
 WORKDIR /data
 COPY data/ /data/
 RUN npm install
+RUN npm install /opt/node-red-contrib-qos-requirements
 
 # Add node-red user so we aren't running as root.
 #RUN useradd --home-dir /usr/src/node-red --no-create-home -p "$(openssl passwd -1 node-red)" node-red \
