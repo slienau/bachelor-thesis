@@ -3,11 +3,10 @@ package de.tuberlin.aot.thesis.slienau.orchestrator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.tuberlin.aot.thesis.slienau.orchestrator.models.NodeRedFlow;
+import de.tuberlin.aot.thesis.slienau.scheduler.application.AppSoftwareModule;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class NodeRedFlowDatabase {
@@ -55,5 +54,30 @@ public class NodeRedFlowDatabase {
 
     public static List<String> getFlows() {
         return getNodesByType("tab").stream().map(jsonNode -> jsonNode.path("label").asText()).collect(Collectors.toList());
+    }
+
+    public static List<AppSoftwareModule> getSoftwareModules() {
+        List<AppSoftwareModule> result = new ArrayList<>();
+        List<JsonNode> subflows = getNodesByType("subflow");
+        List<JsonNode> moduleRequirements = getNodesByType("module-requirements");
+        for (JsonNode subflow : subflows) {
+            String subflowId = subflow.path("id").asText();
+            String subflowName = subflow.path("name").asText();
+            Optional<JsonNode> optional = moduleRequirements.stream()
+                    .filter(moduleRequirement -> moduleRequirement.path("z").asText().equals(subflowId)).findFirst();
+            if (!optional.isPresent()) {
+                throw new RuntimeException(String.format("Missing QoS requirements for subflow %s", subflowName));
+            }
+            JsonNode subflowRequirements = optional.get();
+            int requiredRam = subflowRequirements.path("required-ram").asInt();
+            double requiredStorage = subflowRequirements.path("required-storage").asDouble();
+            int requiredMi = subflowRequirements.path("required-mi").asInt();
+            List<String> requiredHwModules = Arrays.asList(subflowRequirements.path("required-hw").asText().split("\\s*;\\s*"));
+            AppSoftwareModule swModule =
+                    new AppSoftwareModule(subflowId, null, null, requiredRam, requiredStorage, requiredMi, requiredHwModules);
+            swModule.setName(subflowName);
+            result.add(swModule);
+        }
+        return result;
     }
 }

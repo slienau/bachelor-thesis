@@ -4,6 +4,7 @@ import java.util.Objects;
 
 public abstract class AppModule {
     private final String id;
+    private String name;
     private final String inputType;
     private final String outputType;
 
@@ -23,6 +24,14 @@ public abstract class AppModule {
 
     public String getOutputType() {
         return outputType;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

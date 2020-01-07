@@ -55,6 +55,9 @@ public class NodeRedOrchestrator {
         Application a = new Application("loops");
         List<String> flows = NodeRedFlowDatabase.getFlows();
         System.out.println("Flows " + flows);
+        List<AppSoftwareModule> softwareModules = NodeRedFlowDatabase.getSoftwareModules();
+        softwareModules.forEach(a::addModule);
+        System.out.println(String.format("[NodeRedOrchestrator] Application from database:\n\t%s", a));
         return a;
     }
 

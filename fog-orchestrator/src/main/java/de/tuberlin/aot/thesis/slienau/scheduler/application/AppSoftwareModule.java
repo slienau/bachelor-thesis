@@ -11,7 +11,7 @@ public class AppSoftwareModule extends AppModule {
     private final int requiredMi; // required Million Instructions to process one message
     private final List<String> requiredHardwareModules;
 
-    AppSoftwareModule(String id, String inputType, String outputType, int requiredRam, double requiredStorage, int requiredMi, List<String> requiredHardwareModules) {
+    public AppSoftwareModule(String id, String inputType, String outputType, int requiredRam, double requiredStorage, int requiredMi, List<String> requiredHardwareModules) {
         super(id, inputType, outputType);
         this.requiredRam = requiredRam;
         this.requiredStorage = requiredStorage;
@@ -50,6 +50,7 @@ public class AppSoftwareModule extends AppModule {
     public String toString() {
         return "AppSoftwareModule{" +
                 "id='" + super.getId() + '\'' +
+                ", name=" + super.getName() +
                 ", requiredRam=" + requiredRam +
                 ", requiredStorage=" + requiredStorage +
                 ", requiredMi=" + requiredMi +

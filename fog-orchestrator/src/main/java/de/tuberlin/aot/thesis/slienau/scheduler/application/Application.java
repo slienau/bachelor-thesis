@@ -43,7 +43,7 @@ public class Application {
         this.addModule(new AppHardwareModule(id, outputType));
     }
 
-    private void addModule(AppModule newModule) {
+    public void addModule(AppModule newModule) {
         if (modules.putIfAbsent(newModule.getId(), newModule) != null)
             throw new IllegalArgumentException(String.format("Failed to add %s to %s. Already exists.", newModule.getId(), this.getName()));
         System.out.println(String.format("[Application][%s] Added %s", this.getName(), newModule));
