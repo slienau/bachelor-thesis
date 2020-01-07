@@ -24,8 +24,7 @@ import java.util.stream.Collectors;
 public class NodeRedOrchestrator {
 
     // address of the MQTT broker used for heartbeats, commands and results
-    public static final String MQTT_BROKER = "tcp://dslbabroker.westeurope.azurecontainer.io:1883";
-    private static final NodeRedFlowDatabase flowDatabase = NodeRedFlowDatabase.getInstance();
+    public static final String MQTT_BROKER = "tcp://raspi-02.lan:1883";
     private static NodeRedOrchestrator instance;
     private final Infrastructure infrastructure;
     private final Queue<Heartbeat> heartbeatQueue;
@@ -34,10 +33,12 @@ public class NodeRedOrchestrator {
     private AppDeployment optimalDeployment;
 
     private NodeRedOrchestrator() {
+        NodeRedFlowDatabase.getInstance();
         infrastructure = new Infrastructure();
         heartbeatQueue = new ConcurrentLinkedQueue<>();
 //        application = createSensorNetworkApplication();
-        application = createObjectDetectionApplication();
+//        application = createObjectDetectionApplication();
+        application = getApplicationFromDatabase();
         scheduler = new QosScheduler(application, infrastructure);
     }
 
@@ -48,6 +49,13 @@ public class NodeRedOrchestrator {
         new Thread(new HeartbeatMonitor()).start();
         new Thread(new HeartbeatProcessor()).start();
         new Thread(new QoSMonitor()).start();
+    }
+
+    private static Application getApplicationFromDatabase() {
+        Application a = new Application("loops");
+        List<String> flows = NodeRedFlowDatabase.getFlows();
+        System.out.println("Flows " + flows);
+        return a;
     }
 
     private static Application createObjectDetectionApplication() {
@@ -198,7 +206,7 @@ public class NodeRedOrchestrator {
 
 //            System.out.println(String.format("[NodeRedOrchestrator] Going to deploy '%s' on node '%s'; output goes to destination addresses: %s", module.getId(), node.getId(), destinationAddresses));
             try {
-                NodeRedFlow flowToDeploy = flowDatabase.getFlowByName(flowName).setDestinations(destinationAddresses);
+                NodeRedFlow flowToDeploy = NodeRedFlowDatabase.getFlowByName(flowName).setDestinations(destinationAddresses);
                 flowToDeploy = flowToDeploy.replaceMqttBrokerNodes(null);
                 node.getNodeRedController().deployFlow(flowToDeploy);
             } catch (IOException e) {

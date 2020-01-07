@@ -217,7 +217,7 @@ public class NodeRedController {
      * @return An array of node-RED node objects
      * @throws IOException
      */
-    private JsonNode getAllNodes() throws IOException {
+    JsonNode getAllNodes() throws IOException {
         String endpoint = getHttpEndpointForPath("/flows");
         return httpGetRequestAsJson(endpoint);
     }
